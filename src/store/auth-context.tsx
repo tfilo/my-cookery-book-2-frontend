@@ -1,0 +1,121 @@
+import React, { useState, useEffect, PropsWithChildren } from 'react';
+import jwt_decode, { JwtPayload } from 'jwt-decode';
+import { authApi } from '../utils/apiWrapper';
+
+type AuthContextObj = {
+    userId: number | null;
+    isLoggedIn: boolean;
+    login: (token: string, refreshToken: string, userId: number) => void;
+    logout: () => void;
+}
+
+type CustomToken = {
+    userId: number;
+    roles?: string[];
+    refresh?: boolean;
+} & JwtPayload;
+
+export const AuthContext = React.createContext<AuthContextObj>({
+    userId: null,
+    isLoggedIn: false,
+    login: () => {},
+    logout: () => {},
+});
+
+const tokenValidity = (token: string | null) => {
+    if (token === null) {
+        return -1;
+    }
+    const decoded = jwt_decode<CustomToken>(token);
+    if (!decoded.exp) {
+        return -1;
+    }
+    const tokenValidity = decoded.exp * 1000 - Date.now();
+    return tokenValidity - 60000;
+};
+
+const storedToken = localStorage.getItem('token');
+const storedRefreshToken = localStorage.getItem('refreshToken');
+
+const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
+    const [token, setToken] = useState(tokenValidity(storedToken) > 0 ? storedToken : null);
+    const [refreshToken, setRefreshToken] = useState(tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null);
+    const [userId, setUserId] = useState(() => { 
+        if (token) {
+            const decodedToken = jwt_decode<CustomToken>(token); 
+            return decodedToken.userId; 
+        } else {
+            return null;
+        }
+    });
+
+    const userIsLoggedIn = !!token;
+
+    useEffect(() => {
+        const tokenIsValid = tokenValidity(token) > 0;
+        const refreshTokenIsValid = tokenValidity(refreshToken) > 0;
+        if (tokenIsValid && refreshTokenIsValid) {
+            const interval = setTimeout(() => {
+                (async () => {
+                    if (refreshToken) {
+                        const data = await authApi.refreshToken({ refreshToken });
+                        if (data) {
+                            const decodedToken = jwt_decode<CustomToken>(data.token);
+                            loginHandler(data.token, data.refreshToken, decodedToken.userId);
+                        }
+                        if (!data) {
+                            logoutHandler();
+                        }
+                    }
+                })();
+            }, tokenValidity(token));
+            return () => {
+                clearInterval(interval);
+            };
+        } else if (refreshTokenIsValid) {
+            (async () => {
+                if (refreshToken) {
+                    const data = await authApi.refreshToken({refreshToken});
+                    if (data) {
+                        const decodedToken = jwt_decode<CustomToken>(data.token);
+                        loginHandler(data.token, data.refreshToken, decodedToken.userId);
+                    }
+                    if (!data) {
+                        logoutHandler();
+                    }
+                }
+            })();
+        } else {
+            logoutHandler();
+        }
+    }, [token, refreshToken, userId]);
+
+    const loginHandler = (token: string, refreshToken: string, uId: number) => {
+        setToken(token);
+        setRefreshToken(refreshToken);
+        setUserId(uId);
+        localStorage.setItem('token', token);
+        localStorage.setItem('refreshToken', refreshToken);
+    };
+
+    const logoutHandler = () => {
+        setToken(null);
+        setRefreshToken(null);
+        setUserId(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+    };
+
+    const contextValue: AuthContextObj = {
+        userId: userId,
+        isLoggedIn: userIsLoggedIn,
+        login: loginHandler,
+        logout: logoutHandler, 
+    }
+
+    return <AuthContext.Provider value={contextValue}>
+        {props.children}
+    </AuthContext.Provider>
+};
+
+export default AuthContextProvider;
