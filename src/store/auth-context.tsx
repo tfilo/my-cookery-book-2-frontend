@@ -5,7 +5,7 @@ import { authApi } from '../utils/apiWrapper';
 type AuthContextObj = {
     userId: number | null;
     isLoggedIn: boolean;
-    login: (token: string, refreshToken: string, userId: number) => void;
+    login: (token: string, refreshToken: string) => void;
     logout: () => void;
 }
 
@@ -55,13 +55,13 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         const tokenIsValid = tokenValidity(token) > 0;
         const refreshTokenIsValid = tokenValidity(refreshToken) > 0;
         if (tokenIsValid && refreshTokenIsValid) {
+            console.log('setting timeout');
             const interval = setTimeout(() => {
                 (async () => {
                     if (refreshToken) {
                         const data = await authApi.refreshToken({ refreshToken });
                         if (data) {
-                            const decodedToken = jwt_decode<CustomToken>(data.token);
-                            loginHandler(data.token, data.refreshToken, decodedToken.userId);
+                            loginHandler(data.token, data.refreshToken);
                         }
                         if (!data) {
                             logoutHandler();
@@ -73,12 +73,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 clearInterval(interval);
             };
         } else if (refreshTokenIsValid) {
+            console.log('instant refresh');
             (async () => {
                 if (refreshToken) {
                     const data = await authApi.refreshToken({refreshToken});
                     if (data) {
-                        const decodedToken = jwt_decode<CustomToken>(data.token);
-                        loginHandler(data.token, data.refreshToken, decodedToken.userId);
+                        loginHandler(data.token, data.refreshToken);
                     }
                     if (!data) {
                         logoutHandler();
@@ -86,14 +86,16 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 }
             })();
         } else {
+            console.log('logout');
             logoutHandler();
         }
     }, [token, refreshToken, userId]);
 
-    const loginHandler = (token: string, refreshToken: string, uId: number) => {
+    const loginHandler = (token: string, refreshToken: string) => {
         setToken(token);
         setRefreshToken(refreshToken);
-        setUserId(uId);
+        const decodedToken = jwt_decode<CustomToken>(token);
+        setUserId(decodedToken?.userId);
         localStorage.setItem('token', token);
         localStorage.setItem('refreshToken', refreshToken);
     };

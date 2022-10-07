@@ -1,21 +1,40 @@
-import React from 'react';
-import './App.css';
+import React, { Fragment, useContext } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 
-// import { authApi, healthApi } from './utils/apiWrapper';
+import './App.css';
+import { AuthContext } from './store/auth-context';
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/SignInPage';
 
 function App() {
+    const authCtx = useContext(AuthContext);
+    const isLoggedIn = authCtx.isLoggedIn;
 
-  // healthApi.health().then(data => {
-  //   console.log(data);
-  // });
+    console.log(isLoggedIn);
 
-  // authApi.login({password: 'text', username: 'string'}).then(data => {})
+    return (
+        <Fragment>
+            <main>
+                <Routes>
+                    {isLoggedIn ? (
+                        <Route path='/home' element={<HomePage />} />
+                    ) : (
+                        <Route path='/signIn' element={<SignInPage />} />
+                    )}
 
-  return (
-   
-      <div>ahoj</div>
- 
-  );
+                    <Route
+                        path='*'
+                        element={
+                            <Navigate
+                                replace
+                                to={isLoggedIn ? '/home' : '/signIn'}
+                            />
+                        }
+                    />
+                </Routes>
+            </main>
+        </Fragment>
+    );
 }
 
 export default App;
