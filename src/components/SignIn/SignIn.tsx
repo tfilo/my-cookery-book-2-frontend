@@ -1,12 +1,17 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Formik, Form } from 'formik';
+import { Formik } from 'formik';
+import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
+
 import { AuthContext } from '../../store/auth-context';
 import { authApi } from '../../utils/apiWrapper';
 import { Api } from '../../openapi';
 import Input from '../UI/Input';
 import Checkbox from '../UI/Checkbox';
+import Modal from '../UI/Modal';
+import { formatErrorMessage } from '../../utils/errorMessages';
+import Spinner from '../UI/Spinner';
 
 type SignInForm = Api.LoginRequest & {
     login: boolean;
@@ -28,6 +33,7 @@ const schema = yup.object({
 
 const SignIn: React.FC = () => {
     const authCtx = useContext(AuthContext);
+    const [error, setError] = useState<string>();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -43,35 +49,51 @@ const SignIn: React.FC = () => {
             const response = await authApi.login(sendData);
             authCtx.login(response.token, response.refreshToken);
         } catch (err) {
-            const error = err as Response;
-            alert('Nastala chyba pri prihlásení. ' + error.statusText);
+            const error = err as Response; // TODO zamysliet sa ci tu moze byt aj ina chyba ako typ Response
+            setError(formatErrorMessage(error));
         }
     };
 
     return (
-        <div>
-            <h1>Prihlasovacia obrazovka</h1>
-            <Formik
-                initialValues={{
-                    username: '',
-                    password: '',
-                    login: false,
-                }}
-                validationSchema={schema}
-                onSubmit={async (values, actions) => {
-                    await submitHandler(values);
-                }}
-            >
-                {(formik) => (
-                    <Form>
-                        <Input name='username' label='Prihlasovacie meno' />
-                        <Input name='password' label='Heslo' />
-                        <Checkbox name='login' label='Zapamätať prihlásenie' />
+        <div className='row justify-content-center'>
+            <div className='col-lg-6 pt-3'>
+                <h1>Prihlasovacia obrazovka</h1>
+                <Formik
+                    initialValues={{
+                        username: '',
+                        password: '',
+                        login: false,
+                    }}
+                    validationSchema={schema}
+                    onSubmit={async (values, actions) => {
+                        await submitHandler(values);
+                    }}
+                >
+                    {(formik) => (
+                        <Form noValidate onSubmit={formik.handleSubmit}>
+                            <Input name='username' label='Prihlasovacie meno' />
+                            <Input name='password' label='Heslo' />
+                            <Checkbox
+                                name='login'
+                                label='Zapamätať prihlásenie'
+                            />
 
-                        <button type='submit'>Prihlásiť sa</button>
-                    </Form>
-                )}
-            </Formik>
+                            <Button variant='primary' type='submit'>
+                                Prihlásiť sa
+                            </Button>
+                            {formik.isSubmitting && <Spinner />}
+                        </Form>
+                    )}
+                </Formik>
+            </div>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
         </div>
     );
 };

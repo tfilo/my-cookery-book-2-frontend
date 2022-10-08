@@ -1,9 +1,11 @@
 import React, { useId } from 'react';
 import { useField } from 'formik';
+import { Form } from 'react-bootstrap';
 
 type CheckboxProps = {
     label: string;
     name: string;
+    required?: boolean;
     disabled?: boolean;
 };
 
@@ -12,18 +14,15 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
     const [field, meta] = useField(props);
 
     return (
-        <>
-            <div>
-                <input
-                    {...field}
-                    id={`${id}_${props.name}`}
-                    type='checkbox'
-                    disabled={props.disabled}
-                />
-                <label htmlFor={`${id}_${props.name}`}>{props.label}:</label>
-            </div>
-            {meta.touched && meta.error ? <div>{meta.error}</div> : null}
-        </>
+        <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
+            <Form.Check
+                {...field}
+                required={props.required}
+                label={props.label}
+                feedback={meta.touched && meta.error ? meta.error : undefined}
+                feedbackType='invalid'
+            />
+        </Form.Group>
     );
 };
 
