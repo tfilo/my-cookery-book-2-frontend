@@ -60,7 +60,14 @@
                 "security": [],
                 "responses": {
                     "200": {
-                        "description": "ok"
+                        "description": "ok",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1605,11 +1612,7 @@
                     "EXPIRED_TOKEN",
                     "INVALID_TOKEN",
                     "UNIQUE_CONSTRAINT_ERROR",
-                    "ACCOUNT_DOESNT_EXIST",
-                    "UNABLE_TO_SENT_REG_EMAIL",
-                    "EMAIL_IN_USE",
-                    "CONSTRAINT_FAILED",
-                    "CONTRACT_OVERLAP"
+                    "CONSTRAINT_FAILED"
                 ]
             },
             "LoginRequest": {
@@ -1820,6 +1823,10 @@
                     "method",
                     "sources",
                     "categoryId",
+                    "recipeSections",
+                    "associatedRecipes",
+                    "tags",
+                    "pictures",
                     "modifierId",
                     "creatorId",
                     "createdAt",

@@ -16,7 +16,7 @@ import {
 // declare const env: Environment;
 
 const config = new Configuration({
-    authorization: undefined,/*getToken.bind(null, 'token'),*/
+    authorization: () => localStorage.getItem('token'),
     basePath: '/api', /* env.baseApiUrl,*/
 });
 

@@ -49,8 +49,7 @@ const SignIn: React.FC = () => {
             const response = await authApi.login(sendData);
             authCtx.login(response.token, response.refreshToken);
         } catch (err) {
-            const error = err as Response; // TODO zamysliet sa ci tu moze byt aj ina chyba ako typ Response
-            setError(formatErrorMessage(error));
+            formatErrorMessage(err).then((message) => setError(message));
         }
     };
 
