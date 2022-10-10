@@ -1,7 +1,8 @@
 import React from 'react';
+import Tags from '../components/Tags/Tags';
 
 const TagsPage: React.FC = () => {
-    return <div>tags</div>;
+    return <Tags />;
 };
 
 export default TagsPage;

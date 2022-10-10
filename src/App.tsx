@@ -15,6 +15,9 @@ import CategoryPage from './pages/CategoryPage';
 import AddRecipePage from './pages/AddRecipePage';
 import { authApi } from './utils/apiWrapper';
 import { Api } from './openapi';
+import UserPage from './pages/UserPage';
+import NewCategoryPage from './pages/NewCategoryPage';
+import NewTagPage from './pages/NewTagPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -129,18 +132,24 @@ function App() {
                     </Container>
                 </Navbar>
             )}
-            <Container as={'main'}>
+            <Container as={'main'} className='py-4'>
                 <Routes>
                     {isLoggedIn ? (
                         <Fragment>
                             <Route path='/home' element={<HomePage />} />
                             <Route path='/profile' element={<ProfilePage />} />
                             <Route path='/users' element={<UsersPage />} />
+                            <Route path='/createUser' element={<UserPage />} />
                             <Route
                                 path='/category'
                                 element={<CategoryPage />}
                             />
+                            <Route
+                                path='/newCategory'
+                                element={<NewCategoryPage />}
+                            />
                             <Route path='/tags' element={<TagsPage />} />
+                            <Route path='/newTag' element={<NewTagPage />} />
                             <Route path='/units' element={<UnitsPage />} />
                             <Route
                                 path='/addRecipe'

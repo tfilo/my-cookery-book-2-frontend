@@ -21,12 +21,12 @@ const schema = yup.object({
     username: yup
         .string()
         .trim()
-        .max(50, 'Musi byt maximalne 50 znakov')
+        .max(50, 'Musí byť maximálne 50 znakov')
         .required('Povinná položka'),
     password: yup
         .string()
         .trim()
-        .max(255, 'Musi byt maximalne 255 znakov')
+        .max(255, 'Musí byť maximálne 255 znakov')
         .required('Povinná položka'),
     login: yup.boolean().required('Povinná položka'),
 });

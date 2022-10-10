@@ -3,7 +3,7 @@ import React from 'react';
 import Button from 'react-bootstrap/Button';
 import BootstrapModal from 'react-bootstrap/Modal';
 
-type ModalProps = {
+export type ModalProps = {
     show: boolean;
     onClose: (confirm: boolean) => void;
     title?: string;
@@ -13,12 +13,7 @@ type ModalProps = {
 
 const Modal: React.FC<ModalProps> = (props) => {
     const type = props.type ?? 'info';
-    const title =
-        props.title ?? type === 'info'
-            ? 'Oznam'
-            : type === 'question'
-            ? 'Otázka'
-            : 'Chyba';
+    const title = props.title ?? (type === 'info' ? 'Oznam' : type === 'question' ? 'Otázka' : 'Chyba');
 
     return (
         <BootstrapModal show={props.show}>
@@ -34,7 +29,7 @@ const Modal: React.FC<ModalProps> = (props) => {
                 {type === 'question' ? (
                     <>
                         <Button
-                            variant='secondary'
+                            variant='warning'
                             onClick={() => props.onClose(false)}
                         >
                             Zrušiť

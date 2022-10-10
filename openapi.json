@@ -1404,7 +1404,7 @@
                     "required": true
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "User created",
                         "content": {
                             "application/json": {
