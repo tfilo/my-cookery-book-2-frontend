@@ -8,7 +8,8 @@ import Modal from '../UI/Modal';
 
 const Users: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);
-    const [showModal, setShowModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    // const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [error, setError] = useState<string>();
     const [userId, setUserId] = useState<number>();
     const navigate = useNavigate();
@@ -27,13 +28,20 @@ const Users: React.FC = () => {
     console.log(listOfUsers);
 
     const createUserHandler = () => {
-        navigate('/createUser');
+        navigate('/user');
     };
+
+    const updateUserHandler = (id: number) => {
+        console.log(id);
+        // setUserId(id);
+        // setShowUpdateModal(true);
+        navigate(`/user/${id}`);
+    }
 
     const deleteUserHandler = (id: number) => {
         console.log(id);
         setUserId(id);
-        setShowModal(true);
+        setShowDeleteModal(true);
     };
 
     const deleteUserConfirmHandler = (status: boolean) => {
@@ -54,14 +62,13 @@ const Users: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowModal(false);
+            setShowDeleteModal(false);
             setUserId(undefined);
         })();
     };
 
     return (
         <Fragment>
-            
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Používatelia</h2>
                 <Button variant='primary' onClick={createUserHandler}>
@@ -85,20 +92,39 @@ const Users: React.FC = () => {
                             <td className='align-middle'>{user.username}</td>
                             <td className='align-middle'>{user.firstName}</td>
                             <td className='align-middle'>{user.lastName}</td>
-                            <td className='align-middle'>{user.roles.map((role) => {
-                                if (role === Api.SimpleUser.RolesEnum.ADMIN) {
-                                    return 'Administrátor';
-                                }
-                                if (role === Api.SimpleUser.RolesEnum.CREATOR) {
-                                    return 'Tvorca obsahu';
-                                }
-                                return '';
-                            }).join(', ')}</td>
                             <td className='align-middle'>
-                                <Button variant='primary'>Upraviť</Button>
+                                {user.roles
+                                    .map((role) => {
+                                        if (
+                                            role ===
+                                            Api.SimpleUser.RolesEnum.ADMIN
+                                        ) {
+                                            return 'Administrátor';
+                                        }
+                                        if (
+                                            role ===
+                                            Api.SimpleUser.RolesEnum.CREATOR
+                                        ) {
+                                            return 'Tvorca obsahu';
+                                        }
+                                        return '';
+                                    })
+                                    .join(', ')}
                             </td>
                             <td className='align-middle'>
-                                <Button variant='danger'
+                                <Button
+                                    variant='primary'
+                                    onClick={updateUserHandler.bind(
+                                        null,
+                                        user.id
+                                    )}
+                                >
+                                    Upraviť
+                                </Button>
+                            </td>
+                            <td className='align-middle'>
+                                <Button
+                                    variant='danger'
                                     onClick={deleteUserHandler.bind(
                                         null,
                                         user.id
@@ -112,7 +138,7 @@ const Users: React.FC = () => {
                 </tbody>
             </Table>
             <Modal
-                show={showModal}
+                show={showDeleteModal}
                 type='question'
                 message='Prajete si vymazať používateľa?'
                 onClose={deleteUserConfirmHandler}

@@ -139,7 +139,8 @@ function App() {
                             <Route path='/home' element={<HomePage />} />
                             <Route path='/profile' element={<ProfilePage />} />
                             <Route path='/users' element={<UsersPage />} />
-                            <Route path='/createUser' element={<UserPage />} />
+                            <Route path='/user' element={<UserPage />} />
+                            <Route path='/user/:id' element={<UserPage />} />
                             <Route
                                 path='/category'
                                 element={<CategoryPage />}

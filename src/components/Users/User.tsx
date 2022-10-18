@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Formik } from 'formik';
+import React, { useEffect, useState } from 'react';
+import { Formik, validateYupSchema } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -9,12 +9,16 @@ import Input from '../UI/Input';
 import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Select from '../UI/Select';
 
-type UserForm = Api.CreateUser & {
-    confirmPassword?: string;
-};
+type UserForm =
+    | (Api.UpdateUser & {
+          confirmPassword?: string;
+      })
+    | (Api.CreateUser & {
+          confirmPassword?: string;
+      });
 
 const schema = yup.object({
     username: yup
@@ -27,7 +31,7 @@ const schema = yup.object({
         .string()
         .defined()
         .trim()
-        .transform(val => val === '' ? null : val)
+        .transform((val) => (val === '' ? null : val))
         .min(3, 'Musia byť minimálne 3 znaky')
         .max(50, 'Musí byť maximálne 50 znakov')
         .default(null)
@@ -36,7 +40,7 @@ const schema = yup.object({
         .string()
         .defined()
         .trim()
-        .transform(val => val === '' ? null : val)
+        .transform((val) => (val === '' ? null : val))
         .min(3, 'Musia byť minimálne 3 znaky')
         .max(50, 'Musí byť maximálne 50 znakov')
         .default(null)
@@ -45,7 +49,7 @@ const schema = yup.object({
         .string()
         .defined()
         .trim()
-        .transform(val => val === '' ? null : val)
+        .transform((val) => (val === '' ? null : val))
         .min(4, 'Musí byť minimálne 8 znakov')
         .max(255, 'Musí byť maximálne 255 znakov')
         .default(null)
@@ -54,7 +58,7 @@ const schema = yup.object({
         .string()
         .defined()
         .trim()
-        .transform(val => val === '' ? null : val)
+        .transform((val) => (val === '' ? null : val))
         .default(null)
         .equals([yup.ref('password')], 'Zadané heslá sa nezhodujú')
         .nullable(),
@@ -67,6 +71,34 @@ const schema = yup.object({
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
+    const params = useParams();
+    const [initialValues, setInitialValues] = useState<UserForm>({
+        username: '',
+        firstName: '',
+        lastName: '',
+        password: '',
+        confirmPassword: '',
+        roles: [],
+    });
+
+    useEffect(() => {
+        if (params.id) {
+            console.log(params.id);
+            const paramsNumber = params?.id;
+            (async () => {
+                const data = await userApi.getUser(parseInt(paramsNumber));
+                console.log(data);
+                setInitialValues({
+                    username: data.username,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    roles: data.roles,
+                    password: '',
+                    confirmPassword: '',
+                });
+            })();
+        }
+    }, [params.id]);
 
     const cancelHandler = () => {
         navigate('/users');
@@ -79,8 +111,13 @@ const User: React.FC = () => {
         }) as UserForm;
         delete request.confirmPassword;
         try {
-            await userApi.createUser(request);
-            navigate('/users');
+            if (params.id) {
+                await userApi.updateUser(parseInt(params.id), request);
+                navigate('/users');
+            } else {
+                await userApi.createUser(request);
+                navigate('/users');
+            }
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -91,14 +128,8 @@ const User: React.FC = () => {
             <div className='col-lg-6 pt-3'>
                 <h1>Používateľ</h1>
                 <Formik
-                    initialValues={{
-                        username: '',
-                        firstName: '',
-                        lastName: '',
-                        password: '',
-                        confirmPassword: '',
-                        roles: [],
-                    }}
+                    enableReinitialize={true}
+                    initialValues={initialValues}
                     validationSchema={schema}
                     onSubmit={async (values) => {
                         await submitHandler({
@@ -116,13 +147,22 @@ const User: React.FC = () => {
                                 name='confirmPassword'
                                 label='Potvrdenie hesla'
                             />
-                            <Select name='roles' label='Používateľské role' options={[
-                                {value: 'ADMIN', label: 'Administrátor'},
-                                {value: 'CREATOR', label: 'Tvorca obsahu'},
-                            ]} multiple={true}/>
-
+                            <Select
+                                name='roles'
+                                label='Používateľské role'
+                                options={[
+                                    { value: 'ADMIN', label: 'Administrátor' },
+                                    {
+                                        value: 'CREATOR',
+                                        label: 'Tvorca obsahu',
+                                    },
+                                ]}
+                                multiple={true}
+                            />
                             <Button variant='primary' type='submit'>
-                                Vytvoriť používateľa
+                                {params.id
+                                    ? 'Zmeniť používateľa'
+                                    : 'Vytvoriť používateľa'}
                             </Button>{' '}
                             <Button
                                 variant='warning'
