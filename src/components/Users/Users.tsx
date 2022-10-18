@@ -8,9 +8,8 @@ import Modal from '../UI/Modal';
 
 const Users: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [error, setError] = useState<string>();
-    const [userId, setUserId] = useState<number>();
+    const [user, setUser] = useState<Api.SimpleUser>();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,22 +32,21 @@ const Users: React.FC = () => {
     const updateUserHandler = (id: number) => {
         console.log(id);
         navigate(`/user/${id}`);
-    }
+    };
 
-    const deleteUserHandler = (id: number) => {
-        console.log(id);
-        setUserId(id);
-        setShowDeleteModal(true);
+    const deleteUserHandler = (user: Api.SimpleUser) => {
+        console.log(user.id);
+        setUser(user);
     };
 
     const deleteUserConfirmHandler = (status: boolean) => {
         (async () => {
             if (status === true) {
-                if (userId) {
+                if (user) {
                     try {
-                        await userApi.deleteUser(userId);
+                        await userApi.deleteUser(user.id);
                         setListOfUsers((prev) => {
-                            return prev.filter((user) => user.id !== userId);
+                            return prev.filter((_user) => _user.id !== user.id);
                         });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
@@ -59,8 +57,7 @@ const Users: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowDeleteModal(false);
-            setUserId(undefined);
+            setUser(undefined);
         })();
     };
 
@@ -79,8 +76,8 @@ const Users: React.FC = () => {
                         <th>Meno</th>
                         <th>Priezvisko</th>
                         <th>Rola</th>
-                        <th>Upraviť</th>
-                        <th>Vymazať</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,36 +105,36 @@ const Users: React.FC = () => {
                                     })
                                     .join(', ')}
                             </td>
-                            <td className='align-middle'>
-                                <Button
-                                    variant='primary'
-                                    onClick={updateUserHandler.bind(
-                                        null,
-                                        user.id
-                                    )}
-                                >
-                                    Upraviť
-                                </Button>
-                            </td>
-                            <td className='align-middle'>
-                                <Button
-                                    variant='danger'
-                                    onClick={deleteUserHandler.bind(
-                                        null,
-                                        user.id
-                                    )}
-                                >
-                                    Vymazať
-                                </Button>
+                            <td className='align-middle '>
+                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                    <Button
+                                        variant='primary'
+                                        onClick={updateUserHandler.bind(
+                                            null,
+                                            user.id
+                                        )}
+                                    >
+                                        Upraviť
+                                    </Button>
+                                    <Button
+                                        variant='danger'
+                                        onClick={deleteUserHandler.bind(
+                                            null,
+                                            user
+                                        )}
+                                    >
+                                        Vymazať
+                                    </Button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
             <Modal
-                show={showDeleteModal}
+                show={!!user}
                 type='question'
-                message='Prajete si vymazať používateľa?'
+                message={`Prajete si vymazať používateľa "${user?.username}" ?`}
                 onClose={deleteUserConfirmHandler}
             />
             <Modal

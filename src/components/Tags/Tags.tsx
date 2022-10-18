@@ -8,9 +8,8 @@ import Modal from '../UI/Modal';
 
 const Tags: React.FC = () => {
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [error, setError] = useState<string>();
-    const [tagId, setTagId] = useState<number>();
+    const [tag, setTag] = useState<Api.SimpleTag>();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,22 +32,21 @@ const Tags: React.FC = () => {
     const updateTagHandler = (id: number) => {
         console.log(id);
         navigate(`/tag/${id}`);
-    }
+    };
 
-    const deleteTagHandler = (id: number) => {
-        console.log(id);
-        setTagId(id);
-        setShowDeleteModal(true);
+    const deleteTagHandler = (tag: Api.SimpleTag) => {
+        console.log(tag.id);
+        setTag(tag);
     };
 
     const deleteTagConfirmHandler = (status: boolean) => {
         (async () => {
             if (status === true) {
-                if (tagId) {
+                if (tag) {
                     try {
-                        await tagApi.deleteTag(tagId);
+                        await tagApi.deleteTag(tag.id);
                         setListOfTags((prev) => {
-                            return prev.filter((tag) => tag.id !== tagId);
+                            return prev.filter((_tag) => _tag.id !== tag.id);
                         });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
@@ -59,8 +57,7 @@ const Tags: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowDeleteModal(false);
-            setTagId(undefined);
+            setTag(undefined);
         })();
     };
 
@@ -76,44 +73,44 @@ const Tags: React.FC = () => {
                 <thead>
                     <tr>
                         <th>Názov značky</th>
-                        <th>Upraviť</th>
-                        <th>Vymazať</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {listOfTags.map((tag) => (
                         <tr key={tag.id}>
                             <td className='align-middle'>{tag.name}</td>
-                            <td className='align-middle'>
-                                <Button
-                                variant='primary'
-                                    onClick={updateTagHandler.bind(
-                                        null,
-                                        tag.id
-                                    )}
-                                >
-                                    Upraviť
-                                </Button>
-                            </td>
-                            <td className='align-middle'>
-                                <Button
-                                variant='danger'
-                                    onClick={deleteTagHandler.bind(
-                                        null,
-                                        tag.id
-                                    )}
-                                >
-                                    Vymazať
-                                </Button>
+                            <td className='align-middle '>
+                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                    <Button
+                                        variant='primary'
+                                        onClick={updateTagHandler.bind(
+                                            null,
+                                            tag.id
+                                        )}
+                                    >
+                                        Upraviť
+                                    </Button>
+                                    <Button
+                                        variant='danger'
+                                        onClick={deleteTagHandler.bind(
+                                            null,
+                                            tag
+                                        )}
+                                    >
+                                        Vymazať
+                                    </Button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
             <Modal
-                show={showDeleteModal}
+                show={!!tag}
                 type='question'
-                message='Prajete si vymazať značku?'
+                message={`Prajete si vymazať značku "${tag?.name}" ?`}
                 onClose={deleteTagConfirmHandler}
             />
             <Modal

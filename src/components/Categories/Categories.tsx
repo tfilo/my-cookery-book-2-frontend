@@ -10,9 +10,8 @@ const Categories: React.FC = () => {
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [error, setError] = useState<string>();
-    const [categoryId, setCategoryId] = useState<number>();
+    const [category, setCategory] = useState<Api.SimpleCategory>();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,20 +36,19 @@ const Categories: React.FC = () => {
         navigate(`/category/${id}`);
     };
 
-    const deleteCategoryHandler = (id: number) => {
-        console.log(id);
-        setCategoryId(id);
-        setShowDeleteModal(true);
+    const deleteCategoryHandler = (category: Api.SimpleCategory) => {
+        console.log(category.id);
+        setCategory(category);
     };
 
     const deleteCategoryConfirmHandler = (status: boolean) => {
         (async () => {
             if (status === true) {
-                if (categoryId) {
+                if (category) {
                     try {
-                        await categoryApi.deleteCategory(categoryId);
+                        await categoryApi.deleteCategory(category.id);
                         setListOfCategories((prev) => {
-                            return prev.filter((cat) => cat.id !== categoryId);
+                            return prev.filter((cat) => cat.id !== category.id);
                         });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
@@ -61,8 +59,7 @@ const Categories: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowDeleteModal(false);
-            setCategoryId(undefined);
+            setCategory(undefined);
         })();
     };
 
@@ -78,44 +75,45 @@ const Categories: React.FC = () => {
                 <thead>
                     <tr>
                         <th>Názov kategórie</th>
-                        <th>Upraviť</th>
-                        <th>Vymazať</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {listOfCategories.map((category) => (
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
-                            <td className='align-middle'>
-                                <Button
-                                    variant='primary'
-                                    onClick={updateCategoryHandler.bind(
-                                        null,
-                                        category.id
-                                    )}
-                                >
-                                    Upraviť
-                                </Button>
-                            </td>
-                            <td className='align-middle'>
-                                <Button
-                                    variant='danger'
-                                    onClick={deleteCategoryHandler.bind(
-                                        null,
-                                        category.id
-                                    )}
-                                >
-                                    Vymazať
-                                </Button>
+                            <td className='align-middle '>
+                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                    <Button
+                                        variant='primary'
+                                        onClick={updateCategoryHandler.bind(
+                                            null,
+                                            category.id
+                                        )}
+                                    >
+                                        Upraviť
+                                    </Button>
+
+                                    <Button
+                                        variant='danger'
+                                        onClick={deleteCategoryHandler.bind(
+                                            null,
+                                            category
+                                        )}
+                                    >
+                                        Vymazať
+                                    </Button>
+                                </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
             <Modal
-                show={showDeleteModal}
+                show={!!category}
                 type='question'
-                message='Prajete si vymazať kategóriu?'
+                message={`Prajete si vymazať kategóriu "${category?.name}" ?`}
                 onClose={deleteCategoryConfirmHandler}
             />
             <Modal
