@@ -9,7 +9,6 @@ import Modal from '../UI/Modal';
 const Users: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    // const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [error, setError] = useState<string>();
     const [userId, setUserId] = useState<number>();
     const navigate = useNavigate();
@@ -33,8 +32,6 @@ const Users: React.FC = () => {
 
     const updateUserHandler = (id: number) => {
         console.log(id);
-        // setUserId(id);
-        // setShowUpdateModal(true);
         navigate(`/user/${id}`);
     }
 

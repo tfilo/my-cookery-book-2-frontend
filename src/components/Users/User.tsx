@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Formik, validateYupSchema } from 'formik';
+import { Formik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -12,13 +12,9 @@ import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import Select from '../UI/Select';
 
-type UserForm =
-    | (Api.UpdateUser & {
-          confirmPassword?: string;
-      })
-    | (Api.CreateUser & {
-          confirmPassword?: string;
-      });
+type UserForm =(Api.CreateUser | Api.UpdateUser) & {
+    confirmPassword?: string;
+};
 
 const schema = yup.object({
     username: yup
@@ -108,14 +104,14 @@ const User: React.FC = () => {
         const request = schema.cast(values, {
             assert: false,
             stripUnknown: true,
-        }) as UserForm;
+        });
         delete request.confirmPassword;
         try {
             if (params.id) {
-                await userApi.updateUser(parseInt(params.id), request);
+                await userApi.updateUser(parseInt(params.id), request as Api.UpdateUser);
                 navigate('/users');
             } else {
-                await userApi.createUser(request);
+                await userApi.createUser(request as Api.CreateUser);
                 navigate('/users');
             }
         } catch (err) {

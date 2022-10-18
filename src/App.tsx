@@ -16,8 +16,8 @@ import AddRecipePage from './pages/AddRecipePage';
 import { authApi } from './utils/apiWrapper';
 import { Api } from './openapi';
 import UserPage from './pages/UserPage';
-import NewCategoryPage from './pages/NewCategoryPage';
-import NewTagPage from './pages/NewTagPage';
+import CategoriesPage from './pages/CategoriesPage';
+import TagPage from './pages/TagPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -99,7 +99,7 @@ function App() {
                                         Používatelia
                                     </Nav.Link>
                                     <Nav.Link
-                                        to='/category'
+                                        to='/categories'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
@@ -142,15 +142,20 @@ function App() {
                             <Route path='/user' element={<UserPage />} />
                             <Route path='/user/:id' element={<UserPage />} />
                             <Route
+                                path='/categories'
+                                element={<CategoriesPage />}
+                            />
+                            <Route
                                 path='/category'
                                 element={<CategoryPage />}
                             />
                             <Route
-                                path='/newCategory'
-                                element={<NewCategoryPage />}
+                                path='/category/:id'
+                                element={<CategoryPage />}
                             />
                             <Route path='/tags' element={<TagsPage />} />
-                            <Route path='/newTag' element={<NewTagPage />} />
+                            <Route path='/tag' element={<TagPage />} />
+                            <Route path='/tag/:id' element={<TagPage />} />
                             <Route path='/units' element={<UnitsPage />} />
                             <Route
                                 path='/addRecipe'

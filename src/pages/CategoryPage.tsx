@@ -1,8 +1,9 @@
 import React from 'react';
-import Categories from '../components/Categories/Categories';
+import Category from '../components/Categories/Category';
+
 
 const CategoryPage: React.FC = () => {
-    return <Categories />;
+    return <Category />;
 };
 
 export default CategoryPage;

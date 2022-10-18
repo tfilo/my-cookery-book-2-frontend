@@ -7,8 +7,10 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 
 const Categories: React.FC = () => {
-    const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
-    const [showModal, setShowModal] = useState(false);
+    const [listOfCategories, setListOfCategories] = useState<
+        Api.SimpleCategory[]
+    >([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [error, setError] = useState<string>();
     const [categoryId, setCategoryId] = useState<number>();
     const navigate = useNavigate();
@@ -27,13 +29,18 @@ const Categories: React.FC = () => {
     console.log(listOfCategories);
 
     const createCategoryHandler = () => {
-        navigate('/newCategory');
+        navigate('/category');
+    };
+
+    const updateCategoryHandler = (id: number) => {
+        console.log(id);
+        navigate(`/category/${id}`);
     };
 
     const deleteCategoryHandler = (id: number) => {
         console.log(id);
         setCategoryId(id);
-        setShowModal(true);
+        setShowDeleteModal(true);
     };
 
     const deleteCategoryConfirmHandler = (status: boolean) => {
@@ -54,14 +61,13 @@ const Categories: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowModal(false);
+            setShowDeleteModal(false);
             setCategoryId(undefined);
         })();
     };
 
     return (
         <Fragment>
-            
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Kategórie</h2>
                 <Button variant='primary' onClick={createCategoryHandler}>
@@ -81,10 +87,19 @@ const Categories: React.FC = () => {
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle'>
-                                <Button>Upraviť</Button>
+                                <Button
+                                    variant='primary'
+                                    onClick={updateCategoryHandler.bind(
+                                        null,
+                                        category.id
+                                    )}
+                                >
+                                    Upraviť
+                                </Button>
                             </td>
                             <td className='align-middle'>
                                 <Button
+                                    variant='danger'
                                     onClick={deleteCategoryHandler.bind(
                                         null,
                                         category.id
@@ -98,9 +113,9 @@ const Categories: React.FC = () => {
                 </tbody>
             </Table>
             <Modal
-                show={showModal}
+                show={showDeleteModal}
                 type='question'
-                message='Prajete si vymazať používateľa?'
+                message='Prajete si vymazať kategóriu?'
                 onClose={deleteCategoryConfirmHandler}
             />
             <Modal

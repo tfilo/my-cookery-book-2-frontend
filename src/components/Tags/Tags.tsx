@@ -8,7 +8,7 @@ import Modal from '../UI/Modal';
 
 const Tags: React.FC = () => {
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [showModal, setShowModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [error, setError] = useState<string>();
     const [tagId, setTagId] = useState<number>();
     const navigate = useNavigate();
@@ -27,13 +27,18 @@ const Tags: React.FC = () => {
     console.log(listOfTags);
 
     const createCategoryHandler = () => {
-        navigate('/newTag');
+        navigate('/tag');
     };
+
+    const updateTagHandler = (id: number) => {
+        console.log(id);
+        navigate(`/tag/${id}`);
+    }
 
     const deleteTagHandler = (id: number) => {
         console.log(id);
         setTagId(id);
-        setShowModal(true);
+        setShowDeleteModal(true);
     };
 
     const deleteTagConfirmHandler = (status: boolean) => {
@@ -54,7 +59,7 @@ const Tags: React.FC = () => {
                     setError('Neplatné používateľské ID!');
                 }
             }
-            setShowModal(false);
+            setShowDeleteModal(false);
             setTagId(undefined);
         })();
     };
@@ -80,10 +85,19 @@ const Tags: React.FC = () => {
                         <tr key={tag.id}>
                             <td className='align-middle'>{tag.name}</td>
                             <td className='align-middle'>
-                                <Button>Upraviť</Button>
+                                <Button
+                                variant='primary'
+                                    onClick={updateTagHandler.bind(
+                                        null,
+                                        tag.id
+                                    )}
+                                >
+                                    Upraviť
+                                </Button>
                             </td>
                             <td className='align-middle'>
                                 <Button
+                                variant='danger'
                                     onClick={deleteTagHandler.bind(
                                         null,
                                         tag.id
@@ -97,9 +111,9 @@ const Tags: React.FC = () => {
                 </tbody>
             </Table>
             <Modal
-                show={showModal}
+                show={showDeleteModal}
                 type='question'
-                message='Prajete si vymazať používateľa?'
+                message='Prajete si vymazať značku?'
                 onClose={deleteTagConfirmHandler}
             />
             <Modal
@@ -113,7 +127,5 @@ const Tags: React.FC = () => {
         </Fragment>
     );
 };
-
-    
 
 export default Tags;
