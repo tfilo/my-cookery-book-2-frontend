@@ -103,7 +103,6 @@ const User: React.FC = () => {
                     onSubmit={async (values) => {
                         await submitHandler({
                             ...values,
-                            updatePassword: values.password !== null,
                         });
                     }}
                 >

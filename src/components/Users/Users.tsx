@@ -74,7 +74,7 @@ const Users: React.FC = () => {
                         <th>Používateľské meno</th>
                         <th>Meno</th>
                         <th>Priezvisko</th>
-                        {/* <th>Rola</th> */}
+                        <th>Rola</th>
                         <th>Upraviť</th>
                         <th>Vymazať</th>
                     </tr>
@@ -85,7 +85,15 @@ const Users: React.FC = () => {
                             <td className='align-middle'>{user.username}</td>
                             <td className='align-middle'>{user.firstName}</td>
                             <td className='align-middle'>{user.lastName}</td>
-                            {/* <td className='align-middle'>rola</td> */}
+                            <td className='align-middle'>{user.roles.map((role) => {
+                                if (role === Api.SimpleUser.RolesEnum.ADMIN) {
+                                    return 'Administrátor';
+                                }
+                                if (role === Api.SimpleUser.RolesEnum.CREATOR) {
+                                    return 'Tvorca obsahu';
+                                }
+                                return '';
+                            }).join(', ')}</td>
                             <td className='align-middle'>
                                 <Button variant='primary'>Upraviť</Button>
                             </td>
