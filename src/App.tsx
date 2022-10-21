@@ -18,6 +18,7 @@ import { Api } from './openapi';
 import UserPage from './pages/UserPage';
 import CategoriesPage from './pages/CategoriesPage';
 import TagPage from './pages/TagPage';
+import UnitCategoryPage from './pages/UnitCategoryPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -157,6 +158,14 @@ function App() {
                             <Route path='/tag' element={<TagPage />} />
                             <Route path='/tag/:id' element={<TagPage />} />
                             <Route path='/units' element={<UnitsPage />} />
+                            <Route
+                                path='/unitCategory'
+                                element={<UnitCategoryPage />}
+                            />
+                            <Route
+                                path='/unitCategory/:id'
+                                element={<UnitCategoryPage />}
+                            />
                             <Route
                                 path='/addRecipe'
                                 element={<AddRecipePage />}

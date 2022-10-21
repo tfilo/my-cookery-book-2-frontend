@@ -1,7 +1,8 @@
 import React from 'react';
+import UnitCategories from '../components/UnitCategories/UnitCategories';
 
 const UnitsPage: React.FC = () => {
-    return <div>units</div>;
+    return <UnitCategories />;
 };
 
 export default UnitsPage;
