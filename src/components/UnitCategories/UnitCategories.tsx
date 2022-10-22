@@ -5,6 +5,7 @@ import { Api } from '../../openapi';
 import { unitCategoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import Units from './Units';
 
 const UnitCategories: React.FC = () => {
     const [listOfUnitCategories, setListOfUnitCategories] = useState<
@@ -32,12 +33,19 @@ const UnitCategories: React.FC = () => {
         navigate('/unitCategory');
     };
 
+    const createUnitHandler = (unitCategoryId: number) => {
+        console.log(unitCategoryId);
+        navigate(`/unit/${unitCategoryId}`);
+    };
+
     const updateUnitCategoryHandler = (id: number) => {
         console.log(id);
         navigate(`/unitCategory/${id}`);
     };
 
-    const deleteUnitCategoryHandler = (unitCategory: Api.SimpleUnitCategory) => {
+    const deleteUnitCategoryHandler = (
+        unitCategory: Api.SimpleUnitCategory
+    ) => {
         console.log(unitCategory.id);
         setUnitCategory(unitCategory);
     };
@@ -47,9 +55,14 @@ const UnitCategories: React.FC = () => {
             if (status === true) {
                 if (unitCategory) {
                     try {
-                        await unitCategoryApi.deleteUnitCategory(unitCategory.id);
+                        await unitCategoryApi.deleteUnitCategory(
+                            unitCategory.id
+                        );
                         setListOfUnitCategories((prev) => {
-                            return prev.filter((_unitCategory) => _unitCategory.id !== unitCategory.id);
+                            return prev.filter(
+                                (_unitCategory) =>
+                                    _unitCategory.id !== unitCategory.id
+                            );
                         });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
@@ -72,74 +85,54 @@ const UnitCategories: React.FC = () => {
                     Pridať kategóriu jednotky
                 </Button>
             </div>
-            <Table striped responsive>
-                <thead>
-                    {listOfUnitCategories.map((unitCategory) => (
-                        <tr key={unitCategory.id}>
-                            <th>{unitCategory.name}</th>
-                            <th></th>
-                            <th>
-                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+            <div>
+                {listOfUnitCategories.map((unitCategory) => (
+                    <Table striped responsive key={unitCategory.id}>
+                        <thead>
+                            <tr>
+                                <th>{unitCategory.name}</th>
+                                <th></th>
+                                <th>
+                                    <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                        <Button
+                                            variant='primary'
+                                            onClick={updateUnitCategoryHandler.bind(
+                                                null,
+                                                unitCategory.id
+                                            )}
+                                        >
+                                            Upraviť
+                                        </Button>
+                                        <Button
+                                            variant='danger'
+                                            onClick={deleteUnitCategoryHandler.bind(
+                                                null,
+                                                unitCategory
+                                            )}
+                                        >
+                                            Vymazať
+                                        </Button>
+                                    </div>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>Názov jednotky</th>
+                                <th>Skratka jednotky</th>
+                                <th>
                                     <Button
                                         variant='primary'
-                                        onClick={updateUnitCategoryHandler.bind(
-                                            null,
-                                            unitCategory.id
-                                        )}
+                                        onClick={createUnitHandler.bind(null, unitCategory.id)}
                                     >
-                                        Upraviť
+                                        Pridať jednotku
                                     </Button>
-                                    <Button
-                                        variant='danger'
-                                        onClick={deleteUnitCategoryHandler.bind(
-                                            null,
-                                            unitCategory
-                                        )}
-                                    >
-                                        Vymazať
-                                    </Button>
-                                </div>
-                            </th>
-                        </tr>
-                    ))}
-                </thead>
-                {/* <thead>
-                    <tr>
-                        <th>Množstvo</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead> */}
-                {/* <tbody>
-                    {listOfTags.map((tag) => (
-                        <tr key={tag.id}>
-                            <td className='align-middle'>{tag.name}</td>
-                            <td className='align-middle '>
-                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
-                                    <Button
-                                        variant='primary'
-                                        onClick={updateTagHandler.bind(
-                                            null,
-                                            tag.id
-                                        )}
-                                    >
-                                        Upraviť
-                                    </Button>
-                                    <Button
-                                        variant='danger'
-                                        onClick={deleteTagHandler.bind(
-                                            null,
-                                            tag
-                                        )}
-                                    >
-                                        Vymazať
-                                    </Button>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody> */}
-            </Table>
+                                </th>
+                            </tr>
+                        </thead>
+                        <Units unitCategoryId={unitCategory.id}/>
+                    </Table>
+                ))}
+            </div>
+
             <Modal
                 show={!!unitCategory}
                 type='question'

@@ -19,6 +19,7 @@ import UserPage from './pages/UserPage';
 import CategoriesPage from './pages/CategoriesPage';
 import TagPage from './pages/TagPage';
 import UnitCategoryPage from './pages/UnitCategoryPage';
+import UnitPage from './pages/UnitPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -158,6 +159,14 @@ function App() {
                             <Route path='/tag' element={<TagPage />} />
                             <Route path='/tag/:id' element={<TagPage />} />
                             <Route path='/units' element={<UnitsPage />} />
+                            <Route
+                                path='/unit/:categoryId/'
+                                element={<UnitPage />}
+                            />
+                            <Route
+                                path='/unit/:categoryId/:unitId'
+                                element={<UnitPage />}
+                            />
                             <Route
                                 path='/unitCategory'
                                 element={<UnitCategoryPage />}

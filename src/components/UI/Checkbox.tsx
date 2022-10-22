@@ -11,12 +11,15 @@ type CheckboxProps = {
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
     const id = useId();
-    const [field, meta] = useField(props);
+    const [field, meta, helpers] = useField(props);
 
     return (
         <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
             <Form.Check
-                {...field}
+                checked={field.value}
+                onChange={(e) => {
+                    helpers.setValue(e.target.checked);
+                }}
                 required={props.required}
                 label={props.label}
                 feedback={meta.touched && meta.error ? meta.error : undefined}
