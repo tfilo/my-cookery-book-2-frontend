@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Formik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -11,8 +10,10 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import Select from '../UI/Select';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
-type UserForm =(Api.CreateUser | Api.UpdateUser) & {
+type UserForm = (Api.CreateUser | Api.UpdateUser) & {
     confirmPassword?: string;
 };
 
@@ -68,14 +69,14 @@ const User: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    const [initialValues, setInitialValues] = useState<UserForm>({
-        username: '',
-        firstName: '',
-        lastName: '',
-        password: '',
-        confirmPassword: '',
-        roles: [],
+
+    const methods = useForm<UserForm>({
+        resolver: yupResolver(schema),
     });
+
+    const {
+        formState: { isSubmitting },
+    } = methods;
 
     useEffect(() => {
         if (params.id) {
@@ -84,34 +85,22 @@ const User: React.FC = () => {
             (async () => {
                 const data = await userApi.getUser(parseInt(paramsNumber));
                 console.log(data);
-                setInitialValues({
-                    username: data.username,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    roles: data.roles,
-                    password: '',
-                    confirmPassword: '',
-                });
+                methods.reset({ ...data, password: '', confirmPassword: '' });
             })();
         }
-    }, [params.id]);
+    }, [params.id, methods]);
 
     const cancelHandler = () => {
         navigate('/users');
     };
 
-    const submitHandler = async (values: UserForm) => {
-        const request = schema.cast(values, {
-            assert: false,
-            stripUnknown: true,
-        });
-        delete request.confirmPassword;
+    const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
         try {
             if (params.id) {
-                await userApi.updateUser(parseInt(params.id), request as Api.UpdateUser);
+                await userApi.updateUser(parseInt(params.id), data);
                 navigate('/users');
             } else {
-                await userApi.createUser(request as Api.CreateUser);
+                await userApi.createUser(data as Api.CreateUser);
                 navigate('/users');
             }
         } catch (err) {
@@ -123,54 +112,46 @@ const User: React.FC = () => {
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
                 <h1>Používateľ</h1>
-                <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
-                    validationSchema={schema}
-                    onSubmit={async (values) => {
-                        await submitHandler({
-                            ...values,
-                        });
-                    }}
-                >
-                    {(formik) => (
-                        <Form noValidate onSubmit={formik.handleSubmit}>
-                            <Input name='username' label='Používateľské meno' />
-                            <Input name='firstName' label='Meno' />
-                            <Input name='lastName' label='Priezvisko' />
-                            <Input name='password' label='Heslo' />
-                            <Input
-                                name='confirmPassword'
-                                label='Potvrdenie hesla'
-                            />
-                            <Select
-                                name='roles'
-                                label='Používateľské role'
-                                options={[
-                                    { value: 'ADMIN', label: 'Administrátor' },
-                                    {
-                                        value: 'CREATOR',
-                                        label: 'Tvorca obsahu',
-                                    },
-                                ]}
-                                multiple={true}
-                            />
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť používateľa'
-                                    : 'Vytvoriť používateľa'}
-                            </Button>{' '}
-                            <Button
-                                variant='warning'
-                                type='button'
-                                onClick={cancelHandler}
-                            >
-                                Zrušiť
-                            </Button>
-                            {formik.isSubmitting && <Spinner />}
-                        </Form>
-                    )}
-                </Formik>
+                <FormProvider {...methods}>
+                    <Form
+                        noValidate
+                        onSubmit={methods.handleSubmit(submitHandler)}
+                    >
+                        <Input name='username' label='Používateľské meno' />
+                        <Input name='firstName' label='Meno' />
+                        <Input name='lastName' label='Priezvisko' />
+                        <Input name='password' label='Heslo' />
+                        <Input
+                            name='confirmPassword'
+                            label='Potvrdenie hesla'
+                        />
+                        <Select
+                            name='roles'
+                            label='Používateľské role'
+                            options={[
+                                { value: 'ADMIN', label: 'Administrátor' },
+                                {
+                                    value: 'CREATOR',
+                                    label: 'Tvorca obsahu',
+                                },
+                            ]}
+                            multiple={true}
+                        />
+                        <Button variant='primary' type='submit'>
+                            {params.id
+                                ? 'Zmeniť používateľa'
+                                : 'Vytvoriť používateľa'}
+                        </Button>{' '}
+                        <Button
+                            variant='warning'
+                            type='button'
+                            onClick={cancelHandler}
+                        >
+                            Zrušiť
+                        </Button>
+                        {isSubmitting && <Spinner />}
+                    </Form>
+                </FormProvider>
             </div>
             <Modal
                 show={!!error}

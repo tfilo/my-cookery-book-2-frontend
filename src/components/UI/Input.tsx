@@ -1,6 +1,6 @@
-import React , { useId } from 'react';
-import { useField } from 'formik';
+import React, { useId } from 'react';
 import { Form } from 'react-bootstrap';
+import { useFormContext } from 'react-hook-form';
 
 type InputProps = {
     label: string;
@@ -12,22 +12,27 @@ type InputProps = {
 };
 
 const Input: React.FC<InputProps> = (props) => {
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext();
     const id = useId();
-    const [field, meta] = useField(props);
+
+    const errorMessage = errors[props.name]?.message;
 
     return (
         <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
             <Form.Label>{props.label}</Form.Label>
             <Form.Control
-                {...field}
+                {...register(props.name)}
                 type={props.type ?? 'text'}
                 disabled={props.disabled}
                 autoComplete={props.autoComplete}
                 placeholder={props.placeholder}
-                isInvalid={meta.touched && !!meta.error}
+                isInvalid={!!errorMessage}
             />
-            <Form.Control.Feedback type="invalid">
-                {meta.touched && meta.error ? meta.error : null}
+            <Form.Control.Feedback type='invalid'>
+                {errorMessage?.toString()}
             </Form.Control.Feedback>
         </Form.Group>
     );

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Formik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -10,6 +9,8 @@ import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 type TagForm = Api.CreateTag | Api.UpdateTag;
 
@@ -26,9 +27,14 @@ const Tag: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    const [initialValues, setInitialValues] = useState<TagForm>({
-        name: '',
+
+    const methods = useForm<TagForm>({
+        resolver: yupResolver(schema),
     });
+
+    const {
+        formState: { isSubmitting },
+    } = methods;
 
     useEffect(() => {
         if (params.id) {
@@ -37,28 +43,22 @@ const Tag: React.FC = () => {
             (async () => {
                 const data = await tagApi.getTag(parseInt(paramsNumber));
                 console.log(data);
-                setInitialValues({
-                    name: data.name,
-                });
+                methods.reset(data);
             })();
         }
-    }, [params.id]);
+    }, [params.id, methods]);
 
     const cancelHandler = () => {
         navigate('/tags');
     };
 
-    const submitHandler = async (values: TagForm) => {
-        const request = schema.cast(values, {
-            assert: false,
-            stripUnknown: true,
-        });
+    const submitHandler: SubmitHandler<TagForm> = async (data: TagForm) => {
         try {
             if (params.id) {
-                await tagApi.updatetag(parseInt(params.id), request as Api.UpdateTag);
+                await tagApi.updatetag(parseInt(params.id), data);
                 navigate('/tags');
             } else {
-                await tagApi.createTag(request as Api.CreateTag);
+                await tagApi.createTag(data);
                 navigate('/tags');
             }
         } catch (err) {
@@ -70,35 +70,22 @@ const Tag: React.FC = () => {
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
                 <h1>Značka</h1>
-                <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
-                    validationSchema={schema}
-                    onSubmit={async (values) => {
-                        await submitHandler({
-                            ...values,
-                        });
-                    }}
-                >
-                    {(formik) => (
-                        <Form noValidate onSubmit={formik.handleSubmit}>
-                            <Input name='name' label='Značka' />
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť značku'
-                                    : 'Vytvoriť značku'}
-                            </Button>{' '}
-                            <Button
-                                variant='warning'
-                                type='button'
-                                onClick={cancelHandler}
-                            >
-                                Zrušiť
-                            </Button>
-                            {formik.isSubmitting && <Spinner />}
-                        </Form>
-                    )}
-                </Formik>
+                <FormProvider {...methods}>
+                    <Form noValidate onSubmit={methods.handleSubmit(submitHandler)}>
+                        <Input name='name' label='Značka' />
+                        <Button variant='primary' type='submit'>
+                            {params.id ? 'Zmeniť značku' : 'Vytvoriť značku'}
+                        </Button>{' '}
+                        <Button
+                            variant='warning'
+                            type='button'
+                            onClick={cancelHandler}
+                        >
+                            Zrušiť
+                        </Button>
+                        {isSubmitting && <Spinner />}
+                    </Form>
+                </FormProvider>
             </div>
             <Modal
                 show={!!error}
@@ -113,4 +100,3 @@ const Tag: React.FC = () => {
 };
 
 export default Tag;
-

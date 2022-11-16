@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Formik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -10,6 +9,8 @@ import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 type UnitCategoryForm = Api.CreateUnitCategory | Api.UpdateUnitCategory;
 
@@ -26,9 +27,14 @@ const UnitCategory: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    const [initialValues, setInitialValues] = useState<UnitCategoryForm>({
-        name: '',
+
+    const methods = useForm<UnitCategoryForm>({
+        resolver: yupResolver(schema),
     });
+
+    const {
+        formState: { isSubmitting },
+    } = methods;
 
     useEffect(() => {
         if (params.id) {
@@ -37,28 +43,22 @@ const UnitCategory: React.FC = () => {
             (async () => {
                 const data = await unitCategoryApi.getUnitCategory(parseInt(paramsNumber));
                 console.log(data);
-                setInitialValues({
-                    name: data.name,
-                });
+                methods.reset(data);
             })();
         }
-    }, [params.id]);
+    }, [params.id, methods]);
 
     const cancelHandler = () => {
         navigate('/units');
     };
 
-    const submitHandler = async (values: UnitCategoryForm) => {
-        const request = schema.cast(values, {
-            assert: false,
-            stripUnknown: true,
-        });
+    const submitHandler: SubmitHandler<UnitCategoryForm> = async (data: UnitCategoryForm) => {
         try {
             if (params.id) {
-                await unitCategoryApi.updateUnitCategory(parseInt(params.id), request as Api.UpdateUnitCategory);
+                await unitCategoryApi.updateUnitCategory(parseInt(params.id), data);
                 navigate('/units');
             } else {
-                await unitCategoryApi.createUnitCategory(request as Api.CreateUnitCategory);
+                await unitCategoryApi.createUnitCategory(data);
                 navigate('/units');
             }
         } catch (err) {
@@ -70,18 +70,8 @@ const UnitCategory: React.FC = () => {
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
                 <h1>Kategória jednotiek</h1>
-                <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
-                    validationSchema={schema}
-                    onSubmit={async (values) => {
-                        await submitHandler({
-                            ...values,
-                        });
-                    }}
-                >
-                    {(formik) => (
-                        <Form noValidate onSubmit={formik.handleSubmit}>
+                <FormProvider {...methods}>
+                        <Form noValidate onSubmit={methods.handleSubmit(submitHandler)}>
                             <Input name='name' label='Názov kategórie jednotiek' />
                             <Button variant='primary' type='submit'>
                                 {params.id
@@ -95,10 +85,9 @@ const UnitCategory: React.FC = () => {
                             >
                                 Zrušiť
                             </Button>
-                            {formik.isSubmitting && <Spinner />}
+                            {isSubmitting && <Spinner />}
                         </Form>
-                    )}
-                </Formik>
+                    </FormProvider>
             </div>
             <Modal
                 show={!!error}

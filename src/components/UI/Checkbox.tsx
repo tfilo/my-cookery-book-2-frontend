@@ -1,29 +1,30 @@
 import React, { useId } from 'react';
-import { useField } from 'formik';
 import { Form } from 'react-bootstrap';
+import { useFormContext } from 'react-hook-form';
 
 type CheckboxProps = {
     label: string;
     name: string;
-    required?: boolean;
     disabled?: boolean;
 };
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
     const id = useId();
-    const [field, meta, helpers] = useField(props);
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext();
+
+    const errorMessage = errors[props.name]?.message;
 
     return (
         <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
             <Form.Check
-                checked={field.value}
-                onChange={(e) => {
-                    helpers.setValue(e.target.checked);
-                }}
-                required={props.required}
+                {...register(props.name)}
                 label={props.label}
-                feedback={meta.touched && meta.error ? meta.error : undefined}
+                feedback={errorMessage?.toString()}
                 feedbackType='invalid'
+                isInvalid={!!errorMessage}
             />
         </Form.Group>
     );

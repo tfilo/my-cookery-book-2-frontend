@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Formik } from 'formik';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -11,6 +10,8 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import Checkbox from '../UI/Checkbox';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 type UnitForm = Api.CreateUnit | Api.UpdateUnit;
 
@@ -33,12 +34,20 @@ const Unit: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    const [initialValues, setInitialValues] = useState<UnitForm>({
-        name: '',
-        abbreviation: '',
-        required: true,
-        unitCategoryId: parseInt(params?.categoryId ?? '-1'),
+    // const [initialValues, setInitialValues] = useState<UnitForm>({
+    //     name: '',
+    //     abbreviation: '',
+    //     required: true,
+    //     unitCategoryId: parseInt(params?.categoryId ?? '-1'),
+    // });
+
+    const methods = useForm<UnitForm>({
+        resolver: yupResolver(schema),
     });
+
+    const {
+        formState: { isSubmitting },
+    } = methods;
 
     useEffect(() => {
         console.log(params.unitId);
@@ -48,34 +57,28 @@ const Unit: React.FC = () => {
             (async () => {
                 const data = await unitApi.getUnit(unitId);
                 console.log(data);
-                setInitialValues({
-                    name: data.name,
-                    abbreviation: data.abbreviation,
-                    required: data.required,
-                    unitCategoryId: data.unitCategoryId,
-                });
+                // setInitialValues({
+                //     name: data.name,
+                //     abbreviation: data.abbreviation,
+                //     required: data.required,
+                //     unitCategoryId: data.unitCategoryId,
+                // });
+                methods.reset(data);
             })();
         }
-    }, [params.unitId]);
+    }, [params.unitId, methods]);
 
     const cancelHandler = () => {
         navigate('/units');
     };
 
-    const submitHandler = async (values: UnitForm) => {
-        const request = schema.cast(values, {
-            assert: false,
-            stripUnknown: true,
-        });
+    const submitHandler: SubmitHandler<UnitForm> = async (data: UnitForm) => {
         try {
             if (params.unitId) {
-                await unitApi.updateUnit(
-                    parseInt(params.unitId),
-                    request as Api.UpdateUnit
-                );
+                await unitApi.updateUnit(parseInt(params.unitId), data);
                 navigate('/units');
             } else {
-                await unitApi.createUnit(request as Api.CreateUnit);
+                await unitApi.createUnit(data);
                 navigate('/units');
             }
         } catch (err) {
@@ -87,41 +90,33 @@ const Unit: React.FC = () => {
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
                 <h1>Jednotka</h1>
-                <Formik
-                    enableReinitialize={true}
-                    initialValues={initialValues}
-                    validationSchema={schema}
-                    onSubmit={async (values) => {
-                        await submitHandler({
-                            ...values,
-                        });
-                    }}
-                >
-                    {(formik) => (
-                        <Form noValidate onSubmit={formik.handleSubmit}>
-                            <Input name='name' label='Názov jednotky' />
-                            <Input name='abbreviation' label='Skratka' />
-                            <Checkbox name='required' label='Povinná hodnota' />
-                            {/* <Input
+                <FormProvider {...methods}>
+                    <Form
+                        noValidate
+                        onSubmit={methods.handleSubmit(submitHandler)}
+                    >
+                        <Input name='name' label='Názov jednotky' />
+                        <Input name='abbreviation' label='Skratka' />
+                        <Checkbox name='required' label='Povinná hodnota' />
+                        {/* <Input
                                 name='unitCategoryId'
                                 label='unitcategoryId'
                             /> */}
-                            <Button variant='primary' type='submit'>
-                                {params.unitId
-                                    ? 'Zmeniť jednotku'
-                                    : 'Vytvoriť jednotku'}
-                            </Button>{' '}
-                            <Button
-                                variant='warning'
-                                type='button'
-                                onClick={cancelHandler}
-                            >
-                                Zrušiť
-                            </Button>
-                            {formik.isSubmitting && <Spinner />}
-                        </Form>
-                    )}
-                </Formik>
+                        <Button variant='primary' type='submit'>
+                            {params.unitId
+                                ? 'Zmeniť jednotku'
+                                : 'Vytvoriť jednotku'}
+                        </Button>{' '}
+                        <Button
+                            variant='warning'
+                            type='button'
+                            onClick={cancelHandler}
+                        >
+                            Zrušiť
+                        </Button>
+                        {isSubmitting && <Spinner />}
+                    </Form>
+                </FormProvider>
             </div>
             <Modal
                 show={!!error}
