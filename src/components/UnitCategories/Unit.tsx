@@ -27,19 +27,13 @@ const schema = yup.object({
         .max(20, 'Musí byť maximálne 20 znakov')
         .required('Povinná položka'),
     required: yup.boolean().required('Povinná položka'),
-    unitCategoryId: yup.number().required('Povinná položka'),
 });
 
 const Unit: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    // const [initialValues, setInitialValues] = useState<UnitForm>({
-    //     name: '',
-    //     abbreviation: '',
-    //     required: true,
-    //     unitCategoryId: parseInt(params?.categoryId ?? '-1'),
-    // });
+    const categoryId = params?.categoryId ? parseInt(params?.categoryId) : null;
 
     const methods = useForm<UnitForm>({
         resolver: yupResolver(schema),
@@ -57,12 +51,6 @@ const Unit: React.FC = () => {
             (async () => {
                 const data = await unitApi.getUnit(unitId);
                 console.log(data);
-                // setInitialValues({
-                //     name: data.name,
-                //     abbreviation: data.abbreviation,
-                //     required: data.required,
-                //     unitCategoryId: data.unitCategoryId,
-                // });
                 methods.reset(data);
             })();
         }
@@ -74,12 +62,22 @@ const Unit: React.FC = () => {
 
     const submitHandler: SubmitHandler<UnitForm> = async (data: UnitForm) => {
         try {
-            if (params.unitId) {
-                await unitApi.updateUnit(parseInt(params.unitId), data);
-                navigate('/units');
+            if (categoryId) {
+                if (params.unitId) {
+                    await unitApi.updateUnit(parseInt(params.unitId), {
+                        ...data,
+                        unitCategoryId: categoryId,
+                    });
+                    navigate('/units');
+                } else {
+                    await unitApi.createUnit({
+                        ...data,
+                        unitCategoryId: categoryId,
+                    });
+                    navigate('/units');
+                }
             } else {
-                await unitApi.createUnit(data);
-                navigate('/units');
+                console.error('Missing unitCategoryId in route parameters!');
             }
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
@@ -98,10 +96,6 @@ const Unit: React.FC = () => {
                         <Input name='name' label='Názov jednotky' />
                         <Input name='abbreviation' label='Skratka' />
                         <Checkbox name='required' label='Povinná hodnota' />
-                        {/* <Input
-                                name='unitCategoryId'
-                                label='unitcategoryId'
-                            /> */}
                         <Button variant='primary' type='submit'>
                             {params.unitId
                                 ? 'Zmeniť jednotku'

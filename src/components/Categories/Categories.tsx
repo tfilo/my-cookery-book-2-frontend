@@ -25,8 +25,6 @@ const Categories: React.FC = () => {
         })();
     }, []);
 
-    console.log(listOfCategories);
-
     const createCategoryHandler = () => {
         navigate('/category');
     };

@@ -38,13 +38,11 @@ const Category: React.FC = () => {
 
     useEffect(() => {
         if (params.id) {
-            console.log(params.id);
             const paramsNumber = params?.id;
             (async () => {
                 const data = await categoryApi.getCategory(
                     parseInt(paramsNumber)
                 );
-                console.log(data);
                 methods.reset(data);
             })();
         }

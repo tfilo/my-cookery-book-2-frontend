@@ -23,8 +23,6 @@ const Tags: React.FC = () => {
         })();
     }, []);
 
-    console.log(listOfTags);
-
     const createCategoryHandler = () => {
         navigate('/tag');
     };

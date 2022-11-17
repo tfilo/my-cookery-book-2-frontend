@@ -23,8 +23,6 @@ const Users: React.FC = () => {
         })();
     }, []);
 
-    console.log(listOfUsers);
-
     const createUserHandler = () => {
         navigate('/user');
     };
