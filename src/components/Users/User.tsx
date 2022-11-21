@@ -23,6 +23,7 @@ const schema = yup.object({
         .trim()
         .min(4, 'Musia byť minimálne 4 znaky')
         .max(50, 'Musí byť maximálne 50 znakov')
+        .matches(/^[a-z0-9]+/, 'Musí obsahovať iba malé písmená a čísla')
         .required('Povinná položka'),
     firstName: yup
         .string()
@@ -44,21 +45,20 @@ const schema = yup.object({
         .nullable(),
     password: yup
         .string()
-        .defined()
         .trim()
-        .transform((val) => (val === '' ? null : val))
-        .min(4, 'Musí byť minimálne 8 znakov')
+        .min(8, 'Musí byť minimálne 8 znakov')
         .max(255, 'Musí byť maximálne 255 znakov')
-        .default(null)
-        .nullable(),
+        .matches(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+            'Musí obsahovať aspoň jedno malé písmeno, jedno veľké písmeno a jedno číslo'
+        )
+        .required(),
     confirmPassword: yup
         .string()
-        .defined()
         .trim()
         .transform((val) => (val === '' ? null : val))
-        .default(null)
         .equals([yup.ref('password')], 'Zadané heslá sa nezhodujú')
-        .nullable(),
+        .required(),
     roles: yup
         .array()
         .of(yup.string().oneOf(['ADMIN', 'CREATOR']).required())

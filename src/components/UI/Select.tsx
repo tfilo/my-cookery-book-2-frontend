@@ -6,7 +6,7 @@ type SelectProps = {
     label: string;
     name: string;
     options: {
-        value: string;
+        value: string | number;
         label: string;
     }[];
     disabled?: boolean;

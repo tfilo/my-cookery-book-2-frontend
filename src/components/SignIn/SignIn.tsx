@@ -71,8 +71,8 @@ const SignIn: React.FC = () => {
                 <FormProvider {...methods}>
                     <Form onSubmit={methods.handleSubmit(submitHandler)} noValidate>
                         <Input name='username' label='Prihlasovacie meno'/>
-                        <Input name='password' label='Heslo'/>
-                        <Checkbox name='login' label='Zapamätať prihlásenie' />
+                        <Input name='password' label='Heslo' type='password'/>
+                        <Checkbox name='login' label='Zapamätať prihlásenie'/>
                         <Button variant='primary' type='submit'>
                             Prihlásiť sa
                         </Button>

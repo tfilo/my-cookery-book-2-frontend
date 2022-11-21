@@ -13,19 +13,23 @@ import TagsPage from './pages/TagsPage';
 import ProfilePage from './pages/ProfilePage';
 import CategoryPage from './pages/CategoryPage';
 import AddRecipePage from './pages/AddRecipePage';
-import { authApi } from './utils/apiWrapper';
+import { authApi, categoryApi } from './utils/apiWrapper';
 import { Api } from './openapi';
 import UserPage from './pages/UserPage';
 import CategoriesPage from './pages/CategoriesPage';
 import TagPage from './pages/TagPage';
 import UnitCategoryPage from './pages/UnitCategoryPage';
 import UnitPage from './pages/UnitPage';
+import RecipesPage from './pages/RecipesPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [listOfCategories, setListOfCategories] = useState<
+        Api.SimpleCategory[]
+    >([]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -39,6 +43,19 @@ function App() {
             })();
         }
     }, [isLoggedIn]);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const categories = await categoryApi.getCategories();
+                setListOfCategories(categories);
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+    }, []);
+
+    console.log(listOfCategories);
 
     let username = '';
     if (userInfo) {
@@ -128,7 +145,26 @@ function App() {
                                     >
                                         Pridať recept
                                     </Nav.Link>
-                                </Nav>
+                                    <hr/>
+                                    <Nav.Link
+                                        to='/recipes'
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                    >
+                                        Všetky recepty
+                                    </Nav.Link>
+                                    <hr/>
+                                    {listOfCategories.map((category) => (
+                                        <Nav.Link
+                                        to={`/recipes/${category.id}`}
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                        key={category.id}
+                                        >
+                                        {category.name}
+                                        </Nav.Link>
+                                    ))}
+                                    </Nav>
                             </Offcanvas.Body>
                         </Navbar.Offcanvas>
                     </Container>
@@ -178,6 +214,11 @@ function App() {
                             <Route
                                 path='/addRecipe'
                                 element={<AddRecipePage />}
+                            />
+                            <Route path='/recipes' element={<RecipesPage />} />
+                            <Route
+                                path='/recipes/:categoryId/'
+                                element={<RecipesPage />}
                             />
                         </Fragment>
                     ) : (

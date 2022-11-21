@@ -1,7 +1,8 @@
 import React from 'react';
+import Recipe from '../components/Recipes/Recipe';
 
 const AddRecipePage: React.FC = () => {
-    return <div>addRecipe</div>;
+    return <Recipe />;
 };
 
 export default AddRecipePage;
