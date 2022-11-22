@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { Form } from 'react-bootstrap';
 import { useFormContext } from 'react-hook-form';
+import { get } from 'lodash';
 
 type InputProps = {
     label: string;
@@ -18,7 +19,8 @@ const Input: React.FC<InputProps> = (props) => {
     } = useFormContext();
     const id = useId();
 
-    const errorMessage = errors[props.name]?.message;
+    //const errorMessage = errors[props.name]?.message;
+    const errorMessage = get(errors, props.name)?.message;
 
     return (
         <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>

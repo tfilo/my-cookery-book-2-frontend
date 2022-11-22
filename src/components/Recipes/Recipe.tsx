@@ -4,14 +4,23 @@ import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import {
+    useForm,
+    SubmitHandler,
+    FormProvider,
+    useFieldArray,
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { categoryApi, recipeApi, tagApi } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { Button, Form } from 'react-bootstrap';
 import Select from '../UI/Select';
 
-type CreateRecipeForm = Api.CreateRecipe;
+interface CreateRecipeForm extends Omit<Api.CreateRecipe, 'sources'> {
+    sources: {
+        value: string;
+    }[];
+};
 
 const schema = yup.object({
     name: yup
@@ -37,12 +46,14 @@ const schema = yup.object({
     sources: yup
         .array()
         .of(
-            yup
-                .string()
-                .trim()
-                .min(1, 'Musí byť minimálne 1 znak')
-                .max(1000, 'Musí byť maximálne 80 znakov')
-                .required()
+            yup.object({
+                value: yup
+                    .string()
+                    .trim()
+                    .min(1, 'Musí byť minimálne 1 znak')
+                    .max(1000, 'Musí byť maximálne 80 znakov')
+                    .required(),
+            })
         )
         .required(),
     categoryId: yup.number().integer().min(1).required(),
@@ -123,6 +134,11 @@ const Recipe: React.FC = () => {
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
 
+    const { fields, append, remove } = useFieldArray({
+        name: 'sources',
+        control: methods.control,
+    });
+
     useEffect(() => {
         (async () => {
             try {
@@ -140,7 +156,7 @@ const Recipe: React.FC = () => {
         data: CreateRecipeForm
     ) => {
         try {
-            await recipeApi.createRecipe(data);
+            await recipeApi.createRecipe({...data, sources: data.sources.map(s => s.value)});
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -164,7 +180,7 @@ const Recipe: React.FC = () => {
                         />
                         {/* text area */}
                         <Input name='method' label='Postup' />
-                        {/* text area */} 
+                        {/* text area */}
                         <Input name='recipeSections' label='Sekcie' />
                         <Select
                             name='categoryId'
@@ -175,7 +191,12 @@ const Recipe: React.FC = () => {
                                 label: category.name,
                             }))}
                         />
-                        {listOfCategories.length < 1 && <p className='text-danger'>Nie je možné vybrať žiadnu kategóriu, nakoľko žiadna nie je zadefinovaná.</p>}
+                        {listOfCategories.length < 1 && (
+                            <p className='text-danger'>
+                                Nie je možné vybrať žiadnu kategóriu, nakoľko
+                                žiadna nie je zadefinovaná.
+                            </p>
+                        )}
                         <Input
                             name='associateRecipes'
                             label='Súvisiace recepty'
@@ -190,8 +211,36 @@ const Recipe: React.FC = () => {
                             }))}
                             multiple={true}
                         />
-                        {listOfTags.length < 1 && <p className='text-danger'>Nie je možné vybrať žiadnu značku, nakoľko žiadna nie je zadefinovaná.</p>}
-                        <Input name='sources' label='Zdroj receptu' />
+                        {listOfTags.length < 1 && (
+                            <p className='text-danger'>
+                                Nie je možné vybrať žiadnu značku, nakoľko
+                                žiadna nie je zadefinovaná.
+                            </p>
+                        )}
+                        {/* <Input name='sources' label='Zdroj receptu' /> */}
+
+                        <Button
+                            type='button'
+                            onClick={() => append({ value: '' })}
+                        >
+                            Pridať zdroj receptu
+                        </Button>
+                        {fields.map((field, index) => {
+                            return (
+                                <section key={field?.id}>
+                                    <Input
+                                        name={`sources.${index}.value`}
+                                        label='Zdroj receptu'
+                                    />
+                                    <Button
+                                        type='button'
+                                        onClick={() => remove(index)}
+                                    >
+                                        Vymazať
+                                    </Button>
+                                </section>
+                            );
+                        })}
                         <Input name='pictures' label='Obrázky' />
                         <Button variant='primary' type='submit'>
                             Pridať recept
