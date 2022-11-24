@@ -13,14 +13,16 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import { categoryApi, recipeApi, tagApi } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Card, Form, Stack } from 'react-bootstrap';
 import Select from '../UI/Select';
+import InputWithBtn from '../UI/InputWithBtn';
+import RecipeSections from './RecipeSections';
 
 interface CreateRecipeForm extends Omit<Api.CreateRecipe, 'sources'> {
     sources: {
         value: string;
     }[];
-};
+}
 
 const schema = yup.object({
     name: yup
@@ -122,6 +124,16 @@ const schema = yup.object({
 const Recipe: React.FC = () => {
     const methods = useForm<CreateRecipeForm>({
         resolver: yupResolver(schema),
+        defaultValues: {
+            recipeSections: [
+                {
+                    name: '',
+                    sortNumber: 1,
+                    method: null,
+                    ingredients: [],
+                },
+            ],
+        },
     });
 
     const {
@@ -134,7 +146,11 @@ const Recipe: React.FC = () => {
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
 
-    const { fields, append, remove } = useFieldArray({
+    const {
+        fields: sourcesFields,
+        append: sourcesAppend,
+        remove: sourcesRemove,
+    } = useFieldArray({
         name: 'sources',
         control: methods.control,
     });
@@ -155,8 +171,12 @@ const Recipe: React.FC = () => {
     const submitHandler: SubmitHandler<CreateRecipeForm> = async (
         data: CreateRecipeForm
     ) => {
+        console.log(data);
         try {
-            await recipeApi.createRecipe({...data, sources: data.sources.map(s => s.value)});
+            await recipeApi.createRecipe({
+                ...data,
+                sources: data.sources.map((s) => s.value),
+            });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -164,7 +184,7 @@ const Recipe: React.FC = () => {
 
     return (
         <div className='row justify-content-center'>
-            <div className='col-lg-6 pt-3'>
+            <div className='col-lg-12 pt-3'>
                 <h1>Pridanie receptu</h1>
                 <FormProvider {...methods}>
                     <Form
@@ -181,7 +201,9 @@ const Recipe: React.FC = () => {
                         {/* text area */}
                         <Input name='method' label='Postup' />
                         {/* text area */}
-                        <Input name='recipeSections' label='Sekcie' />
+
+                        <RecipeSections />
+
                         <Select
                             name='categoryId'
                             label='Kategória receptu'
@@ -217,33 +239,40 @@ const Recipe: React.FC = () => {
                                 žiadna nie je zadefinovaná.
                             </p>
                         )}
-                        {/* <Input name='sources' label='Zdroj receptu' /> */}
 
-                        <Button
-                            type='button'
-                            onClick={() => append({ value: '' })}
-                        >
-                            Pridať zdroj receptu
-                        </Button>
-                        {fields.map((field, index) => {
-                            return (
-                                <section key={field?.id}>
-                                    <Input
-                                        name={`sources.${index}.value`}
-                                        label='Zdroj receptu'
-                                    />
-                                    <Button
-                                        type='button'
-                                        onClick={() => remove(index)}
-                                    >
-                                        Vymazať
-                                    </Button>
-                                </section>
-                            );
-                        })}
+                        <Stack direction='horizontal' gap={3}>
+                            <h2>Zdroj receptu</h2>
+                            <Button
+                                type='button'
+                                onClick={() => sourcesAppend({ value: '' })}
+                            >
+                                Pridať zdroj receptu
+                            </Button>
+                        </Stack>
+
+                        {sourcesFields.length > 0 && (
+                            <Card>
+                                <Card.Body>
+                                    {sourcesFields.map((field, index) => {
+                                        return (
+                                            <section key={field?.id}>
+                                                <InputWithBtn
+                                                    name={`sources.${index}.value`}
+                                                    placeholder='Url'
+                                                    btnLabel='Odstrániť'
+                                                    onClick={() =>
+                                                        sourcesRemove(index)
+                                                    }
+                                                />
+                                            </section>
+                                        );
+                                    })}
+                                </Card.Body>
+                            </Card>
+                        )}
                         <Input name='pictures' label='Obrázky' />
                         <Button variant='primary' type='submit'>
-                            Pridať recept
+                            Uložiť recept
                         </Button>
                         {isSubmitting && <Spinner />}
                     </Form>

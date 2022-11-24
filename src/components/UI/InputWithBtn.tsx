@@ -1,19 +1,19 @@
 import React, { useId } from 'react';
-import { Form } from 'react-bootstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useFormContext } from 'react-hook-form';
 import { get } from 'lodash';
 
-type InputProps = {
-    label: string;
+type InputWithBtnProps = {
     name: string;
-    className?: string;
+    btnLabel: string;
+    onClick: () => void;
     placeholder?: string;
     autoComplete?: 'on' | 'off';
     disabled?: boolean;
     type?: 'text' | 'password' | 'number';
 };
 
-const Input: React.FC<InputProps> = (props) => {
+const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     const {
         register,
         formState: { errors },
@@ -24,21 +24,24 @@ const Input: React.FC<InputProps> = (props) => {
     const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <Form.Group className={`mb-3 ${props.className}`} controlId={`${id}_${props.name}`}>
-            <Form.Label>{props.label}</Form.Label>
+        <InputGroup className='mb-3'>
             <Form.Control
                 {...register(props.name)}
+                id={`${id}_${props.name}`}
                 type={props.type ?? 'text'}
                 disabled={props.disabled}
                 autoComplete={props.autoComplete}
                 placeholder={props.placeholder}
                 isInvalid={!!errorMessage}
             />
+            <Button variant='outline-secondary' onClick={props.onClick}>
+                {props.btnLabel}
+            </Button>
             <Form.Control.Feedback type='invalid'>
                 {errorMessage?.toString()}
             </Form.Control.Feedback>
-        </Form.Group>
+        </InputGroup>
     );
 };
 
-export default Input;
+export default InputWithBtn;

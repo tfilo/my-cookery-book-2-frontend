@@ -55,8 +55,6 @@ function App() {
         })();
     }, []);
 
-    console.log(listOfCategories);
-
     let username = '';
     if (userInfo) {
         username = `${userInfo.firstName ?? ''} ${
