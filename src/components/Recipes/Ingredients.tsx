@@ -2,6 +2,13 @@ import React from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faCirclePlus,
+    faCircleMinus,
+    faCircleChevronDown,
+    faCircleChevronUp,
+} from '@fortawesome/free-solid-svg-icons';
 
 type IngredientsProps = {
     recipeSectionName: string;
@@ -10,7 +17,7 @@ type IngredientsProps = {
 const Ingredients: React.FC<IngredientsProps> = (props) => {
     const context = useFormContext();
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, move } = useFieldArray({
         name: `${props.recipeSectionName}.ingredients`,
     });
 
@@ -19,6 +26,8 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
             <Stack direction='horizontal' gap={3}>
                 <h3>Suroviny</h3>
                 <Button
+                    aria-label='pridať ingredienciu'
+                    variant='light'
                     type='button'
                     onClick={() =>
                         append({
@@ -29,7 +38,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                         })
                     }
                 >
-                    Pridať ingredienciu
+                    <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
             {fields.map((field, index) => {
@@ -57,8 +66,29 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                 name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
                                 label='Id ingrediencie'
                             />
-                            <Button type='button' onClick={() => remove(index)}>
-                                Vymazať ingredienciu
+                            <Button
+                                variant='light'
+                                aria-label='presunúť ingredienciu nahor'
+                                type='button'
+                                onClick={() => remove(index)}
+                            >
+                                <FontAwesomeIcon icon={faCircleChevronUp} />
+                            </Button>
+                            <Button
+                                variant='light'
+                                aria-label='presunúť ingredienciu nadol'
+                                type='button'
+                                onClick={() => move(index, index+1)}
+                            >
+                                <FontAwesomeIcon icon={faCircleChevronDown} />
+                            </Button>
+                            <Button
+                                variant='light'
+                                aria-label='vymazať ingredienciu'
+                                type='button'
+                                onClick={() => remove(index)}
+                            >
+                                <FontAwesomeIcon icon={faCircleMinus} />
                             </Button>
                         </Stack>
                     </section>

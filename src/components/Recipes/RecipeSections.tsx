@@ -3,6 +3,14 @@ import { Button, Card, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
 import Ingredients from './Ingredients';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faCirclePlus,
+    faCircleMinus,
+    faCircleChevronDown,
+    faCircleChevronUp,
+} from '@fortawesome/free-solid-svg-icons';
+import Textarea from '../UI/Textarea';
 
 const RecipeSections: React.FC = () => {
     const context = useFormContext();
@@ -16,6 +24,8 @@ const RecipeSections: React.FC = () => {
             <Stack direction='horizontal' gap={3}>
                 <h2>Sekcie</h2>
                 <Button
+                    aria-label='pridať sekciu'
+                    variant='light'
                     type='button'
                     onClick={() =>
                         append({
@@ -26,7 +36,7 @@ const RecipeSections: React.FC = () => {
                         })
                     }
                 >
-                    Pridať sekciu
+                    <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
 
@@ -51,17 +61,33 @@ const RecipeSections: React.FC = () => {
                                 <Ingredients
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
-
-                                <Input
-                                    name={`recipeSections.${index}.method`}
-                                    label='Postup'
-                                />
-
+                                <Textarea label='Postup' name={`recipeSections.${index}.methods`}/>
                                 <Button
+                                    variant='light'
+                                    aria-label='presunúť sekciu nahor'
                                     type='button'
                                     onClick={() => remove(index)}
                                 >
-                                    Vymazať sekciu
+                                    <FontAwesomeIcon icon={faCircleChevronUp} />
+                                </Button>
+                                <Button
+                                    variant='light'
+                                    aria-label='presunúť sekciu nadol'
+                                    type='button'
+                                    onClick={() => remove(index)}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faCircleChevronDown}
+                                    />
+                                </Button>
+
+                                <Button
+                                    aria-label='vymazať sekciu'
+                                    variant='light'
+                                    type='button'
+                                    onClick={() => remove(index)}
+                                >
+                                    <FontAwesomeIcon icon={faCircleMinus} />
                                 </Button>
                             </section>
                         </Card.Body>
