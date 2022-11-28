@@ -11,8 +11,13 @@ import {
     faCircleChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
+import { SelectOption } from '../UI/Select';
 
-const RecipeSections: React.FC = () => {
+type RecipeSectionsProps = {
+    allUnits: SelectOption[];
+};
+
+const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
     const context = useFormContext();
 
     const { fields, append, remove } = useFieldArray({
@@ -45,6 +50,14 @@ const RecipeSections: React.FC = () => {
                     <Card key={field?.id} className='mb-4'>
                         <Card.Body>
                             <section>
+                                <Button
+                                    aria-label='vymazať sekciu'
+                                    variant='light'
+                                    type='button'
+                                    onClick={() => remove(index)}
+                                >
+                                    <FontAwesomeIcon icon={faCircleMinus} />
+                                </Button>
                                 <input
                                     {...context.register(
                                         `recipeSections.${index}.sortNumber`
@@ -59,9 +72,13 @@ const RecipeSections: React.FC = () => {
                                 />
 
                                 <Ingredients
+                                    allUnits={props.allUnits}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
-                                <Textarea label='Postup' name={`recipeSections.${index}.methods`}/>
+                                <Textarea
+                                    label='Postup'
+                                    name={`recipeSections.${index}.methods`}
+                                />
                                 <Button
                                     variant='light'
                                     aria-label='presunúť sekciu nahor'
@@ -79,15 +96,6 @@ const RecipeSections: React.FC = () => {
                                     <FontAwesomeIcon
                                         icon={faCircleChevronDown}
                                     />
-                                </Button>
-
-                                <Button
-                                    aria-label='vymazať sekciu'
-                                    variant='light'
-                                    type='button'
-                                    onClick={() => remove(index)}
-                                >
-                                    <FontAwesomeIcon icon={faCircleMinus} />
                                 </Button>
                             </section>
                         </Card.Body>

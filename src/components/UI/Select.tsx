@@ -1,14 +1,18 @@
 import React, { useId } from 'react';
 import { Form } from 'react-bootstrap';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
+import { get } from 'lodash';
+
+export type SelectOption = {
+    value: string | number;
+    label: string;
+    disabled?: boolean;
+};
 
 type SelectProps = {
     label: string;
     name: string;
-    options: {
-        value: string | number;
-        label: string;
-    }[];
+    options: SelectOption[];
     disabled?: boolean;
     multiple?: boolean;
 };
@@ -16,29 +20,57 @@ type SelectProps = {
 const Select: React.FC<SelectProps> = (props) => {
     const id = useId();
     const {
-        register,
         formState: { errors },
+        control,
     } = useFormContext();
 
-    const errorMessage = errors[props.name]?.message;
+    //const errorMessage = errors[props.name]?.message;
+    const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
-            <Form.Label>{props.label}</Form.Label>
-            <Form.Select
-                {...register(props.name)}
-                disabled={props.disabled}
-                multiple={props.multiple}
-                isInvalid={!!errorMessage}
-            >
-                {props.options.map((option) => {
-                    return <option key={option.value} value={option.value}>{option.label}</option>;
-                })}
-            </Form.Select>
-            <Form.Control.Feedback type="invalid">
-                {errorMessage?.toString()}
-            </Form.Control.Feedback>
-        </Form.Group>
+        <Controller
+            name={props.name}
+            control={control}
+            render={({ field }) => (
+                <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
+                    <Form.Label>{props.label}</Form.Label>
+                    <Form.Select
+                        {...field}
+                        value={
+                            Array.isArray(field.value)
+                                ? field.value.map((v) => v.toString())
+                                : field.value?.toString() ?? '-1'
+                        }
+                        disabled={props.disabled}
+                        multiple={props.multiple}
+                        isInvalid={!!errorMessage}
+                    >
+                        {!props.multiple && (
+                            <option
+                                value='-1'
+                                disabled
+                            >
+                                Prosím zvolte možnosť
+                            </option>
+                        )}
+                        {props.options.map((option) => {
+                            return (
+                                <option
+                                    key={option.value}
+                                    value={option.value}
+                                    disabled={option.disabled}
+                                >
+                                    {option.label}
+                                </option>
+                            );
+                        })}
+                    </Form.Select>
+                    <Form.Control.Feedback type='invalid'>
+                        {errorMessage?.toString()}
+                    </Form.Control.Feedback>
+                </Form.Group>
+            )}
+        />
     );
 };
 

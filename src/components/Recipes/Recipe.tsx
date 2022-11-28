@@ -4,16 +4,18 @@ import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
-import {
-    useForm,
-    SubmitHandler,
-    FormProvider,
-} from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { categoryApi, recipeApi, tagApi } from '../../utils/apiWrapper';
+import {
+    categoryApi,
+    recipeApi,
+    tagApi,
+    unitApi,
+    unitCategoryApi,
+} from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { Button, Form } from 'react-bootstrap';
-import Select from '../UI/Select';
+import Select, { SelectOption } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
@@ -92,7 +94,11 @@ const schema = yup.object({
                                 .min(1)
                                 .required(),
                             value: yup.number().defined().min(0).nullable(),
-                            unitId: yup.number().integer().min(1).required(),
+                            unitId: yup
+                                .number()
+                                .integer()
+                                .min(1, 'Prosím vyberte možnosť')
+                                .required(),
                         })
                     )
                     .required(),
@@ -130,9 +136,18 @@ const Recipe: React.FC = () => {
                     name: '',
                     sortNumber: 1,
                     method: null,
-                    ingredients: [],
+                    ingredients: [
+                        {
+                            name: '',
+                            sortNumber: 1,
+                            value: 0,
+                            unitId: -1,
+                        },
+                    ],
                 },
             ],
+            tags: [],
+            categoryId: -1,
         },
     });
 
@@ -145,6 +160,7 @@ const Recipe: React.FC = () => {
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
+    const [listOfUnits, setListOfUnits] = useState<SelectOption[]>([]);
 
     useEffect(() => {
         (async () => {
@@ -153,6 +169,25 @@ const Recipe: React.FC = () => {
                 setListOfCategories(categories);
                 const tags = await tagApi.getTags();
                 setListOfTags(tags);
+
+                const unitCategories =
+                    await unitCategoryApi.getUnitCategories();
+                const listOfUnitCategoriesId = unitCategories.map(
+                    (unitCategory) => unitCategory.id
+                );
+
+                const allUnits: SelectOption[] = [];
+                for (let categoryId of listOfUnitCategoriesId) {
+                    allUnits.push(
+                        ...(
+                            await unitApi.getUnitsByUnitCategory(categoryId)
+                        ).map((unit) => {
+                            return { value: unit.id, label: unit.name };
+                        })
+                    );
+                }
+                console.log(allUnits);
+                setListOfUnits(allUnits);
             } catch (err) {
                 console.error(err);
             }
@@ -190,7 +225,7 @@ const Recipe: React.FC = () => {
                             type='number'
                         />
                         <Textarea label='Postup' name='method' />
-                        <RecipeSections />
+                        <RecipeSections allUnits={listOfUnits} />
                         <Select
                             name='categoryId'
                             label='Kategória receptu'

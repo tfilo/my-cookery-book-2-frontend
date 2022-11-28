@@ -72,6 +72,9 @@ const User: React.FC = () => {
 
     const methods = useForm<UserForm>({
         resolver: yupResolver(schema),
+        defaultValues: {
+            roles: [],
+        },
     });
 
     const {
