@@ -9,11 +9,11 @@ import {
     faCircleChevronDown,
     faCircleChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
-import Select, { SelectIngredientsOption } from '../UI/Select';
+import Select, { SelectGroupOptions } from '../UI/Select';
 
 type IngredientsProps = {
     recipeSectionName: string;
-    ingredientsData: SelectIngredientsOption[];
+    ingredientsData: SelectGroupOptions[];
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
@@ -70,7 +70,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                     <Select
                                         label='Jednotka'
                                         name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                        ingredientsOptions={props.ingredientsData}
+                                        groupOptions={props.ingredientsData}
                                     />
                                     <Button
                                         variant='light'

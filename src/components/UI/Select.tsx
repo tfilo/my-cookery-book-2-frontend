@@ -3,33 +3,27 @@ import { Form } from 'react-bootstrap';
 import { useFormContext, Controller } from 'react-hook-form';
 import { get } from 'lodash';
 
-export type SelectIngredientsOption = {
-    categoryId: number;
-    categoryName: string;
-    units: {
-        value: string | number;
-        label: string;
-    }[];
-    disabled?: boolean;
+export type SelectGroupOptions = {
+    optGroupId: number;
+    optGroupName: string;
+    options: SelectOption[];
 };
 
 export type SelectOption = {
     value: string | number;
     label: string;
-    disabled?: boolean;
 };
 
 type SelectProps = {
     label: string;
     name: string;
     options?: SelectOption[];
-    ingredientsOptions?: SelectIngredientsOption[];
+    groupOptions?: SelectGroupOptions[];
     disabled?: boolean;
     multiple?: boolean;
 };
 
 const Select: React.FC<SelectProps> = (props) => {
-
     const id = useId();
     const {
         formState: { errors },
@@ -63,27 +57,27 @@ const Select: React.FC<SelectProps> = (props) => {
                             </option>
                         )}
 
-                        {props.ingredientsOptions?.map((category) => (
-                            <optgroup key={category.categoryId} label={category.categoryName}>
-                                {category.units.map((unit) => (
-                                    <option key={unit.value} value={unit.value}>
-                                        {unit.label}
+                        {props.groupOptions?.map((optGroup) => (
+                            <optgroup
+                                key={optGroup.optGroupId}
+                                label={optGroup.optGroupName}
+                            >
+                                {optGroup.options.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
                                     </option>
                                 ))}
                             </optgroup>
                         ))}
 
-                        {props.options?.map((option) => {
-                            return (
-                                <option
-                                    key={option.value}
-                                    value={option.value}
-                                    disabled={option.disabled}
-                                >
-                                    {option.label}
-                                </option>
-                            );
-                        })}
+                        {props.options?.map((option) => (
+                            <option
+                                key={option.value}
+                                value={option.value}
+                            >
+                                {option.label}
+                            </option>
+                        ))}
                     </Form.Select>
                     <Form.Control.Feedback type='invalid'>
                         {errorMessage?.toString()}

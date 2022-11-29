@@ -15,7 +15,7 @@ import {
 } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { Button, Form } from 'react-bootstrap';
-import Select, { SelectIngredientsOption } from '../UI/Select';
+import Select, { SelectGroupOptions } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
@@ -161,7 +161,7 @@ const Recipe: React.FC = () => {
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [ingredientsData, setIngredientsData] = useState<
-        SelectIngredientsOption[]
+        SelectGroupOptions[]
     >([]);
 
     useEffect(() => {
@@ -174,35 +174,19 @@ const Recipe: React.FC = () => {
 
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
-                // const listOfUnitCategoriesId = unitCategories.map(
-                //     (unitCategory) => unitCategory.id
-                // );
-                // console.log(unitCategories);
-                // const allUnits: SelectOption[] = [];
-                // for (let categoryId of listOfUnitCategoriesId) {
-                //     allUnits.push(
-                //         ...(
-                //             await unitApi.getUnitsByUnitCategory(categoryId)
-                //         ).map((unit) => {
-                //             return { value: unit.id, label: unit.name };
-                //         })
-                //     );
-                // }
-                // console.log(allUnits);
-                // setListOfUnits(allUnits);
 
-                const data = [];
+                const data: SelectGroupOptions[] = [];
                 for (let category of unitCategories) {
                     const unitByCategoryId =
                         await unitApi.getUnitsByUnitCategory(category.id);
                     const updatedUnits = unitByCategoryId.map((unit) => {
                         return { value: unit.id, label: unit.name };
                     });
-                        data.push({
-                            categoryId: category.id,
-                            categoryName: category.name,
-                            units: updatedUnits
-                        });
+                    data.push({
+                        optGroupId: category.id,
+                        optGroupName: category.name,
+                        options: updatedUnits,
+                    });
                 }
                 console.log(data);
                 setIngredientsData(data);
@@ -236,7 +220,7 @@ const Recipe: React.FC = () => {
                         noValidate
                     >
                         <Input name='name' label='Názov' />
-                        <Input name='description' label='Popis' />
+                        <Textarea name='description' label='Popis' />
                         <Input
                             name='serves'
                             label='Počet porcií'
