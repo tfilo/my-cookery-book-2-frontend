@@ -70,7 +70,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                     <Select
                                         label='Jednotka'
                                         name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                        groupOptions={props.ingredientsData}
+                                        options={props.ingredientsData}
                                     />
                                     <Button
                                         variant='light'

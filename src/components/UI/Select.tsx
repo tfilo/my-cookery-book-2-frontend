@@ -17,8 +17,7 @@ export type SelectOption = {
 type SelectProps = {
     label: string;
     name: string;
-    options?: SelectOption[];
-    groupOptions?: SelectGroupOptions[];
+    options: (SelectOption | SelectGroupOptions)[];
     disabled?: boolean;
     multiple?: boolean;
 };
@@ -57,27 +56,58 @@ const Select: React.FC<SelectProps> = (props) => {
                             </option>
                         )}
 
-                        {props.groupOptions?.map((optGroup) => (
-                            <optgroup
-                                key={optGroup.optGroupId}
-                                label={optGroup.optGroupName}
-                            >
-                                {optGroup.options.map((option) => (
-                                    <option key={option.value} value={option.value}>
+                        {props.options?.map((option) => {
+                            if ('options' in option) {
+                                return (
+                                    <optgroup
+                                        key={option.optGroupId}
+                                        label={option.optGroupName}
+                                    >
+                                        {option.options.map((opt) => (
+                                            <option
+                                                key={opt.value}
+                                                value={opt.value}
+                                            >
+                                                {opt.label}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                );
+                            } else {
+                                return (
+                                    <option
+                                        key={option.value}
+                                        value={option.value}
+                                    >
                                         {option.label}
                                     </option>
-                                ))}
-                            </optgroup>
-                        ))}
+                                );
+                            }
+                        })}
 
-                        {props.options?.map((option) => (
-                            <option
-                                key={option.value}
-                                value={option.value}
-                            >
-                                {option.label}
-                            </option>
-                        ))}
+                        {/* {'groupOptions' in props &&
+                            props.groupOptions?.map((optGroup) => (
+                                <optgroup
+                                    key={optGroup.optGroupId}
+                                    label={optGroup.optGroupName}
+                                >
+                                    {optGroup.options.map((option) => (
+                                        <option
+                                            key={option.value}
+                                            value={option.value}
+                                        >
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            ))}
+
+                        {'options' in props &&
+                            props.options?.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))} */}
                     </Form.Select>
                     <Form.Control.Feedback type='invalid'>
                         {errorMessage?.toString()}
