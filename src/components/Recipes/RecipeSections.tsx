@@ -11,10 +11,10 @@ import {
     faCircleChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
-import { SelectOption } from '../UI/Select';
+import { SelectIngredientsOption } from '../UI/Select';
 
 type RecipeSectionsProps = {
-    allUnits: SelectOption[];
+    ingredientsData: SelectIngredientsOption[];
 };
 
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
@@ -72,7 +72,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 />
 
                                 <Ingredients
-                                    allUnits={props.allUnits}
+                                    ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
                                 <Textarea

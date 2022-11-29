@@ -3,6 +3,16 @@ import { Form } from 'react-bootstrap';
 import { useFormContext, Controller } from 'react-hook-form';
 import { get } from 'lodash';
 
+export type SelectIngredientsOption = {
+    categoryId: number;
+    categoryName: string;
+    units: {
+        value: string | number;
+        label: string;
+    }[];
+    disabled?: boolean;
+};
+
 export type SelectOption = {
     value: string | number;
     label: string;
@@ -12,12 +22,14 @@ export type SelectOption = {
 type SelectProps = {
     label: string;
     name: string;
-    options: SelectOption[];
+    options?: SelectOption[];
+    ingredientsOptions?: SelectIngredientsOption[];
     disabled?: boolean;
     multiple?: boolean;
 };
 
 const Select: React.FC<SelectProps> = (props) => {
+
     const id = useId();
     const {
         formState: { errors },
@@ -46,14 +58,22 @@ const Select: React.FC<SelectProps> = (props) => {
                         isInvalid={!!errorMessage}
                     >
                         {!props.multiple && (
-                            <option
-                                value='-1'
-                                disabled
-                            >
+                            <option value='-1' disabled>
                                 Prosím zvolte možnosť
                             </option>
                         )}
-                        {props.options.map((option) => {
+
+                        {props.ingredientsOptions?.map((category) => (
+                            <optgroup key={category.categoryId} label={category.categoryName}>
+                                {category.units.map((unit) => (
+                                    <option key={unit.value} value={unit.value}>
+                                        {unit.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        ))}
+
+                        {props.options?.map((option) => {
                             return (
                                 <option
                                     key={option.value}

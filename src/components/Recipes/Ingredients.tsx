@@ -9,11 +9,11 @@ import {
     faCircleChevronDown,
     faCircleChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
-import Select, { SelectOption } from '../UI/Select';
+import Select, { SelectIngredientsOption } from '../UI/Select';
 
 type IngredientsProps = {
     recipeSectionName: string;
-    allUnits: SelectOption[];
+    ingredientsData: SelectIngredientsOption[];
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
@@ -67,14 +67,10 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                         name={`${props.recipeSectionName}.ingredients.${index}.value`}
                                         label='value ingrediencie'
                                     />
-                                    {/* <Input
-                                        name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                        label='Id ingrediencie'
-                                    /> */}
                                     <Select
                                         label='Jednotka'
                                         name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                        options={props.allUnits}
+                                        ingredientsOptions={props.ingredientsData}
                                     />
                                     <Button
                                         variant='light'

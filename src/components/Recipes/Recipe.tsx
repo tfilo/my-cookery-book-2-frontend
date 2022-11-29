@@ -15,7 +15,7 @@ import {
 } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { Button, Form } from 'react-bootstrap';
-import Select, { SelectOption } from '../UI/Select';
+import Select, { SelectIngredientsOption } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
@@ -160,7 +160,9 @@ const Recipe: React.FC = () => {
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [listOfUnits, setListOfUnits] = useState<SelectOption[]>([]);
+    const [ingredientsData, setIngredientsData] = useState<
+        SelectIngredientsOption[]
+    >([]);
 
     useEffect(() => {
         (async () => {
@@ -172,22 +174,38 @@ const Recipe: React.FC = () => {
 
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
-                const listOfUnitCategoriesId = unitCategories.map(
-                    (unitCategory) => unitCategory.id
-                );
+                // const listOfUnitCategoriesId = unitCategories.map(
+                //     (unitCategory) => unitCategory.id
+                // );
+                // console.log(unitCategories);
+                // const allUnits: SelectOption[] = [];
+                // for (let categoryId of listOfUnitCategoriesId) {
+                //     allUnits.push(
+                //         ...(
+                //             await unitApi.getUnitsByUnitCategory(categoryId)
+                //         ).map((unit) => {
+                //             return { value: unit.id, label: unit.name };
+                //         })
+                //     );
+                // }
+                // console.log(allUnits);
+                // setListOfUnits(allUnits);
 
-                const allUnits: SelectOption[] = [];
-                for (let categoryId of listOfUnitCategoriesId) {
-                    allUnits.push(
-                        ...(
-                            await unitApi.getUnitsByUnitCategory(categoryId)
-                        ).map((unit) => {
-                            return { value: unit.id, label: unit.name };
-                        })
-                    );
+                const data = [];
+                for (let category of unitCategories) {
+                    const unitByCategoryId =
+                        await unitApi.getUnitsByUnitCategory(category.id);
+                    const updatedUnits = unitByCategoryId.map((unit) => {
+                        return { value: unit.id, label: unit.name };
+                    });
+                        data.push({
+                            categoryId: category.id,
+                            categoryName: category.name,
+                            units: updatedUnits
+                        });
                 }
-                console.log(allUnits);
-                setListOfUnits(allUnits);
+                console.log(data);
+                setIngredientsData(data);
             } catch (err) {
                 console.error(err);
             }
@@ -225,7 +243,7 @@ const Recipe: React.FC = () => {
                             type='number'
                         />
                         <Textarea label='Postup' name='method' />
-                        <RecipeSections allUnits={listOfUnits} />
+                        <RecipeSections ingredientsData={ingredientsData} />
                         <Select
                             name='categoryId'
                             label='Kategória receptu'
