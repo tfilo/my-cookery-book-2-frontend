@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Card, Stack } from 'react-bootstrap';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import Input from '../UI/Input';
 import Ingredients from './Ingredients';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,8 +18,6 @@ type RecipeSectionsProps = {
 };
 
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
-    const context = useFormContext();
-
     const { fields, append, remove, move } = useFieldArray({
         name: 'recipeSections',
     });
@@ -36,9 +34,14 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                     onClick={() =>
                         append({
                             name: '',
-                            sortNumber: null,
                             method: null,
-                            ingredients: [],
+                            ingredients: [
+                                {
+                                    name: '',
+                                    value: 0,
+                                    unitId: -1,
+                                },
+                            ],
                         })
                     }
                 >
@@ -51,13 +54,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                     <Card key={field?.id} className='mb-4'>
                         <Card.Body>
                             <section>
-                                <input
-                                    {...context.register(
-                                        `recipeSections.${index}.sortNumber`
-                                    )}
-                                    value={index + 1}
-                                    type='hidden'
-                                />
                                 <div
                                     className='position-absolute'
                                     style={{
@@ -112,7 +108,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 />
                                 <Textarea
                                     label='Postup'
-                                    name={`recipeSections.${index}.methods`}
+                                    name={`recipeSections.${index}.method`}
                                 />
                             </section>
                         </Card.Body>

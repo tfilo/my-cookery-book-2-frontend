@@ -1,8 +1,8 @@
 import React from 'react';
 import Recipe from '../components/Recipes/Recipe';
 
-const AddRecipePage: React.FC = () => {
+const RecipePage: React.FC = () => {
     return <Recipe />;
 };
 
-export default AddRecipePage;
+export default RecipePage;

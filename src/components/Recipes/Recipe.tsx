@@ -19,6 +19,7 @@ import Select, { SelectGroupOptions } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface CreateRecipeForm extends Omit<Api.CreateRecipe, 'sources'> {
     sources: {
@@ -82,11 +83,6 @@ const schema = yup.object({
                     // .min(1, 'Musí byť minimálne 1 znak')
                     .max(80, 'Musí byť maximálne 80 znakov')
                     .required(),
-                sortNumber: yup
-                    .number()
-                    .integer()
-                    .min(1, 'Musí byť minimálne 1 znak')
-                    .required(),
                 method: yup
                     .string()
                     .defined()
@@ -105,12 +101,12 @@ const schema = yup.object({
                                 // .min(1, 'Musí byť minimálne 1 znak')
                                 .max(80, 'Musí byť maximálne 80 znakov')
                                 .required(),
-                            sortNumber: yup
+                            value: yup
                                 .number()
-                                .integer()
-                                .min(1, 'Musí byť minimálne 1 znak')
-                                .required(),
-                            value: yup.number().defined().min(0).default(null).nullable(),
+                                .defined()
+                                .min(0)
+                                .default(null)
+                                .nullable(),
                             unitId: yup
                                 .number()
                                 .integer()
@@ -124,24 +120,27 @@ const schema = yup.object({
         .required(),
     associatedRecipes: yup
         .array()
+        .defined()
+        .transform((val) => (val === null ? [] : val))
         .of(yup.number().integer().min(1).required())
-        .required(),
+        .nullable(),
     tags: yup.array().of(yup.number().integer().min(1).required()).required(),
-    pictures: yup
-        .array()
-        .of(
-            yup.object({
-                id: yup.number().integer().min(1).required(),
-                name: yup
-                    .string()
-                    .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
-                    .max(80, 'Musí byť maximálne 80 znakov')
-                    .required(),
-                sortNumber: yup.number().integer().min(1).required(),
-            })
-        )
-        .required(),
+    // pictures: yup
+    //     .array()
+    //     .of(
+    //         yup.object({
+    //             id: yup.number().integer().min(1).required(),
+    //             name: yup
+    //                 .string()
+    //                 .trim()
+    //                 .min(1, 'Musí byť minimálne 1 znak')
+    //                 .max(80, 'Musí byť maximálne 80 znakov')
+    //                 .required(),
+    //             sortNumber: yup.number().integer().min(1).required(),
+    //         })
+    //     )
+    //     .transform((val) => (val === '' ? [] : val))
+    //     .required(),
 });
 
 const Recipe: React.FC = () => {
@@ -151,12 +150,10 @@ const Recipe: React.FC = () => {
             recipeSections: [
                 {
                     name: '',
-                    sortNumber: 1,
                     method: null,
                     ingredients: [
                         {
                             name: '',
-                            sortNumber: 1,
                             value: 0,
                             unitId: -1,
                         },
@@ -164,8 +161,8 @@ const Recipe: React.FC = () => {
                 },
             ],
             tags: [],
+            associatedRecipes: [],
             categoryId: -1,
-            pictures: [],
         },
     });
 
@@ -182,6 +179,31 @@ const Recipe: React.FC = () => {
         SelectGroupOptions[]
     >([]);
 
+    const navigate = useNavigate();
+    const params = useParams();
+
+    useEffect(() => {
+        if (params.recipeId) {
+            const paramsNumber = params?.recipeId;
+            (async () => {
+                const data = await recipeApi.getRecipe(parseInt(paramsNumber));
+                console.log(data);
+
+                // methods.reset(data);
+                methods.reset({
+                    ...data,
+                    sources: data.sources.map((s) => {
+                        return { value: s };
+                    }),
+                    associatedRecipes: data.associatedRecipes.map(
+                        (ar) => ar.id
+                    ),
+                    tags: data.tags.map((t) => t.id),
+                });
+            })();
+        }
+    }, [params.recipeId, methods]);
+
     useEffect(() => {
         (async () => {
             try {
@@ -189,9 +211,7 @@ const Recipe: React.FC = () => {
                 setListOfCategories(categories);
 
                 const tags = await tagApi.getTags();
-                console.log(tags);
                 setListOfTags(tags);
-                // console.log(listOfTags);
 
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
@@ -221,11 +241,28 @@ const Recipe: React.FC = () => {
         data: CreateRecipeForm
     ) => {
         console.log(data);
+
+        const sendData = {
+            ...data,
+            sources: data.sources.map((s) => s.value),
+            recipeSections: data.recipeSections.map((rs, index) => {
+                return {
+                    ...rs,
+                    sortNumber: index + 1,
+                    ingredients: rs.ingredients.map((i, index) => {
+                        return {
+                            ...i,
+                            sortNumber: index + 1,
+                        };
+                    }),
+                };
+            }),
+            pictures: [],
+        };
+        console.log(sendData);
         try {
-            await recipeApi.createRecipe({
-                ...data,
-                sources: data.sources.map((s) => s.value),
-            });
+            await recipeApi.createRecipe(sendData);
+            navigate('/recipes');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -264,10 +301,10 @@ const Recipe: React.FC = () => {
                                 žiadna nie je zadefinovaná.
                             </p>
                         )}
-                        <Input
-                            name='associateRecipes'
+                        <Select
+                            name='associatedRecipes'
                             label='Súvisiace recepty'
-                            placeholder='Vyhľadajte súvisiaci recept'
+                            options={[]}
                         />
                         <Select
                             name='tags'
@@ -285,7 +322,7 @@ const Recipe: React.FC = () => {
                             </p>
                         )}
                         <Sources />
-                        <Input name='pictures' label='Obrázky' />
+                        {/* <Input name='pictures' label='Obrázky' /> */}
                         <Button variant='primary' type='submit'>
                             Uložiť recept
                         </Button>

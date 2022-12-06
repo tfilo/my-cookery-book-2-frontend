@@ -12,7 +12,7 @@ import UnitsPage from './pages/UnitsPage';
 import TagsPage from './pages/TagsPage';
 import ProfilePage from './pages/ProfilePage';
 import CategoryPage from './pages/CategoryPage';
-import AddRecipePage from './pages/AddRecipePage';
+import RecipePage from './pages/RecipePage';
 import { authApi, categoryApi } from './utils/apiWrapper';
 import { Api } from './openapi';
 import UserPage from './pages/UserPage';
@@ -137,7 +137,7 @@ function App() {
                                         Značky
                                     </Nav.Link>
                                     <Nav.Link
-                                        to='/addRecipe'
+                                        to='/recipe'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
@@ -210,8 +210,12 @@ function App() {
                                 element={<UnitCategoryPage />}
                             />
                             <Route
-                                path='/addRecipe'
-                                element={<AddRecipePage />}
+                                path='/recipe'
+                                element={<RecipePage />}
+                            />
+                            <Route
+                                path='/recipe/:recipeId'
+                                element={<RecipePage />}
                             />
                             <Route path='/recipes' element={<RecipesPage />} />
                             <Route

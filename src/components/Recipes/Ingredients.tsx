@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Card, Col, Row, Stack } from 'react-bootstrap';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import Input from '../UI/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,9 +17,6 @@ type IngredientsProps = {
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
-    // console.log(props);
-    const context = useFormContext();
-
     const { fields, append, remove, move } = useFieldArray({
         name: `${props.recipeSectionName}.ingredients`,
     });
@@ -51,13 +48,6 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                         <Card.Body>
                             <section>
                                 <Row>
-                                    <input
-                                        {...context.register(
-                                            `${props.recipeSectionName}.ingredients.${index}.sortNumber`
-                                        )}
-                                        value={index + 1}
-                                        type='hidden'
-                                    />
                                     <Col sx={12} sm={12} lg={6}>
                                         <Input
                                             name={`${props.recipeSectionName}.ingredients.${index}.name`}
@@ -68,6 +58,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                         <Input
                                             name={`${props.recipeSectionName}.ingredients.${index}.value`}
                                             label='Množstvo'
+                                            type='number'
                                         />
                                     </Col>
                                     <Col sx={6} sm={6} lg={2}>
