@@ -17,7 +17,7 @@ type IngredientsProps = {
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
-    console.log(props);
+    // console.log(props);
     const context = useFormContext();
 
     const { fields, append, remove, move } = useFieldArray({

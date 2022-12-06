@@ -37,15 +37,26 @@ const schema = yup.object({
         .string()
         .defined()
         .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
+        .transform((val) => (val === '' ? null : val))
+        // .min(1, 'Musí byť minimálne 1 znak')
         .max(160, 'Musí byť maximálne 160 znakov')
+        .default(null)
         .nullable(),
-    serves: yup.number().integer().defined().min(0).max(100).nullable(),
+    serves: yup
+        .number()
+        .integer()
+        .defined()
+        .min(0)
+        .max(100, 'Musí byť maximálne 100 znakov')
+        .default(null)
+        .nullable(),
     method: yup
         .string()
         .defined()
         .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
+        .transform((val) => (val === '' ? null : val))
+        // .min(1, 'Musí byť minimálne 1 znak')
+        .default(null)
         .nullable(),
     sources: yup
         .array()
@@ -54,8 +65,8 @@ const schema = yup.object({
                 value: yup
                     .string()
                     .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
-                    .max(1000, 'Musí byť maximálne 80 znakov')
+                    // .min(1, 'Musí byť minimálne 1 znak')
+                    .max(1000, 'Musí byť maximálne 1000 znakov')
                     .required(),
             })
         )
@@ -68,15 +79,21 @@ const schema = yup.object({
                 name: yup
                     .string()
                     .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
+                    // .min(1, 'Musí byť minimálne 1 znak')
                     .max(80, 'Musí byť maximálne 80 znakov')
                     .required(),
-                sortNumber: yup.number().integer().min(1).required(),
+                sortNumber: yup
+                    .number()
+                    .integer()
+                    .min(1, 'Musí byť minimálne 1 znak')
+                    .required(),
                 method: yup
                     .string()
                     .defined()
                     .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
+                    .transform((val) => (val === '' ? null : val))
+                    // .min(1, 'Musí byť minimálne 1 znak')
+                    .default(null)
                     .nullable(),
                 ingredients: yup
                     .array()
@@ -85,15 +102,15 @@ const schema = yup.object({
                             name: yup
                                 .string()
                                 .trim()
-                                .min(1, 'Musí byť minimálne 1 znak')
+                                // .min(1, 'Musí byť minimálne 1 znak')
                                 .max(80, 'Musí byť maximálne 80 znakov')
                                 .required(),
                             sortNumber: yup
                                 .number()
                                 .integer()
-                                .min(1)
+                                .min(1, 'Musí byť minimálne 1 znak')
                                 .required(),
-                            value: yup.number().defined().min(0).nullable(),
+                            value: yup.number().defined().min(0).default(null).nullable(),
                             unitId: yup
                                 .number()
                                 .integer()
@@ -148,6 +165,7 @@ const Recipe: React.FC = () => {
             ],
             tags: [],
             categoryId: -1,
+            pictures: [],
         },
     });
 
@@ -169,8 +187,11 @@ const Recipe: React.FC = () => {
             try {
                 const categories = await categoryApi.getCategories();
                 setListOfCategories(categories);
+
                 const tags = await tagApi.getTags();
+                console.log(tags);
                 setListOfTags(tags);
+                // console.log(listOfTags);
 
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
@@ -188,7 +209,7 @@ const Recipe: React.FC = () => {
                         options: updatedUnits,
                     });
                 }
-                console.log(data);
+                // console.log(data);
                 setIngredientsData(data);
             } catch (err) {
                 console.error(err);

@@ -84,30 +84,6 @@ const Select: React.FC<SelectProps> = (props) => {
                                 );
                             }
                         })}
-
-                        {/* {'groupOptions' in props &&
-                            props.groupOptions?.map((optGroup) => (
-                                <optgroup
-                                    key={optGroup.optGroupId}
-                                    label={optGroup.optGroupName}
-                                >
-                                    {optGroup.options.map((option) => (
-                                        <option
-                                            key={option.value}
-                                            value={option.value}
-                                        >
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </optgroup>
-                            ))}
-
-                        {'options' in props &&
-                            props.options?.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))} */}
                     </Form.Select>
                     <Form.Control.Feedback type='invalid'>
                         {errorMessage?.toString()}

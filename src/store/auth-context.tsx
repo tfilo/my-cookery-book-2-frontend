@@ -55,7 +55,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         const tokenIsValid = tokenValidity(token) > 0;
         const refreshTokenIsValid = tokenValidity(refreshToken) > 0;
         if (tokenIsValid && refreshTokenIsValid) {
-            console.log('setting timeout');
+            // console.log('setting timeout');
             const interval = setTimeout(() => {
                 (async () => {
                     if (refreshToken) {
