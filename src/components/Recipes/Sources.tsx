@@ -2,6 +2,10 @@ import React from 'react';
 import { Button, Card, Stack } from 'react-bootstrap';
 import { useFieldArray } from 'react-hook-form';
 import InputWithBtn from '../UI/InputWithBtn';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faCirclePlus,
+} from '@fortawesome/free-solid-svg-icons';
 
 const Sources: React.FC = () => {
     const {
@@ -17,10 +21,17 @@ const Sources: React.FC = () => {
             <Stack direction='horizontal' gap={3}>
                 <h2>Zdroj receptu</h2>
                 <Button
+                    aria-label='pridať zdroj receptu'
+                    variant='outline-success'
                     type='button'
-                    onClick={() => sourcesAppend({ value: '' })}
+                    className='border-0'
+                    onClick={() =>
+                        sourcesAppend({
+                            value: '',
+                        })
+                    }
                 >
-                    Pridať zdroj receptu
+                    <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
 

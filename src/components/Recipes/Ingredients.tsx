@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Stack } from 'react-bootstrap';
+import { Button, Card, Col, Row, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,8 +30,9 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                 <h3>Suroviny</h3>
                 <Button
                     aria-label='pridať ingredienciu'
-                    variant='light'
+                    variant='outline-success'
                     type='button'
+                    className='border-0'
                     onClick={() =>
                         append({
                             name: '',
@@ -44,68 +45,88 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                     <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
-            <Card className='mb-4'>
-                <Card.Body>
-                    {fields.map((field, index) => {
-                        return (
-                            <section key={field?.id}>
-                                <input
-                                    {...context.register(
-                                        `${props.recipeSectionName}.ingredients.${index}.sortNumber`
-                                    )}
-                                    value={index + 1}
-                                    type='hidden'
-                                />
-
-                                <Stack direction='horizontal' gap={1}>
-                                    <Input
-                                        name={`${props.recipeSectionName}.ingredients.${index}.name`}
-                                        label='Názov ingrediencie'
+            {fields.map((field, index) => {
+                return (
+                    <Card className='mb-4' key={field?.id}>
+                        <Card.Body>
+                            <section>
+                                <Row>
+                                    <input
+                                        {...context.register(
+                                            `${props.recipeSectionName}.ingredients.${index}.sortNumber`
+                                        )}
+                                        value={index + 1}
+                                        type='hidden'
                                     />
-
-                                    <Input
-                                        name={`${props.recipeSectionName}.ingredients.${index}.value`}
-                                        label='value ingrediencie'
-                                    />
-                                    <Select
-                                        label='Jednotka'
-                                        name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                        options={props.ingredientsData}
-                                    />
-                                    <Button
-                                        variant='light'
-                                        aria-label='presunúť ingredienciu nahor'
-                                        type='button'
-                                        onClick={() => remove(index)}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faCircleChevronUp}
+                                    <Col sx={12} sm={12} lg={6}>
+                                        <Input
+                                            name={`${props.recipeSectionName}.ingredients.${index}.name`}
+                                            label='Názov ingrediencie'
                                         />
-                                    </Button>
-                                    <Button
-                                        variant='light'
-                                        aria-label='presunúť ingredienciu nadol'
-                                        type='button'
-                                        onClick={() => move(index, index + 1)}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faCircleChevronDown}
+                                    </Col>
+                                    <Col sx={6} sm={6} lg={2}>
+                                        <Input
+                                            name={`${props.recipeSectionName}.ingredients.${index}.value`}
+                                            label='Množstvo'
                                         />
-                                    </Button>
-                                    <Button
-                                        variant='light'
-                                        aria-label='vymazať ingredienciu'
-                                        type='button'
-                                        onClick={() => remove(index)}
-                                    >
-                                        <FontAwesomeIcon icon={faCircleMinus} />
-                                    </Button>
-                                </Stack>
+                                    </Col>
+                                    <Col sx={6} sm={6} lg={2}>
+                                        <Select
+                                            label='Jednotka'
+                                            name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
+                                            options={props.ingredientsData}
+                                        />
+                                    </Col>
+
+                                    <Col sx={12} sm={12} lg={2}>
+                                        <Stack direction='horizontal' gap={1}>
+                                            <Button
+                                                variant='outline-light'
+                                                aria-label='presunúť ingredienciu nahor'
+                                                type='button'
+                                                onClick={() =>
+                                                    move(index, index - 1)
+                                                }
+                                                className='border-0 mt-4'
+                                            >
+                                                <FontAwesomeIcon
+                                                    className='text-dark'
+                                                    icon={faCircleChevronUp}
+                                                />
+                                            </Button>
+                                            <Button
+                                                variant='outline-light'
+                                                aria-label='presunúť ingredienciu nadol'
+                                                type='button'
+                                                onClick={() =>
+                                                    move(index, index + 1)
+                                                }
+                                                className='border-0 mt-4'
+                                            >
+                                                <FontAwesomeIcon
+                                                    className='text-dark'
+                                                    icon={faCircleChevronDown}
+                                                />
+                                            </Button>
+                                            <Button
+                                                variant='outline-danger'
+                                                aria-label='vymazať ingredienciu'
+                                                type='button'
+                                                onClick={() => remove(index)}
+                                                className='border-0 mt-4'
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faCircleMinus}
+                                                />
+                                            </Button>
+                                        </Stack>
+                                    </Col>
+                                </Row>
                             </section>
-                        );
-                    })}
-                </Card.Body>
-            </Card>
+                        </Card.Body>
+                    </Card>
+                );
+            })}
         </>
     );
 };

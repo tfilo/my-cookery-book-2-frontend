@@ -20,7 +20,7 @@ type RecipeSectionsProps = {
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
     const context = useFormContext();
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, move } = useFieldArray({
         name: 'recipeSections',
     });
 
@@ -30,8 +30,9 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                 <h2>Sekcie</h2>
                 <Button
                     aria-label='pridať sekciu'
-                    variant='light'
+                    variant='outline-success'
                     type='button'
+                    className='border-0'
                     onClick={() =>
                         append({
                             name: '',
@@ -50,14 +51,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                     <Card key={field?.id} className='mb-4'>
                         <Card.Body>
                             <section>
-                                <Button
-                                    aria-label='vymazať sekciu'
-                                    variant='light'
-                                    type='button'
-                                    onClick={() => remove(index)}
-                                >
-                                    <FontAwesomeIcon icon={faCircleMinus} />
-                                </Button>
                                 <input
                                     {...context.register(
                                         `recipeSections.${index}.sortNumber`
@@ -65,12 +58,54 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     value={index + 1}
                                     type='hidden'
                                 />
-
+                                <div
+                                    className='position-absolute'
+                                    style={{
+                                        top: '0px',
+                                        right: '0px',
+                                    }}
+                                >
+                                    <Button
+                                        variant='outline-light'
+                                        aria-label='presunúť sekciu nahor'
+                                        type='button'
+                                        onClick={() => move(index, index - 1)}
+                                        className='border-0'
+                                    >
+                                        <FontAwesomeIcon
+                                            className='text-dark'
+                                            icon={faCircleChevronUp}
+                                        />
+                                    </Button>
+                                    <Button
+                                        variant='outline-light'
+                                        aria-label='presunúť sekciu nadol'
+                                        type='button'
+                                        onClick={() => move(index, index + 1)}
+                                        className='border-0'
+                                    >
+                                        <FontAwesomeIcon
+                                            className='text-dark'
+                                            icon={faCircleChevronDown}
+                                        />
+                                    </Button>
+                                    <Button
+                                        aria-label='vymazať sekciu'
+                                        variant='outline-danger'
+                                        type='button'
+                                        onClick={() => remove(index)}
+                                        className='border-0'
+                                    >
+                                        <FontAwesomeIcon icon={faCircleMinus} />
+                                    </Button>
+                                </div>
+                                {/* <Stack direction='horizontal' gap={1}> */}
                                 <Input
                                     name={`recipeSections.${index}.name`}
                                     label='Názov sekcie'
+                                    className='col-12'
                                 />
-
+                                {/* </Stack> */}
                                 <Ingredients
                                     ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
@@ -79,24 +114,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     label='Postup'
                                     name={`recipeSections.${index}.methods`}
                                 />
-                                <Button
-                                    variant='light'
-                                    aria-label='presunúť sekciu nahor'
-                                    type='button'
-                                    onClick={() => remove(index)}
-                                >
-                                    <FontAwesomeIcon icon={faCircleChevronUp} />
-                                </Button>
-                                <Button
-                                    variant='light'
-                                    aria-label='presunúť sekciu nadol'
-                                    type='button'
-                                    onClick={() => remove(index)}
-                                >
-                                    <FontAwesomeIcon
-                                        icon={faCircleChevronDown}
-                                    />
-                                </Button>
                             </section>
                         </Card.Body>
                     </Card>
