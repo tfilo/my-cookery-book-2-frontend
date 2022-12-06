@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Card, Col, Row, Stack } from 'react-bootstrap';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,6 +17,7 @@ type IngredientsProps = {
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
+    const { register } = useFormContext();
     const { fields, append, remove, move } = useFieldArray({
         name: `${props.recipeSectionName}.ingredients`,
     });
@@ -48,6 +49,12 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                         <Card.Body>
                             <section>
                                 <Row>
+                                    <input
+                                        {...register(
+                                            `${props.recipeSectionName}.ingredients.${index}.id`
+                                        )}
+                                        type='hidden'
+                                    />
                                     <Col sx={12} sm={12} lg={6}>
                                         <Input
                                             name={`${props.recipeSectionName}.ingredients.${index}.name`}

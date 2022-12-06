@@ -21,7 +21,8 @@ import Sources from './Sources';
 import Textarea from '../UI/Textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 
-interface CreateRecipeForm extends Omit<Api.CreateRecipe, 'sources'> {
+interface RecipeForm
+    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources'> {
     sources: {
         value: string;
     }[];
@@ -144,7 +145,7 @@ const schema = yup.object({
 });
 
 const Recipe: React.FC = () => {
-    const methods = useForm<CreateRecipeForm>({
+    const methods = useForm<RecipeForm>({
         resolver: yupResolver(schema),
         defaultValues: {
             recipeSections: [
@@ -183,28 +184,6 @@ const Recipe: React.FC = () => {
     const params = useParams();
 
     useEffect(() => {
-        if (params.recipeId) {
-            const paramsNumber = params?.recipeId;
-            (async () => {
-                const data = await recipeApi.getRecipe(parseInt(paramsNumber));
-                console.log(data);
-
-                // methods.reset(data);
-                methods.reset({
-                    ...data,
-                    sources: data.sources.map((s) => {
-                        return { value: s };
-                    }),
-                    associatedRecipes: data.associatedRecipes.map(
-                        (ar) => ar.id
-                    ),
-                    tags: data.tags.map((t) => t.id),
-                });
-            })();
-        }
-    }, [params.recipeId, methods]);
-
-    useEffect(() => {
         (async () => {
             try {
                 const categories = await categoryApi.getCategories();
@@ -229,16 +208,34 @@ const Recipe: React.FC = () => {
                         options: updatedUnits,
                     });
                 }
-                // console.log(data);
                 setIngredientsData(data);
+
+                if (params.recipeId) {
+                    const paramsNumber = parseInt(params?.recipeId);
+                    const data = await recipeApi.getRecipe(paramsNumber);
+                    methods.reset({
+                        ...data,
+                        sources: data.sources.map((s) => {
+                            return { value: s };
+                        }),
+                        associatedRecipes: data.associatedRecipes.map(
+                            (ar) => ar.id
+                        ),
+                        tags: data.tags.map((t) => t.id),
+                    });
+                }
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => setError(message));
             }
         })();
-    }, []);
+    }, [params.recipeId, methods]);
 
-    const submitHandler: SubmitHandler<CreateRecipeForm> = async (
-        data: CreateRecipeForm
+    const cancelHandler = () => {
+        navigate('/recipes');
+    };
+
+    const submitHandler: SubmitHandler<RecipeForm> = async (
+        data: RecipeForm
     ) => {
         console.log(data);
 
@@ -249,10 +246,12 @@ const Recipe: React.FC = () => {
                 return {
                     ...rs,
                     sortNumber: index + 1,
+                    id: 'id' in rs && rs.id ? rs.id : undefined,
                     ingredients: rs.ingredients.map((i, index) => {
                         return {
                             ...i,
                             sortNumber: index + 1,
+                            id: 'id' in i && i.id ? i.id : undefined,
                         };
                     }),
                 };
@@ -261,7 +260,11 @@ const Recipe: React.FC = () => {
         };
         console.log(sendData);
         try {
-            await recipeApi.createRecipe(sendData);
+            if (params.recipeId) {
+                await recipeApi.updateRecipe(+params.recipeId, sendData);
+            } else {
+                await recipeApi.createRecipe(sendData);
+            }
             navigate('/recipes');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
@@ -324,9 +327,18 @@ const Recipe: React.FC = () => {
                         <Sources />
                         {/* <Input name='pictures' label='Obrázky' /> */}
                         <Button variant='primary' type='submit'>
-                            Uložiť recept
+                            {params.recipeId
+                                ? 'Zmeniť recept'
+                                : 'Pridať recept'}
                         </Button>
                         {isSubmitting && <Spinner />}
+                        <Button
+                            variant='warning'
+                            type='button'
+                            onClick={cancelHandler}
+                        >
+                            Zrušiť
+                        </Button>
                     </Form>
                 </FormProvider>
             </div>

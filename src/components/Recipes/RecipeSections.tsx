@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Card, Stack } from 'react-bootstrap';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
 import Ingredients from './Ingredients';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -18,6 +18,8 @@ type RecipeSectionsProps = {
 };
 
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
+    const { register } = useFormContext();
+
     const { fields, append, remove, move } = useFieldArray({
         name: 'recipeSections',
     });
@@ -67,6 +69,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                         type='button'
                                         onClick={() => move(index, index - 1)}
                                         className='border-0'
+                                        disabled={index === 0}
                                     >
                                         <FontAwesomeIcon
                                             className='text-dark'
@@ -96,6 +99,10 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     </Button>
                                 </div>
                                 {/* <Stack direction='horizontal' gap={1}> */}
+                                <input
+                                    {...register(`recipeSections.${index}.id`)}
+                                    type='hidden'
+                                />
                                 <Input
                                     name={`recipeSections.${index}.name`}
                                     label='Názov sekcie'

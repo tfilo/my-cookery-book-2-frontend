@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { Form } from 'react-bootstrap';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import { get } from 'lodash';
 
 export type SelectGroupOptions = {
