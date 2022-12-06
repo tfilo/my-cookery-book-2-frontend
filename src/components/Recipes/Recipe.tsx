@@ -213,6 +213,8 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
+                    console.log(data);
+
                     methods.reset({
                         ...data,
                         sources: data.sources.map((s) => {
@@ -274,7 +276,9 @@ const Recipe: React.FC = () => {
     return (
         <div className='row justify-content-center'>
             <div className='col-lg-12 pt-3'>
-                <h1>Pridanie receptu</h1>
+                <h1>{params.recipeId
+                                ? 'Zmena receptu'
+                                : 'Pridanie receptu'}</h1>
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}

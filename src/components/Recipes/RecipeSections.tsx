@@ -51,7 +51,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                 </Button>
             </Stack>
 
-            {fields.map((field, index) => {
+            {fields.map((field, index, array) => {
                 return (
                     <Card key={field?.id} className='mb-4'>
                         <Card.Body>
@@ -82,6 +82,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                         type='button'
                                         onClick={() => move(index, index + 1)}
                                         className='border-0'
+                                        disabled={index === array.length-1}
                                     >
                                         <FontAwesomeIcon
                                             className='text-dark'

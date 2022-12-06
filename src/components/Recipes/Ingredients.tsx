@@ -43,7 +43,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                     <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
-            {fields.map((field, index) => {
+            {fields.map((field, index, array) => {
                 return (
                     <Card className='mb-4' key={field?.id}>
                         <Card.Body>
@@ -86,6 +86,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                                     move(index, index - 1)
                                                 }
                                                 className='border-0 mt-4'
+                                                disabled={index === 0}
                                             >
                                                 <FontAwesomeIcon
                                                     className='text-dark'
@@ -100,6 +101,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                                     move(index, index + 1)
                                                 }
                                                 className='border-0 mt-4'
+                                                disabled={index === array.length-1}
                                             >
                                                 <FontAwesomeIcon
                                                     className='text-dark'
