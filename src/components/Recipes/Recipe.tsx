@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
@@ -147,9 +147,13 @@ const schema = yup.object({
 });
 
 const Recipe: React.FC = () => {
-    const methods = useForm<RecipeForm>({
-        resolver: yupResolver(schema),
-        defaultValues: {
+    const defaultValues = useMemo(() => {
+        return {
+            name: '',
+            description: null,
+            serves: null,
+            method: null,
+            sources: [],
             recipeSections: [
                 {
                     name: '',
@@ -166,7 +170,12 @@ const Recipe: React.FC = () => {
             tags: [],
             associatedRecipes: [],
             categoryId: -1,
-        },
+        };
+    }, []);
+
+    const methods = useForm<RecipeForm>({
+        resolver: yupResolver(schema),
+        defaultValues,
     });
 
     const {
@@ -182,7 +191,8 @@ const Recipe: React.FC = () => {
         SelectGroupOptions[]
     >([]);
 
-    const [selectedFile, setSelectedFile] = useState<File>();
+    const [uploadedFiles, setUploadedFiles] = useState<{id: number, url: string, name: string}[]>([]);
+    const imageInputRef = useRef<HTMLInputElement>(null);
 
     const navigate = useNavigate();
     const params = useParams();
@@ -232,12 +242,14 @@ const Recipe: React.FC = () => {
                         //     return { value: t.id, label: t.name };
                         // }),
                     });
+                } else {
+                    methods.reset(defaultValues);
                 }
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             }
         })();
-    }, [params.recipeId, methods]);
+    }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
         navigate('/recipes');
@@ -265,6 +277,13 @@ const Recipe: React.FC = () => {
                     }),
                 };
             }),
+            // tags: data.tags.forEach((t) => {
+            //     const arrayOfTags = [];
+            //     arrayOfTags.push(t.value);
+            //     console.log(arrayOfTags);
+            //     return arrayOfTags
+            // }),
+            tags: [],
             pictures: [],
         };
         console.log(sendData);
@@ -280,34 +299,49 @@ const Recipe: React.FC = () => {
         }
     };
 
-    const pictureHandler = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
+    const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log(event);
-        console.log(event.target.files);
-
-        if (event.target.files && event.target.files.length === 1) {
-            console.log(event.target.files[0]);
-            setSelectedFile(event.target.files[0]);
-        }
-
-    };
-
-    useEffect(() => {
-        (async() => {
+        (async () => {
             try {
-                if (selectedFile) {
-                    console.log(selectedFile);
+                if (event.target.files && event.target.files.length === 1) {
+                    console.log(event.target.files);
+                    console.log(event.target.files[0]);
+                    const pictureName = event.target.files[0]?.name;
                     const picture = await pictureApi.uploadPicture({
-                        file: { value: selectedFile, filename: selectedFile?.name },
+                        file: {
+                            value: event.target.files[0],
+                            filename: pictureName,
+                        },
                     });
-                    console.log(picture);
+                    const data = await pictureApi.getPictureThumbnail(picture.id);
+                    console.log(data);
+                    if (data instanceof Blob) {
+                        const url = URL.createObjectURL(data);
+                        setUploadedFiles((prev) => {
+                            return [...prev, {id: picture.id, url: url, name: pictureName}];
+                        });
+                     }
+                    if (imageInputRef.current) {
+                        console.log(imageInputRef.current.value);
+                        imageInputRef.current.value = '';
+                        console.log(imageInputRef.current.value);
+                    }
                 }
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             }
         })();
-    }, [selectedFile])
+    };
+
+    // useEffect(() => {
+    //     for (let i = 0; i < uploadedFiles.length; i++) {
+    //         (async () => {
+    //             console.log(uploadedFiles[i])
+    //             await pictureApi.getPictureThumbnail(uploadedFiles[i]);
+    //             console.log('tu som')
+    //         })();
+    //     }
+    // }, [uploadedFiles]);
 
     return (
         <div className='row justify-content-center'>
@@ -365,7 +399,17 @@ const Recipe: React.FC = () => {
                             </p>
                         )}
                         <Sources />
-                        {/* <Input name='pictures' label='Obrázky' /> */}
+                        <Form.Group controlId='pictureUpload' className='mb-3'>
+                            <Form.Label>Pridajte obrázok</Form.Label>
+                            <Form.Control
+                                type='file'
+                                onChange={pictureHandler}
+                                ref={imageInputRef}
+                            />
+                        </Form.Group>
+                        {uploadedFiles.map((image) => (
+                            <img key={image.id} src={image.url} alt='obrázok'></img>
+                        ))}
                         <Button variant='primary' type='submit'>
                             {params.recipeId
                                 ? 'Zmeniť recept'
@@ -381,8 +425,6 @@ const Recipe: React.FC = () => {
                         </Button>
                     </Form>
                 </FormProvider>
-                <label>Obrázky</label>
-                <input type='file' onChange={pictureHandler} />
             </div>
             <Modal
                 show={!!error}

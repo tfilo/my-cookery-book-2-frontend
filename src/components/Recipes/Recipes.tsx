@@ -48,8 +48,6 @@ const Recipes: React.FC = () => {
         setRow(row);
     };
 
-    console.log(listOfRecipes);
-
     const deleteRecipeConfirmHandler = (status: boolean) => {
         (async () => {
             if (status === true) {
@@ -70,8 +68,6 @@ const Recipes: React.FC = () => {
             setRow(undefined);
         })();
     };
-
-    console.log(listOfRecipes);
 
     return (
         <Fragment>
