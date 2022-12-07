@@ -30,9 +30,7 @@ const Input: React.FC<InputProps> = (props) => {
         >
             <Form.Label>{props.label}</Form.Label>
             <Form.Control
-                {...register(props.name, {
-                    valueAsNumber: false,
-                })}
+                {...register(props.name)}
                 type={props.type ?? 'text'}
                 disabled={props.disabled}
                 autoComplete={props.autoComplete}
