@@ -36,7 +36,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "generate-openapi": "openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/alpha-0.0.2/src/openapi.json",
+    "generate-openapi": "openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/alpha-0.0.3/src/openapi.json && sed -i \"s|localVarHeaderParameter.set('Content-Type', 'multipart/form-data');|//removed content type|g\" src/openapi/api.ts",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
