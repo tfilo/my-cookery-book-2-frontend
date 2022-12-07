@@ -8,6 +8,7 @@ import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
     categoryApi,
+    pictureApi,
     recipeApi,
     tagApi,
     unitApi,
@@ -26,6 +27,7 @@ interface RecipeForm
     sources: {
         value: string;
     }[];
+    // tags: { value: number; label: string }[];
 }
 
 const schema = yup.object({
@@ -180,6 +182,8 @@ const Recipe: React.FC = () => {
         SelectGroupOptions[]
     >([]);
 
+    const [selectedFile, setSelectedFile] = useState<File>();
+
     const navigate = useNavigate();
     const params = useParams();
 
@@ -224,6 +228,9 @@ const Recipe: React.FC = () => {
                             (ar) => ar.id
                         ),
                         tags: data.tags.map((t) => t.id),
+                        // tags: data.tags.map((t) => {
+                        //     return { value: t.id, label: t.name };
+                        // }),
                     });
                 }
             } catch (err) {
@@ -273,12 +280,41 @@ const Recipe: React.FC = () => {
         }
     };
 
+    const pictureHandler = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        console.log(event);
+        console.log(event.target.files);
+
+        if (event.target.files && event.target.files.length === 1) {
+            console.log(event.target.files[0]);
+            setSelectedFile(event.target.files[0]);
+        }
+
+    };
+
+    useEffect(() => {
+        (async() => {
+            try {
+                if (selectedFile) {
+                    console.log(selectedFile);
+                    const picture = await pictureApi.uploadPicture({
+                        file: { value: selectedFile, filename: selectedFile?.name },
+                    });
+                    console.log(picture);
+                }
+            } catch (err) {
+                formatErrorMessage(err).then((message) => setError(message));
+            }
+        })();
+    }, [selectedFile])
+
     return (
         <div className='row justify-content-center'>
             <div className='col-lg-12 pt-3'>
-                <h1>{params.recipeId
-                                ? 'Zmena receptu'
-                                : 'Pridanie receptu'}</h1>
+                <h1>
+                    {params.recipeId ? 'Zmena receptu' : 'Pridanie receptu'}
+                </h1>
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
@@ -345,6 +381,8 @@ const Recipe: React.FC = () => {
                         </Button>
                     </Form>
                 </FormProvider>
+                <label>Obrázky</label>
+                <input type='file' onChange={pictureHandler} />
             </div>
             <Modal
                 show={!!error}

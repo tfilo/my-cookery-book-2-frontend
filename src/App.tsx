@@ -137,7 +137,7 @@ function App() {
                                         Značky
                                     </Nav.Link>
                                     <Nav.Link
-                                        to='/recipe'
+                                        to='/recipe/create'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
@@ -210,7 +210,7 @@ function App() {
                                 element={<UnitCategoryPage />}
                             />
                             <Route
-                                path='/recipe'
+                                path='/recipe/create'
                                 element={<RecipePage />}
                             />
                             <Route

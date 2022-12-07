@@ -36,7 +36,7 @@ const Recipes: React.FC = () => {
     }, [data]);
 
     const createRecipeHandler = () => {
-        navigate('/recipe');
+        navigate('/recipe/create');
     };
 
     const updateRecipeHandler = (id: number) => {
