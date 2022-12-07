@@ -48,7 +48,7 @@ const Select: React.FC<SelectProps> = (props) => {
         } else {
             setValue(props.name, value ? value.toString() : '-1');
         }
-    }, [value, props.multiple]);
+    }, [value, props.multiple, props.name, setValue]);
 
     return (
         <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>

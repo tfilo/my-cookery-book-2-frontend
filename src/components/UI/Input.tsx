@@ -24,10 +24,15 @@ const Input: React.FC<InputProps> = (props) => {
     const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <Form.Group className={`mb-3 ${props.className}`} controlId={`${id}_${props.name}`}>
+        <Form.Group
+            className={`mb-3 ${props.className}`}
+            controlId={`${id}_${props.name}`}
+        >
             <Form.Label>{props.label}</Form.Label>
             <Form.Control
-                {...register(props.name)}
+                {...register(props.name, {
+                    valueAsNumber: false,
+                })}
                 type={props.type ?? 'text'}
                 disabled={props.disabled}
                 autoComplete={props.autoComplete}

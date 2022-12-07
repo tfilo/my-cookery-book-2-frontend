@@ -109,7 +109,8 @@ const schema = yup.object({
                                 .defined()
                                 .min(0)
                                 .default(null)
-                                .nullable(),
+                                .nullable()
+                                .transform((val) => (isNaN(val) ? null : val)),
                             unitId: yup
                                 .number()
                                 .integer()
@@ -139,7 +140,6 @@ const schema = yup.object({
     //                 .min(1, 'Musí byť minimálne 1 znak')
     //                 .max(80, 'Musí byť maximálne 80 znakov')
     //                 .required(),
-    //             sortNumber: yup.number().integer().min(1).required(),
     //         })
     //     )
     //     .transform((val) => (val === '' ? [] : val))
@@ -216,12 +216,14 @@ const Recipe: React.FC = () => {
                     const updatedUnits = unitByCategoryId.map((unit) => {
                         return { value: unit.id, label: unit.name };
                     });
+                    //spravit novy zoznam s unit Id a boolean
                     data.push({
                         optGroupId: category.id,
                         optGroupName: category.name,
                         options: updatedUnits,
                     });
                 }
+                
                 setIngredientsData(data);
 
                 if (params.recipeId) {
@@ -263,15 +265,19 @@ const Recipe: React.FC = () => {
         const sendData = {
             ...data,
             sources: data.sources.map((s) => s.value),
-            recipeSections: data.recipeSections.map((rs, index) => {
+            recipeSections: data.recipeSections.map((rs, rsIndex) => {
                 return {
                     ...rs,
-                    sortNumber: index + 1,
+                    sortNumber: rsIndex + 1,
                     id: 'id' in rs && rs.id ? rs.id : undefined,
-                    ingredients: rs.ingredients.map((i, index) => {
+                    ingredients: rs.ingredients.map((i, iIndex) => {
+                        if (i.value === null) {
+                            // TODO i.unitId si v zozname jednotiek dohladas jednotku, pozries ci je povinna a ak ano cez react hook form metodu setErrors nastavis odpovedajucemu inputu zmysluplnu chybovu hlasku !!!!
+                            //throw error za tym 
+                        }
                         return {
                             ...i,
-                            sortNumber: index + 1,
+                            sortNumber: iIndex + 1,
                             id: 'id' in i && i.id ? i.id : undefined,
                         };
                     }),
@@ -283,7 +289,7 @@ const Recipe: React.FC = () => {
             //     console.log(arrayOfTags);
             //     return arrayOfTags
             // }),
-            tags: [],
+            // tags: [],
             pictures: [],
         };
         console.log(sendData);
@@ -408,7 +414,7 @@ const Recipe: React.FC = () => {
                             />
                         </Form.Group>
                         {uploadedFiles.map((image) => (
-                            <img key={image.id} src={image.url} alt='obrázok'></img>
+                            <img key={image.id} src={image.url} alt={image.name}></img>
                         ))}
                         <Button variant='primary' type='submit'>
                             {params.recipeId
