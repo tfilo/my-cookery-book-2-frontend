@@ -27,8 +27,6 @@ const UnitCategories: React.FC = () => {
         })();
     }, []);
 
-    console.log(listOfUnitCategories);
-
     const createUnitCategoryHandler = () => {
         navigate('/unitCategory');
     };

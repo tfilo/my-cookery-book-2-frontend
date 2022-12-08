@@ -191,7 +191,12 @@ const Recipe: React.FC = () => {
         SelectGroupOptions[]
     >([]);
 
-    const [uploadedFiles, setUploadedFiles] = useState<{id: number, url: string, name: string}[]>([]);
+    const [requiredUnits, setRequiredUnits] =
+        useState<{ id: number; required: boolean }[]>([]);
+
+    const [uploadedFiles, setUploadedFiles] = useState<
+        { id: number; url: string; name: string }[]
+    >([]);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     const navigate = useNavigate();
@@ -210,9 +215,18 @@ const Recipe: React.FC = () => {
                     await unitCategoryApi.getUnitCategories();
 
                 const data: SelectGroupOptions[] = [];
+                const requiredStatus: { id: number; required: boolean }[] = [];
                 for (let category of unitCategories) {
                     const unitByCategoryId =
                         await unitApi.getUnitsByUnitCategory(category.id);
+
+                    unitByCategoryId.forEach((unit) => {
+                        requiredStatus.push({
+                            id: unit.id,
+                            required: unit.required,
+                        });
+                    });
+
                     const updatedUnits = unitByCategoryId.map((unit) => {
                         return { value: unit.id, label: unit.name };
                     });
@@ -222,8 +236,11 @@ const Recipe: React.FC = () => {
                         optGroupName: category.name,
                         options: updatedUnits,
                     });
+                    console.log(updatedUnits);
                 }
-                
+                console.log(requiredStatus);
+                setRequiredUnits(requiredStatus);
+
                 setIngredientsData(data);
 
                 if (params.recipeId) {
@@ -271,9 +288,17 @@ const Recipe: React.FC = () => {
                     sortNumber: rsIndex + 1,
                     id: 'id' in rs && rs.id ? rs.id : undefined,
                     ingredients: rs.ingredients.map((i, iIndex) => {
+                        console.log(i);
                         if (i.value === null) {
-                            // TODO i.unitId si v zozname jednotiek dohladas jednotku, pozries ci je povinna a ak ano cez react hook form metodu setErrors nastavis odpovedajucemu inputu zmysluplnu chybovu hlasku !!!!
-                            //throw error za tym 
+                            const unitById = requiredUnits.find(
+                                (unit) => unit.id === i.unitId
+                            );
+                            console.log(unitById);
+                            if (unitById?.required) {
+                                console.log('musis pridat mnozstvo')
+                                methods.setError(`recipeSections.${rsIndex}.ingredients.${iIndex}.value`, {type: 'manual', message: 'Pri danej jednotke musí byť zadané množstvo.'})
+                                throw new Error('chyba validacie');
+                            }
                         }
                         return {
                             ...i,
@@ -319,14 +344,19 @@ const Recipe: React.FC = () => {
                             filename: pictureName,
                         },
                     });
-                    const data = await pictureApi.getPictureThumbnail(picture.id);
+                    const data = await pictureApi.getPictureThumbnail(
+                        picture.id
+                    );
                     console.log(data);
                     if (data instanceof Blob) {
                         const url = URL.createObjectURL(data);
                         setUploadedFiles((prev) => {
-                            return [...prev, {id: picture.id, url: url, name: pictureName}];
+                            return [
+                                ...prev,
+                                { id: picture.id, url: url, name: pictureName },
+                            ];
                         });
-                     }
+                    }
                     if (imageInputRef.current) {
                         console.log(imageInputRef.current.value);
                         imageInputRef.current.value = '';
@@ -414,7 +444,11 @@ const Recipe: React.FC = () => {
                             />
                         </Form.Group>
                         {uploadedFiles.map((image) => (
-                            <img key={image.id} src={image.url} alt={image.name}></img>
+                            <img
+                                key={image.id}
+                                src={image.url}
+                                alt={image.name}
+                            ></img>
                         ))}
                         <Button variant='primary' type='submit'>
                             {params.recipeId

@@ -44,13 +44,10 @@ const Unit: React.FC = () => {
     } = methods;
 
     useEffect(() => {
-        console.log(params.unitId);
         if (params.unitId) {
-            console.log(params.unitId);
             const unitId = parseInt(params.unitId);
             (async () => {
                 const data = await unitApi.getUnit(unitId);
-                console.log(data);
                 methods.reset(data);
             })();
         }
