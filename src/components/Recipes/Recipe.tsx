@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, /*useRef, */ useState } from 'react';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
@@ -9,6 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {
     categoryApi,
     pictureApi,
+    // pictureApi,
     recipeApi,
     tagApi,
     unitApi,
@@ -21,11 +22,24 @@ import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
 import { useNavigate, useParams } from 'react-router-dom';
+import Pictures from './Pictures';
 
-interface RecipeForm
-    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources'> {
+type PicturesData = {
+    id: number;
+    name: string;
+    sortNumber: number;
+    url: string;
+}[];
+
+export interface RecipeForm
+    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures'> {
     sources: {
         value: string;
+    }[];
+    pictures: {
+        id: number;
+        name: string;
+        url: string;
     }[];
     // tags: { value: number; label: string }[];
 }
@@ -191,13 +205,14 @@ const Recipe: React.FC = () => {
         SelectGroupOptions[]
     >([]);
 
-    const [requiredUnits, setRequiredUnits] =
-        useState<{ id: number; required: boolean }[]>([]);
-
-    const [uploadedFiles, setUploadedFiles] = useState<
-        { id: number; url: string; name: string }[]
+    const [requiredUnits, setRequiredUnits] = useState<
+        { id: number; required: boolean }[]
     >([]);
-    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    // const [uploadedFiles, setUploadedFiles] = useState<
+    //     { id: number; url: string; name: string }[]
+    // >([]);
+    // const imageInputRef = useRef<HTMLInputElement>(null);
 
     const navigate = useNavigate();
     const params = useParams();
@@ -236,9 +251,9 @@ const Recipe: React.FC = () => {
                         optGroupName: category.name,
                         options: updatedUnits,
                     });
-                    console.log(updatedUnits);
+                    // console.log(updatedUnits);
                 }
-                console.log(requiredStatus);
+                // console.log(requiredStatus);
                 setRequiredUnits(requiredStatus);
 
                 setIngredientsData(data);
@@ -247,6 +262,31 @@ const Recipe: React.FC = () => {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
                     console.log(data);
+
+                    let pictures: PicturesData = [];
+
+                    for (let pic of data.pictures) {
+                        console.log(pic);
+                        const response = await pictureApi.getPictureThumbnail(
+                            pic.id
+                        );
+                        if (response instanceof Blob) {
+                            const url = URL.createObjectURL(response);
+                            console.log(`url je ${url}`);
+                            pictures.push({ id: pic.id, name: pic.name, sortNumber: pic.sortNumber, url: url }) ;
+                        }
+                    }
+                    console.warn(pictures);
+
+                    // for (let pic of data.pictures) {
+                    //     const response = await pictureApi.getPictureThumbnail(pic.id);
+                    //     console.log(pic);
+                    //     if (response instanceof Blob) {
+                    //         const url = URL.createObjectURL(response);
+                    //         console.log(`url je ${url}`);
+                    //         pic.url = url;
+                    //     }
+                    // }
 
                     methods.reset({
                         ...data,
@@ -257,6 +297,8 @@ const Recipe: React.FC = () => {
                             (ar) => ar.id
                         ),
                         tags: data.tags.map((t) => t.id),
+                        pictures: pictures
+
                         // tags: data.tags.map((t) => {
                         //     return { value: t.id, label: t.name };
                         // }),
@@ -295,8 +337,14 @@ const Recipe: React.FC = () => {
                             );
                             console.log(unitById);
                             if (unitById?.required) {
-                                console.log('musis pridat mnozstvo')
-                                methods.setError(`recipeSections.${rsIndex}.ingredients.${iIndex}.value`, {type: 'manual', message: 'Pri danej jednotke musí byť zadané množstvo.'})
+                                methods.setError(
+                                    `recipeSections.${rsIndex}.ingredients.${iIndex}.value`,
+                                    {
+                                        type: 'manual',
+                                        message:
+                                            'Pri danej jednotke musí byť zadané množstvo.',
+                                    }
+                                );
                                 throw new Error('chyba validacie');
                             }
                         }
@@ -315,7 +363,13 @@ const Recipe: React.FC = () => {
             //     return arrayOfTags
             // }),
             // tags: [],
-            pictures: [],
+            pictures: data.pictures.map((p, pIndex) => {
+                return {
+                    id: p.id,
+                    name: p.name,
+                    sortNumber: pIndex + 1,
+                };
+            }),
         };
         console.log(sendData);
         try {
@@ -324,50 +378,51 @@ const Recipe: React.FC = () => {
             } else {
                 await recipeApi.createRecipe(sendData);
             }
+            // URL.revokeObjectURL(url);
             navigate('/recipes');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
     };
 
-    const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(event);
-        (async () => {
-            try {
-                if (event.target.files && event.target.files.length === 1) {
-                    console.log(event.target.files);
-                    console.log(event.target.files[0]);
-                    const pictureName = event.target.files[0]?.name;
-                    const picture = await pictureApi.uploadPicture({
-                        file: {
-                            value: event.target.files[0],
-                            filename: pictureName,
-                        },
-                    });
-                    const data = await pictureApi.getPictureThumbnail(
-                        picture.id
-                    );
-                    console.log(data);
-                    if (data instanceof Blob) {
-                        const url = URL.createObjectURL(data);
-                        setUploadedFiles((prev) => {
-                            return [
-                                ...prev,
-                                { id: picture.id, url: url, name: pictureName },
-                            ];
-                        });
-                    }
-                    if (imageInputRef.current) {
-                        console.log(imageInputRef.current.value);
-                        imageInputRef.current.value = '';
-                        console.log(imageInputRef.current.value);
-                    }
-                }
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            }
-        })();
-    };
+    // const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    //     console.log(event);
+    //     (async () => {
+    //         try {
+    //             if (event.target.files && event.target.files.length === 1) {
+    //                 console.log(event.target.files);
+    //                 console.log(event.target.files[0]);
+    //                 const pictureName = event.target.files[0]?.name;
+    //                 const picture = await pictureApi.uploadPicture({
+    //                     file: {
+    //                         value: event.target.files[0],
+    //                         filename: pictureName,
+    //                     },
+    //                 });
+    //                 const data = await pictureApi.getPictureThumbnail(
+    //                     picture.id
+    //                 );
+    //                 console.log(data);
+    //                 if (data instanceof Blob) {
+    //                     const url = URL.createObjectURL(data);
+    //                     setUploadedFiles((prev) => {
+    //                         return [
+    //                             ...prev,
+    //                             { id: picture.id, url: url, name: pictureName },
+    //                         ];
+    //                     });
+    //                 }
+    //                 if (imageInputRef.current) {
+    //                     console.log(imageInputRef.current.value);
+    //                     imageInputRef.current.value = '';
+    //                     console.log(imageInputRef.current.value);
+    //                 }
+    //             }
+    //         } catch (err) {
+    //             formatErrorMessage(err).then((message) => setError(message));
+    //         }
+    //     })();
+    // };
 
     // useEffect(() => {
     //     for (let i = 0; i < uploadedFiles.length; i++) {
@@ -435,7 +490,8 @@ const Recipe: React.FC = () => {
                             </p>
                         )}
                         <Sources />
-                        <Form.Group controlId='pictureUpload' className='mb-3'>
+                        <Pictures />
+                        {/* <Form.Group controlId='pictureUpload' className='mb-3'>
                             <Form.Label>Pridajte obrázok</Form.Label>
                             <Form.Control
                                 type='file'
@@ -449,7 +505,7 @@ const Recipe: React.FC = () => {
                                 src={image.url}
                                 alt={image.name}
                             ></img>
-                        ))}
+                        ))} */}
                         <Button variant='primary' type='submit'>
                             {params.recipeId
                                 ? 'Zmeniť recept'
