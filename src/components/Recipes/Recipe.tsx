@@ -23,13 +23,7 @@ import Sources from './Sources';
 import Textarea from '../UI/Textarea';
 import { useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
-
-type PicturesData = {
-    id: number;
-    name: string;
-    sortNumber: number;
-    url: string;
-}[];
+import AssociatedRecipes from './AssociatedRecipes';
 
 export interface RecipeForm
     extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures'> {
@@ -143,21 +137,21 @@ const schema = yup.object({
         .of(yup.number().integer().min(1).required())
         .nullable(),
     tags: yup.array().of(yup.number().integer().min(1).required()).required(),
-    // pictures: yup
-    //     .array()
-    //     .of(
-    //         yup.object({
-    //             id: yup.number().integer().min(1).required(),
-    //             name: yup
-    //                 .string()
-    //                 .trim()
-    //                 .min(1, 'Musí byť minimálne 1 znak')
-    //                 .max(80, 'Musí byť maximálne 80 znakov')
-    //                 .required(),
-    //         })
-    //     )
-    //     .transform((val) => (val === '' ? [] : val))
-    //     .required(),
+    pictures: yup
+        .array()
+        .of(
+            yup.object({
+                id: yup.number().integer().min(1).required(),
+                name: yup
+                    .string()
+                    .trim()
+                    .min(1, 'Musí byť minimálne 1 znak')
+                    .max(80, 'Musí byť maximálne 80 znakov')
+                    .required(),
+            })
+        )
+        .transform((val) => (val === '' ? [] : val))
+        .required(),
 });
 
 const Recipe: React.FC = () => {
@@ -209,11 +203,6 @@ const Recipe: React.FC = () => {
         { id: number; required: boolean }[]
     >([]);
 
-    // const [uploadedFiles, setUploadedFiles] = useState<
-    //     { id: number; url: string; name: string }[]
-    // >([]);
-    // const imageInputRef = useRef<HTMLInputElement>(null);
-
     const navigate = useNavigate();
     const params = useParams();
 
@@ -230,13 +219,13 @@ const Recipe: React.FC = () => {
                     await unitCategoryApi.getUnitCategories();
 
                 const data: SelectGroupOptions[] = [];
-                const requiredStatus: { id: number; required: boolean }[] = [];
+                const requiredUnit: { id: number; required: boolean }[] = [];
                 for (let category of unitCategories) {
                     const unitByCategoryId =
                         await unitApi.getUnitsByUnitCategory(category.id);
 
                     unitByCategoryId.forEach((unit) => {
-                        requiredStatus.push({
+                        requiredUnit.push({
                             id: unit.id,
                             required: unit.required,
                         });
@@ -245,17 +234,13 @@ const Recipe: React.FC = () => {
                     const updatedUnits = unitByCategoryId.map((unit) => {
                         return { value: unit.id, label: unit.name };
                     });
-                    //spravit novy zoznam s unit Id a boolean
                     data.push({
                         optGroupId: category.id,
                         optGroupName: category.name,
                         options: updatedUnits,
                     });
-                    // console.log(updatedUnits);
                 }
-                // console.log(requiredStatus);
-                setRequiredUnits(requiredStatus);
-
+                setRequiredUnits(requiredUnit);
                 setIngredientsData(data);
 
                 if (params.recipeId) {
@@ -263,7 +248,17 @@ const Recipe: React.FC = () => {
                     const data = await recipeApi.getRecipe(paramsNumber);
                     console.log(data);
 
-                    let pictures: PicturesData = [];
+                    const formattedData: RecipeForm = {
+                        ...data,
+                        sources: data.sources.map((s) => {
+                            return { value: s };
+                        }),
+                        associatedRecipes: data.associatedRecipes.map(
+                            (ar) => ar.id
+                        ),
+                        tags: data.tags.map((t) => t.id),
+                        pictures: [],
+                    };
 
                     for (let pic of data.pictures) {
                         console.log(pic);
@@ -273,36 +268,30 @@ const Recipe: React.FC = () => {
                         if (response instanceof Blob) {
                             const url = URL.createObjectURL(response);
                             console.log(`url je ${url}`);
-                            pictures.push({ id: pic.id, name: pic.name, sortNumber: pic.sortNumber, url: url }) ;
+                            formattedData.pictures.push({
+                                id: pic.id,
+                                name: pic.name,
+                                url: url,
+                            });
                         }
                     }
-                    console.warn(pictures);
 
-                    // for (let pic of data.pictures) {
-                    //     const response = await pictureApi.getPictureThumbnail(pic.id);
-                    //     console.log(pic);
-                    //     if (response instanceof Blob) {
-                    //         const url = URL.createObjectURL(response);
-                    //         console.log(`url je ${url}`);
-                    //         pic.url = url;
-                    //     }
-                    // }
-
-                    methods.reset({
-                        ...data,
-                        sources: data.sources.map((s) => {
-                            return { value: s };
-                        }),
-                        associatedRecipes: data.associatedRecipes.map(
-                            (ar) => ar.id
-                        ),
-                        tags: data.tags.map((t) => t.id),
-                        pictures: pictures
+                    methods.reset(
+                        formattedData
+                        // ...data,
+                        // sources: data.sources.map((s) => {
+                        //     return { value: s };
+                        // }),
+                        // associatedRecipes: data.associatedRecipes.map(
+                        //     (ar) => ar.id
+                        // ),
+                        // tags: data.tags.map((t) => t.id),
+                        // pictures: []
 
                         // tags: data.tags.map((t) => {
                         //     return { value: t.id, label: t.name };
                         // }),
-                    });
+                    );
                 } else {
                     methods.reset(defaultValues);
                 }
@@ -378,61 +367,16 @@ const Recipe: React.FC = () => {
             } else {
                 await recipeApi.createRecipe(sendData);
             }
-            // URL.revokeObjectURL(url);
+
+            for (let pic of data.pictures) {
+                URL.revokeObjectURL(pic.url);
+            }
+
             navigate('/recipes');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
     };
-
-    // const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     console.log(event);
-    //     (async () => {
-    //         try {
-    //             if (event.target.files && event.target.files.length === 1) {
-    //                 console.log(event.target.files);
-    //                 console.log(event.target.files[0]);
-    //                 const pictureName = event.target.files[0]?.name;
-    //                 const picture = await pictureApi.uploadPicture({
-    //                     file: {
-    //                         value: event.target.files[0],
-    //                         filename: pictureName,
-    //                     },
-    //                 });
-    //                 const data = await pictureApi.getPictureThumbnail(
-    //                     picture.id
-    //                 );
-    //                 console.log(data);
-    //                 if (data instanceof Blob) {
-    //                     const url = URL.createObjectURL(data);
-    //                     setUploadedFiles((prev) => {
-    //                         return [
-    //                             ...prev,
-    //                             { id: picture.id, url: url, name: pictureName },
-    //                         ];
-    //                     });
-    //                 }
-    //                 if (imageInputRef.current) {
-    //                     console.log(imageInputRef.current.value);
-    //                     imageInputRef.current.value = '';
-    //                     console.log(imageInputRef.current.value);
-    //                 }
-    //             }
-    //         } catch (err) {
-    //             formatErrorMessage(err).then((message) => setError(message));
-    //         }
-    //     })();
-    // };
-
-    // useEffect(() => {
-    //     for (let i = 0; i < uploadedFiles.length; i++) {
-    //         (async () => {
-    //             console.log(uploadedFiles[i])
-    //             await pictureApi.getPictureThumbnail(uploadedFiles[i]);
-    //             console.log('tu som')
-    //         })();
-    //     }
-    // }, [uploadedFiles]);
 
     return (
         <div className='row justify-content-center'>
@@ -474,6 +418,7 @@ const Recipe: React.FC = () => {
                             label='Súvisiace recepty'
                             options={[]}
                         />
+                        <AssociatedRecipes></AssociatedRecipes>
                         <Select
                             name='tags'
                             label='Pridať značky'
@@ -491,21 +436,6 @@ const Recipe: React.FC = () => {
                         )}
                         <Sources />
                         <Pictures />
-                        {/* <Form.Group controlId='pictureUpload' className='mb-3'>
-                            <Form.Label>Pridajte obrázok</Form.Label>
-                            <Form.Control
-                                type='file'
-                                onChange={pictureHandler}
-                                ref={imageInputRef}
-                            />
-                        </Form.Group>
-                        {uploadedFiles.map((image) => (
-                            <img
-                                key={image.id}
-                                src={image.url}
-                                alt={image.name}
-                            ></img>
-                        ))} */}
                         <Button variant='primary' type='submit'>
                             {params.recipeId
                                 ? 'Zmeniť recept'

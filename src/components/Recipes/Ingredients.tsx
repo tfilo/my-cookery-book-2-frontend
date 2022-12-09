@@ -43,11 +43,11 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                     <FontAwesomeIcon icon={faCirclePlus} />
                 </Button>
             </Stack>
-            {fields.map((field, index, array) => {
-                return (
-                    <Card className='mb-4' key={field?.id}>
-                        <Card.Body>
-                            <section>
+            <Card className='mb-2'>
+                <Card.Body>
+                    {fields.map((field, index, array) => {
+                        return (
+                            <section key={field?.id}>
                                 <Row>
                                     <input
                                         {...register(
@@ -101,7 +101,9 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                                     move(index, index + 1)
                                                 }
                                                 className='border-0 mt-4'
-                                                disabled={index === array.length-1}
+                                                disabled={
+                                                    index === array.length - 1
+                                                }
                                             >
                                                 <FontAwesomeIcon
                                                     className='text-dark'
@@ -121,12 +123,15 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                             </Button>
                                         </Stack>
                                     </Col>
+                                    {index < array.length - 1 && <hr className='d-block d-lg-none mt-2' style={{
+                                        borderWidth: 3,
+                                    }} />}
                                 </Row>
                             </section>
-                        </Card.Body>
-                    </Card>
-                );
-            })}
+                        );
+                    })}
+                </Card.Body>
+            </Card>
         </>
     );
 };

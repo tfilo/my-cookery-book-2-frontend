@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { Button, Card, Form } from 'react-bootstrap';
-import { useFieldArray, /* useFormContext */ } from 'react-hook-form';
+import { Button, Card, Col, Form, Row } from 'react-bootstrap';
+import { useFieldArray /* useFormContext */ } from 'react-hook-form';
 import { pictureApi } from '../../utils/apiWrapper';
 // import { formatErrorMessage } from '../../utils/errorMessages';
 import Input from '../UI/Input';
@@ -79,37 +79,44 @@ const Pictures: React.FC = () => {
                     ref={imageInputRef}
                 />
             </Form.Group>
-            {fields.map((field, index, array) => {
-                return (
-                    <Card key={field?.id} className='mb-4'>
-                        <Card.Body>
-                            <img src={field.url} alt={field.name} />
-                            <Input
-                                name={`pictures.${index}.name`}
-                                type='text'
-                                label='názov obrázka'
-                            ></Input>
-                            {/* <input
-                                {...register(`pictures.${index}.id`)}
-                                readOnly
-                                // type='hidden'
-                            ></input> */}
-                            <Button
-                                variant='danger'
-                                type='button'
-                                onClick={removePictureHandler.bind(
-                                    null,
-                                    index,
-                                    field.url
-                                )}
-                                className='border-0'
-                            >
-                                Odstrániť obrázok
-                            </Button>
-                        </Card.Body>
-                    </Card>
-                );
-            })}
+            <Row xs={1} sm={2} lg={4} className='g-4'>
+                {fields.map((field, index) => {
+                    return (
+                        <Col key={field?.id}>
+                            <Card className='mb-4'>
+                                <Card.Img
+                                    variant='top'
+                                    src={field.url}
+                                    alt={field.name}
+                                    style={{
+                                        aspectRatio: 1.33,
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                                <Card.Body>
+                                    <Input
+                                        name={`pictures.${index}.name`}
+                                        type='text'
+                                        label='názov obrázka'
+                                    ></Input>
+                                    <Button
+                                        variant='danger'
+                                        type='button'
+                                        onClick={removePictureHandler.bind(
+                                            null,
+                                            index,
+                                            field.url
+                                        )}
+                                        className='w-100'
+                                    >
+                                        Odstrániť obrázok
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    );
+                })}
+            </Row>
             {/* {uploadedFiles.map((image) => (
                 <img key={image.id} src={image.url} alt={image.name}></img>
             ))} */}
