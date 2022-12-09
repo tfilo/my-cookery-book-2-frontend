@@ -18,10 +18,6 @@ const Pictures: React.FC = () => {
         name: 'pictures',
     });
 
-    // const [error, setError] = useState<string>();
-    // const [uploadedFiles, setUploadedFiles] = useState<
-    //     { id: number; url: string; name: string }[]
-    // >([]);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
     const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,12 +41,6 @@ const Pictures: React.FC = () => {
                     if (data instanceof Blob) {
                         const url = URL.createObjectURL(data);
                         append({ id: picture.id, url: url, name: pictureName });
-                        // setUploadedFiles((prev) => {
-                        //     return [
-                        //         ...prev,
-                        //         { id: picture.id, url: url, name: pictureName },
-                        //     ];
-                        // });
                     }
                     if (imageInputRef.current) {
                         console.log(imageInputRef.current.value);
@@ -117,9 +107,7 @@ const Pictures: React.FC = () => {
                     );
                 })}
             </Row>
-            {/* {uploadedFiles.map((image) => (
-                <img key={image.id} src={image.url} alt={image.name}></img>
-            ))} */}
+
             {/* <Modal
                 show={!!error}
                 message={error}

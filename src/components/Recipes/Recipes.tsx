@@ -40,7 +40,6 @@ const Recipes: React.FC = () => {
     };
 
     const updateRecipeHandler = (id: number) => {
-        console.log(id);
         navigate(`/recipe/${id}`);
     };
 

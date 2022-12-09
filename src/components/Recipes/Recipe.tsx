@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, /*useRef, */ useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
@@ -9,7 +9,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import {
     categoryApi,
     pictureApi,
-    // pictureApi,
     recipeApi,
     tagApi,
     unitApi,
@@ -246,7 +245,6 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
-                    console.log(data);
 
                     const formattedData: RecipeForm = {
                         ...data,
@@ -261,13 +259,11 @@ const Recipe: React.FC = () => {
                     };
 
                     for (let pic of data.pictures) {
-                        console.log(pic);
                         const response = await pictureApi.getPictureThumbnail(
                             pic.id
                         );
                         if (response instanceof Blob) {
                             const url = URL.createObjectURL(response);
-                            console.log(`url je ${url}`);
                             formattedData.pictures.push({
                                 id: pic.id,
                                 name: pic.name,
@@ -308,8 +304,6 @@ const Recipe: React.FC = () => {
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
-        console.log(data);
-
         const sendData = {
             ...data,
             sources: data.sources.map((s) => s.value),
@@ -319,12 +313,10 @@ const Recipe: React.FC = () => {
                     sortNumber: rsIndex + 1,
                     id: 'id' in rs && rs.id ? rs.id : undefined,
                     ingredients: rs.ingredients.map((i, iIndex) => {
-                        console.log(i);
                         if (i.value === null) {
                             const unitById = requiredUnits.find(
                                 (unit) => unit.id === i.unitId
                             );
-                            console.log(unitById);
                             if (unitById?.required) {
                                 methods.setError(
                                     `recipeSections.${rsIndex}.ingredients.${iIndex}.value`,
@@ -413,11 +405,11 @@ const Recipe: React.FC = () => {
                                 žiadna nie je zadefinovaná.
                             </p>
                         )}
-                        <Select
+                        {/* <Select
                             name='associatedRecipes'
                             label='Súvisiace recepty'
                             options={[]}
-                        />
+                        /> */}
                         <AssociatedRecipes></AssociatedRecipes>
                         <Select
                             name='tags'
