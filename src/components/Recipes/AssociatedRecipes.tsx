@@ -1,59 +1,83 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState, useId } from 'react';
 import { Form } from 'react-bootstrap';
-import { Typeahead } from 'react-bootstrap-typeahead';
-// import { useFieldArray } from 'react-hook-form';
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { Api } from '../../openapi';
 import { recipeApi } from '../../utils/apiWrapper';
 
 import 'react-bootstrap-typeahead/css/Typeahead.css';
+import { Controller, useFormContext } from 'react-hook-form';
+import { RecipeForm } from './Recipe';
+import { get } from 'lodash';
 
 const AssociatedRecipes: React.FC = () => {
+    const id = useId();
+    const [isLoading, setIsLoading] = useState(false);
     const [list, setList] = useState<{}[]>([]);
-    const [selected, setSelected] = useState<{}[]>([]);
 
-    // const { fields, append, remove, move } = useFieldArray({
-    //     name: 'associatedRecipes',
-    // });
+    const {
+        control,
+        formState: { errors },
+    } = useFormContext<RecipeForm>();
 
-
-    const data: Api.RecipeSearchCriteria = useMemo(() => {
-        return {
-            search: '',
-            categoryId: null,
-            tags: [],
-            page: 0,
-            pageSize: 10,
-            orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
-            order: Api.RecipeSearchCriteria.OrderEnum.ASC,
-        };
-    }, []);
-
-    useEffect(() => {
+    const handleSearch = (query: string) => {
+        setIsLoading(true);
         (async () => {
             try {
+                const data = {
+                    search: query,
+                    categoryId: null,
+                    tags: [],
+                    page: 0,
+                    pageSize: 5,
+                    orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
+                    order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+                };
                 const recipes = await recipeApi.findRecipe(data);
-                const recipeList = recipes.rows.map((recipe)=> {return {label: recipe.name, id: recipe.id}});
+                const recipeList = recipes.rows.map((recipe) => {
+                    return { name: recipe.name, id: recipe.id };
+                });
                 setList(recipeList);
             } catch (err) {
-                console.error(err);
+                console.error(err); // TODO information for user ?
+            } finally {
+                setIsLoading(false);
             }
         })();
-    }, [data]);
+    };
 
+    console.log('associatedRecipes', errors);
+
+    const errorMessage = get(errors, 'associatedRecipes')?.message;
+    const filterBy = () => true;
 
     return (
         <>
             <Form.Group className='mt-2 mb-3'>
-                <Form.Label>Súvisiace recepty</Form.Label>
-                <Typeahead 
-                    id='basic-example'
-                    multiple
-                    onChange={setSelected}
-                    options={list}
-                    placeholder='Vyberte recept...'
-                    selected={selected}
-                    // labelKey={list.label}
+                <Form.Label htmlFor={`${id}associatedRecipes`}>Súvisiace recepty</Form.Label>
+                <Controller
+                    name='associatedRecipes'
+                    control={control}
+                    render={({ field }) => (
+                        <AsyncTypeahead
+                            {...field}
+                            filterBy={filterBy}
+                            id={`${id}associatedRecipes`}
+                            multiple
+                            onSearch={handleSearch}
+                            options={list}
+                            placeholder='Vyberte recept...'
+                            isLoading={isLoading}
+                            searchText='Vyhľadávam...'
+                            promptText='Prosím zadajte vyhľadávaný text.'
+                            emptyLabel='Nič sa nenašlo.'
+                            labelKey='name'
+                            isInvalid={!!errorMessage}
+                        />
+                    )}
                 />
+                <Form.Control.Feedback type='invalid'>
+                    {errorMessage?.toString()}
+                </Form.Control.Feedback>
             </Form.Group>
         </>
     );

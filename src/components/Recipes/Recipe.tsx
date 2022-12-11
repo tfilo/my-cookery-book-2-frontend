@@ -25,7 +25,7 @@ import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 
 export interface RecipeForm
-    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures'> {
+    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures' | 'associatedRecipes'> {
     sources: {
         value: string;
     }[];
@@ -33,6 +33,10 @@ export interface RecipeForm
         id: number;
         name: string;
         url: string;
+    }[];
+    associatedRecipes: {
+        id: number;
+        name: string;
     }[];
     // tags: { value: number; label: string }[];
 }
@@ -133,7 +137,17 @@ const schema = yup.object({
         .array()
         .defined()
         .transform((val) => (val === null ? [] : val))
-        .of(yup.number().integer().min(1).required())
+        .of(
+            yup.object({
+                id: yup.number().integer().min(1).required(),
+                name: yup
+                    .string()
+                    .trim()
+                    .min(1, 'Musí byť minimálne 1 znak')
+                    .max(80, 'Musí byť maximálne 80 znakov')
+                    .required(),
+            })
+        )
         .nullable(),
     tags: yup.array().of(yup.number().integer().min(1).required()).required(),
     pictures: yup
@@ -177,6 +191,7 @@ const Recipe: React.FC = () => {
             tags: [],
             associatedRecipes: [],
             categoryId: -1,
+            pictures: [],
         };
     }, []);
 
@@ -252,7 +267,7 @@ const Recipe: React.FC = () => {
                             return { value: s };
                         }),
                         associatedRecipes: data.associatedRecipes.map(
-                            (ar) => ar.id
+                            (ar) => {return {id: ar.id, name: ar.name}}
                         ),
                         tags: data.tags.map((t) => t.id),
                         pictures: [],
@@ -307,6 +322,7 @@ const Recipe: React.FC = () => {
         const sendData = {
             ...data,
             sources: data.sources.map((s) => s.value),
+            associatedRecipes: data.associatedRecipes.map((rec) => rec.id),
             recipeSections: data.recipeSections.map((rs, rsIndex) => {
                 return {
                     ...rs,
