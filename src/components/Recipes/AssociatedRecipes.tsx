@@ -53,13 +53,16 @@ const AssociatedRecipes: React.FC = () => {
     return (
         <>
             <Form.Group className='mt-2 mb-3'>
-                <Form.Label htmlFor={`${id}associatedRecipes`}>Súvisiace recepty</Form.Label>
+                <Form.Label htmlFor={`${id}associatedRecipes`}>
+                    Súvisiace recepty
+                </Form.Label>
                 <Controller
                     name='associatedRecipes'
                     control={control}
                     render={({ field }) => (
                         <AsyncTypeahead
                             {...field}
+                            selected={field.value}
                             filterBy={filterBy}
                             id={`${id}associatedRecipes`}
                             multiple
