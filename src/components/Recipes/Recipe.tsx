@@ -404,7 +404,7 @@ const Recipe: React.FC = () => {
                             label='Počet porcií'
                             type='number'
                         />
-                        <Textarea label='Postup' name='method' />
+                        <Textarea label='Postup prípravy' name='method' />
                         <RecipeSections ingredientsData={ingredientsData} />
                         <Select
                             name='categoryId'
