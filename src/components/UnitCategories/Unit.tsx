@@ -48,6 +48,7 @@ const Unit: React.FC = () => {
             const unitId = parseInt(params.unitId);
             (async () => {
                 const data = await unitApi.getUnit(unitId);
+                console.log(data);
                 methods.reset(data);
             })();
         }

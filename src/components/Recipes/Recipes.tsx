@@ -5,6 +5,7 @@ import { Api } from '../../openapi';
 import { pictureApi, recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import defImg from '../../assets/defaultRecipe.jpg'
 
 const Recipes: React.FC = () => {
     // const [listOfRecipes, setListOfRecipes] = useState<Api.SimpleRecipePage>();
@@ -159,7 +160,7 @@ const Recipes: React.FC = () => {
                                         )}
                                         variant='top'
                                         src={
-                                            process.env.PUBLIC_URL + '/177.jpg'
+                                            defImg
                                         }
                                         alt='obrázok'
                                         style={{
