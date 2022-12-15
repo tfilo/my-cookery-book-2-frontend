@@ -25,7 +25,10 @@ import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 
 export interface RecipeForm
-    extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures' | 'associatedRecipes'> {
+    extends Omit<
+        Api.CreateRecipe | Api.UpdateRecipe,
+        'sources' | 'pictures' | 'associatedRecipes'
+    > {
     sources: {
         value: string;
     }[];
@@ -38,7 +41,6 @@ export interface RecipeForm
         id: number;
         name: string;
     }[];
-    // tags: { value: number; label: string }[];
 }
 
 const schema = yup.object({
@@ -217,6 +219,9 @@ const Recipe: React.FC = () => {
         { id: number; required: boolean }[]
     >([]);
 
+    const [nameOfRecipe, setNameOfRecipe] = useState<string>();
+    const [deleteModal, setDeleteModal] = useState<boolean>(false);
+
     const navigate = useNavigate();
     const params = useParams();
 
@@ -266,9 +271,9 @@ const Recipe: React.FC = () => {
                         sources: data.sources.map((s) => {
                             return { value: s };
                         }),
-                        associatedRecipes: data.associatedRecipes.map(
-                            (ar) => {return {id: ar.id, name: ar.name}}
-                        ),
+                        associatedRecipes: data.associatedRecipes.map((ar) => {
+                            return { id: ar.id, name: ar.name };
+                        }),
                         tags: data.tags.map((t) => t.id),
                         pictures: [],
                     };
@@ -287,22 +292,9 @@ const Recipe: React.FC = () => {
                         }
                     }
 
-                    methods.reset(
-                        formattedData
-                        // ...data,
-                        // sources: data.sources.map((s) => {
-                        //     return { value: s };
-                        // }),
-                        // associatedRecipes: data.associatedRecipes.map(
-                        //     (ar) => ar.id
-                        // ),
-                        // tags: data.tags.map((t) => t.id),
-                        // pictures: []
+                    methods.reset(formattedData);
 
-                        // tags: data.tags.map((t) => {
-                        //     return { value: t.id, label: t.name };
-                        // }),
-                    );
+                    setNameOfRecipe(formattedData.name);
                 } else {
                     methods.reset(defaultValues);
                 }
@@ -353,13 +345,7 @@ const Recipe: React.FC = () => {
                     }),
                 };
             }),
-            // tags: data.tags.forEach((t) => {
-            //     const arrayOfTags = [];
-            //     arrayOfTags.push(t.value);
-            //     console.log(arrayOfTags);
-            //     return arrayOfTags
-            // }),
-            // tags: [],
+
             pictures: data.pictures.map((p, pIndex) => {
                 return {
                     id: p.id,
@@ -384,6 +370,30 @@ const Recipe: React.FC = () => {
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
+    };
+
+    const deleteRecipeHandler = () => {
+        setDeleteModal(true);
+    };
+
+    const deleteRecipeConfirmHandler = (status: boolean) => {
+        (async () => {
+            if (status === true) {
+                if (params.recipeId) {
+                    try {
+                        await recipeApi.deleteRecipe(+params.recipeId);
+                        navigate('/recipes');
+                    } catch (err) {
+                        formatErrorMessage(err).then((message) => {
+                            setError(message);
+                        });
+                    }
+                } else {
+                    setError('Neplatné používateľské ID!');
+                }
+            }
+            setDeleteModal(false);
+        })();
     };
 
     return (
@@ -457,9 +467,24 @@ const Recipe: React.FC = () => {
                         >
                             Zrušiť
                         </Button>
+                        {params.recipeId && (
+                            <Button
+                                variant='outline-danger'
+                                type='button'
+                                onClick={deleteRecipeHandler}
+                            >
+                                Vymazať recept
+                            </Button>
+                        )}
                     </Form>
                 </FormProvider>
             </div>
+            <Modal
+                show={!!deleteModal}
+                type='question'
+                message={`Prajete si vymazať recept "${nameOfRecipe}" ?`}
+                onClose={deleteRecipeConfirmHandler}
+            />
             <Modal
                 show={!!error}
                 message={error}

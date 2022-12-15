@@ -13,7 +13,7 @@ import {
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 
-const SingleRecipe: React.FC = () => {
+const RecipeView: React.FC = () => {
     const [recipe, setRecipe] = useState<UpdatedRecipe>();
     const [error, setError] = useState<string>();
     const params = useParams();
@@ -108,6 +108,10 @@ const SingleRecipe: React.FC = () => {
         })();
     }, [params.recipeId]);
 
+    const getPageMargins = () => {
+        return `@page { margin: 40px !important; }`;
+      };
+
     return (
         <div>
             <ReactToPrint
@@ -115,6 +119,7 @@ const SingleRecipe: React.FC = () => {
                 content={() => componentRef.current}
             ></ReactToPrint>
             <div ref={componentRef}>
+            <style>{getPageMargins()}</style>
                 <h1>{recipe?.name}</h1>
                 {recipe?.description !== null && (
                     <>
@@ -227,4 +232,4 @@ const SingleRecipe: React.FC = () => {
     );
 };
 
-export default SingleRecipe;
+export default RecipeView;

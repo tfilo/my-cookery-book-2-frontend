@@ -12,11 +12,3 @@ code {
         monospace;
 }
 
-@media print {
-    @page {
-        margin-left: 50;
-        padding-left: 50;
-        margin-top: 50;
-        padding-top: 50;
-    }
-}

@@ -21,7 +21,7 @@ import TagPage from './pages/TagPage';
 import UnitCategoryPage from './pages/UnitCategoryPage';
 import UnitPage from './pages/UnitPage';
 import RecipesPage from './pages/RecipesPage';
-import SingleRecipePage from './pages/SingleRecipePage';
+import RecipeViewPage from './pages/RecipeViewPage';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -220,7 +220,7 @@ function App() {
                             />
                              <Route
                                 path='/recipe/display/:recipeId'
-                                element={<SingleRecipePage />}
+                                element={<RecipeViewPage />}
                             />
                             <Route path='/recipes' element={<RecipesPage />} />
                             <Route

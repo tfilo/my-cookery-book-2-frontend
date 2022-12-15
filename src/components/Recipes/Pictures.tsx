@@ -69,7 +69,7 @@ const Pictures: React.FC = () => {
                     ref={imageInputRef}
                 />
             </Form.Group>
-            <Row xs={1} sm={2} lg={4} className='g-4'>
+            <Row xs={1} sm={2} lg={4} className='g-4 mb-4'>
                 {fields.map((field, index) => {
                     return (
                         <Col key={field?.id}>

@@ -3,15 +3,15 @@ import { Button, Card, Col, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { pictureApi, recipeApi } from '../../utils/apiWrapper';
-import { formatErrorMessage } from '../../utils/errorMessages';
+// import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
-import defImg from '../../assets/defaultRecipe.jpg'
+import defImg from '../../assets/defaultRecipe.jpg';
 
 const Recipes: React.FC = () => {
     // const [listOfRecipes, setListOfRecipes] = useState<Api.SimpleRecipePage>();
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
-    const [row, setRow] = useState<Api.SimpleRecipe>();
+    // const [row, setRow] = useState<Api.SimpleRecipe>();
     const [list, setList] = useState<RecipeWithUrl>();
 
     type RecipeWithUrl = {
@@ -81,55 +81,55 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/${id}`);
     };
 
-    const deleteRecipeHandler = (row: Api.SimpleRecipe) => {
-        setRow(row);
-    };
+    // const deleteRecipeHandler = (row: Api.SimpleRecipe) => {
+    //     setRow(row);
+    // };
 
-    const deleteRecipeConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
-                if (row) {
-                    try {
-                        await recipeApi.deleteRecipe(row.id);
-                        const recipes: RecipeWithUrl =
-                            await recipeApi.findRecipe(data);
+    // const deleteRecipeConfirmHandler = (status: boolean) => {
+    //     (async () => {
+    //         if (status === true) {
+    //             if (row) {
+    //                 try {
+    //                     await recipeApi.deleteRecipe(row.id);
+    //                     const recipes: RecipeWithUrl =
+    //                         await recipeApi.findRecipe(data);
 
-                        const xy: RecipeWithUrl = {
-                            page: recipes.page,
-                            pageSize: recipes.pageSize,
-                            count: recipes.count,
-                            rows: [],
-                        };
+    //                     const xy: RecipeWithUrl = {
+    //                         page: recipes.page,
+    //                         pageSize: recipes.pageSize,
+    //                         count: recipes.count,
+    //                         rows: [],
+    //                     };
 
-                        for (let r of recipes.rows) {
-                            if (r.pictures.length === 1) {
-                                const receivedData =
-                                    await pictureApi.getPictureThumbnail(
-                                        r.pictures[0].id
-                                    );
-                                if (receivedData instanceof Blob) {
-                                    const url =
-                                        URL.createObjectURL(receivedData);
-                                    r.url = url;
-                                }
-                            } else {
-                                r.url = '';
-                            }
-                            xy.rows.push(r);
-                        }
-                        setList(xy);
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    }
-                } else {
-                    setError('Neplatné používateľské ID!');
-                }
-            }
-            setRow(undefined);
-        })();
-    };
+    //                     for (let r of recipes.rows) {
+    //                         if (r.pictures.length === 1) {
+    //                             const receivedData =
+    //                                 await pictureApi.getPictureThumbnail(
+    //                                     r.pictures[0].id
+    //                                 );
+    //                             if (receivedData instanceof Blob) {
+    //                                 const url =
+    //                                     URL.createObjectURL(receivedData);
+    //                                 r.url = url;
+    //                             }
+    //                         } else {
+    //                             r.url = '';
+    //                         }
+    //                         xy.rows.push(r);
+    //                     }
+    //                     setList(xy);
+    //                 } catch (err) {
+    //                     formatErrorMessage(err).then((message) => {
+    //                         setError(message);
+    //                     });
+    //                 }
+    //             } else {
+    //                 setError('Neplatné používateľské ID!');
+    //             }
+    //         }
+    //         setRow(undefined);
+    //     })();
+    // };
 
     const showRecipeHandler = (id: number) => {
         navigate(`/recipe/display/${id}`);
@@ -159,9 +159,7 @@ const Recipes: React.FC = () => {
                                             row.id
                                         )}
                                         variant='top'
-                                        src={
-                                            defImg
-                                        }
+                                        src={defImg}
                                         alt='obrázok'
                                         style={{
                                             aspectRatio: 1.33,
@@ -198,7 +196,7 @@ const Recipes: React.FC = () => {
                                     >
                                         Upraviť recept
                                     </Button>
-                                    <Button
+                                    {/* <Button
                                         variant='outline-danger'
                                         type='button'
                                         onClick={deleteRecipeHandler.bind(
@@ -208,7 +206,7 @@ const Recipes: React.FC = () => {
                                         className='w-100 mt-1'
                                     >
                                         Vymazať recept
-                                    </Button>
+                                    </Button> */}
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -216,12 +214,12 @@ const Recipes: React.FC = () => {
                 })}
             </Row>
 
-            <Modal
+            {/* <Modal
                 show={!!row}
                 type='question'
                 message={`Prajete si vymazať recept "${row?.name}" ?`}
                 onClose={deleteRecipeConfirmHandler}
-            />
+            /> */}
             <Modal
                 show={!!error}
                 message={error}
