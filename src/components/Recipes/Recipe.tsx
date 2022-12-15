@@ -431,11 +431,6 @@ const Recipe: React.FC = () => {
                                 žiadna nie je zadefinovaná.
                             </p>
                         )}
-                        {/* <Select
-                            name='associatedRecipes'
-                            label='Súvisiace recepty'
-                            options={[]}
-                        /> */}
                         <AssociatedRecipes></AssociatedRecipes>
                         <Select
                             name='tags'

@@ -110,7 +110,7 @@ const RecipeView: React.FC = () => {
 
     const getPageMargins = () => {
         return `@page { margin: 40px !important; }`;
-      };
+    };
 
     return (
         <div>
@@ -119,40 +119,40 @@ const RecipeView: React.FC = () => {
                 content={() => componentRef.current}
             ></ReactToPrint>
             <div ref={componentRef}>
-            <style>{getPageMargins()}</style>
+                <style>{getPageMargins()}</style>
                 <h1>{recipe?.name}</h1>
                 {recipe?.description !== null && (
-                    <>
-                        <h4>Popis</h4>
-                        <div>{recipe?.description}</div>
-                    </>
+                    <section>
+                        <h2>Popis</h2>
+                        <p>{recipe?.description}</p>
+                    </section>
                 )}
                 {recipe?.serves !== null && (
-                    <>
-                        <h4>Počet porcií</h4>
-                        <div>{recipe?.serves}</div>
-                    </>
+                    <section>
+                        <h2>Počet porcií</h2>
+                        <p>{recipe?.serves}</p>
+                    </section>
                 )}
 
                 {recipe?.method !== null && (
-                    <>
-                        <h4>Postup prípravy</h4>
-                        <div>{recipe?.method}</div>
-                    </>
+                    <section>
+                        <h2>Postup prípravy</h2>
+                        <p>{recipe?.method}</p>
+                    </section>
                 )}
                 {recipe?.sources.length !== undefined && (
-                    <>
-                        <h4>Zdroje</h4>
+                    <section>
+                        <h2>Zdroje</h2>
                         {recipe.sources.map((source) => (
-                            <div key={source}>{source}</div>
+                            <p key={source}>{source}</p>
                         ))}
-                    </>
+                    </section>
                 )}
                 {recipe?.recipeSections.map((section) => {
                     return (
-                        <div key={section.id}>
-                            <h4>{section.name}</h4>
-                            <h6>Suroviny</h6>
+                        <section key={section.id}>
+                            <h2>{section.name}</h2>
+                            <h3>Suroviny</h3>
                             <ul>
                                 {section.ingredients.map((ingredient) => {
                                     if (ingredient.value !== null) {
@@ -170,29 +170,31 @@ const RecipeView: React.FC = () => {
                                     }
                                 })}
                             </ul>
-                            <h6>Postup prípravy</h6>
-                            <div className='mb-3'>{section?.method}</div>
-                        </div>
+                            <h3>Postup prípravy</h3>
+                            <p>{section?.method}</p>
+                        </section>
                     );
                 })}
-                <Row xs={1} sm={2} lg={4} className='g-4'>
-                    {recipe?.pictures.map((picture) => (
-                        <Col key={picture.id}>
-                            <Card.Img
-                                variant='top'
-                                src={picture.url}
-                                alt='obrázok'
-                                style={{
-                                    aspectRatio: 1.33,
-                                    objectFit: 'cover',
-                                }}
-                            />
-                            <Card.Body>
-                                <Card.Title>{picture.name}</Card.Title>
-                            </Card.Body>
-                        </Col>
-                    ))}
-                </Row>
+                <section>
+                    <Row xs={1} sm={2} lg={4} className='g-4'>
+                        {recipe?.pictures.map((picture) => (
+                            <Col key={picture.id}>
+                                <Card.Img
+                                    variant='top'
+                                    src={picture.url}
+                                    alt='obrázok'
+                                    style={{
+                                        aspectRatio: 1.33,
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                                <Card.Body>
+                                    <Card.Title>{picture.name}</Card.Title>
+                                </Card.Body>
+                            </Col>
+                        ))}
+                    </Row>
+                </section>
                 <hr />
                 <p>
                     {recipe &&
@@ -219,7 +221,6 @@ const RecipeView: React.FC = () => {
                         ).toLocaleDateString()}`.trim()}
                 </p>
             </div>
-            {/* <button onClick={handlePrint}>Vytlačiť</button> */}
             <Modal
                 show={!!error}
                 message={error}

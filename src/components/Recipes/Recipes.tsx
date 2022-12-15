@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { Button, Card, Col, Row } from 'react-bootstrap';
+import { Button, Card, Col, Pagination, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { pictureApi, recipeApi } from '../../utils/apiWrapper';
-// import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import defImg from '../../assets/defaultRecipe.jpg';
+import { formatErrorMessage } from '../../utils/errorMessages';
 
 const Recipes: React.FC = () => {
-    // const [listOfRecipes, setListOfRecipes] = useState<Api.SimpleRecipePage>();
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
-    // const [row, setRow] = useState<Api.SimpleRecipe>();
     const [list, setList] = useState<RecipeWithUrl>();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [numberOfPages, setNumberOfPages] = useState<number>();
 
     type RecipeWithUrl = {
         page: number;
@@ -32,19 +32,19 @@ const Recipes: React.FC = () => {
             search: '',
             categoryId: null,
             tags: [],
-            page: 0,
-            pageSize: 24,
+            page: currentPage-1,
+            pageSize: 2,
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
             order: Api.RecipeSearchCriteria.OrderEnum.ASC,
         };
-    }, []);
+    }, [currentPage]);
 
     useEffect(() => {
         (async () => {
             try {
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(data);
 
-                const xy: RecipeWithUrl = {
+                const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
                     count: recipes.count,
@@ -64,11 +64,20 @@ const Recipes: React.FC = () => {
                     } else {
                         r.url = '';
                     }
-                    xy.rows.push(r);
+                    formattedRecipe.rows.push(r);
                 }
-                setList(xy);
+                const round = Math.ceil(
+                    formattedRecipe?.count / formattedRecipe?.pageSize
+                );
+                setNumberOfPages(round);
+                setList(formattedRecipe);
+                // console.log(
+                //     `currentPage: ${currentPage}, page: ${formattedRecipe?.page} count: ${formattedRecipe?.count} pageSize: ${formattedRecipe?.pageSize} numberOfPages: ${numberOfPages}`
+                // );
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => {
+                    setError(message);
+                });
             }
         })();
     }, [data]);
@@ -81,58 +90,39 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/${id}`);
     };
 
-    // const deleteRecipeHandler = (row: Api.SimpleRecipe) => {
-    //     setRow(row);
-    // };
-
-    // const deleteRecipeConfirmHandler = (status: boolean) => {
-    //     (async () => {
-    //         if (status === true) {
-    //             if (row) {
-    //                 try {
-    //                     await recipeApi.deleteRecipe(row.id);
-    //                     const recipes: RecipeWithUrl =
-    //                         await recipeApi.findRecipe(data);
-
-    //                     const xy: RecipeWithUrl = {
-    //                         page: recipes.page,
-    //                         pageSize: recipes.pageSize,
-    //                         count: recipes.count,
-    //                         rows: [],
-    //                     };
-
-    //                     for (let r of recipes.rows) {
-    //                         if (r.pictures.length === 1) {
-    //                             const receivedData =
-    //                                 await pictureApi.getPictureThumbnail(
-    //                                     r.pictures[0].id
-    //                                 );
-    //                             if (receivedData instanceof Blob) {
-    //                                 const url =
-    //                                     URL.createObjectURL(receivedData);
-    //                                 r.url = url;
-    //                             }
-    //                         } else {
-    //                             r.url = '';
-    //                         }
-    //                         xy.rows.push(r);
-    //                     }
-    //                     setList(xy);
-    //                 } catch (err) {
-    //                     formatErrorMessage(err).then((message) => {
-    //                         setError(message);
-    //                     });
-    //                 }
-    //             } else {
-    //                 setError('Neplatné používateľské ID!');
-    //             }
-    //         }
-    //         setRow(undefined);
-    //     })();
-    // };
-
     const showRecipeHandler = (id: number) => {
         navigate(`/recipe/display/${id}`);
+    };
+
+    const previousPageHandler = () => {
+        setCurrentPage(currentPage - 1);
+    };
+
+    const nextPageHandler = () => {
+        setCurrentPage((currentPage) => currentPage + 1);
+    };
+
+    const firstPageHandler = () => {
+        setCurrentPage(1);
+    };
+
+    const lastPageHandler = () => {
+        if (numberOfPages) {
+            setCurrentPage(numberOfPages);
+        }
+    };
+
+    const previousPageHandler1 = () => {
+        setCurrentPage(currentPage - 1);
+    };
+    const previousPageHandler2 = () => {
+        setCurrentPage(currentPage - 2);
+    };
+    const nextPageHandler1 = () => {
+        setCurrentPage(currentPage + 1);
+    };
+    const nextPageHandler2 = () => {
+        setCurrentPage(currentPage + 2);
     };
 
     return (
@@ -196,30 +186,53 @@ const Recipes: React.FC = () => {
                                     >
                                         Upraviť recept
                                     </Button>
-                                    {/* <Button
-                                        variant='outline-danger'
-                                        type='button'
-                                        onClick={deleteRecipeHandler.bind(
-                                            null,
-                                            row
-                                        )}
-                                        className='w-100 mt-1'
-                                    >
-                                        Vymazať recept
-                                    </Button> */}
                                 </Card.Body>
                             </Card>
                         </Col>
                     );
                 })}
             </Row>
+            <Pagination className='justify-content-center'>
+                <Pagination.First
+                    onClick={firstPageHandler}
+                    disabled={currentPage === 1}
+                />
+                <Pagination.Prev
+                    onClick={previousPageHandler}
+                    disabled={currentPage === 1}
+                />
+                {currentPage === numberOfPages && (
+                    <Pagination.Item onClick={previousPageHandler2}>
+                        {currentPage - 2}
+                    </Pagination.Item>
+                )}
 
-            {/* <Modal
-                show={!!row}
-                type='question'
-                message={`Prajete si vymazať recept "${row?.name}" ?`}
-                onClose={deleteRecipeConfirmHandler}
-            /> */}
+                {currentPage !== 1 && (
+                    <Pagination.Item onClick={previousPageHandler1}>
+                        {currentPage - 1}
+                    </Pagination.Item>
+                )}
+                <Pagination.Item active>{currentPage}</Pagination.Item>
+                {currentPage !== numberOfPages && (
+                    <Pagination.Item onClick={nextPageHandler1}>
+                        {currentPage + 1}
+                    </Pagination.Item>
+                )}
+                {currentPage === 1 && (
+                    <Pagination.Item onClick={nextPageHandler2}>
+                        {currentPage + 2}
+                    </Pagination.Item>
+                )}
+
+                <Pagination.Next
+                    onClick={nextPageHandler}
+                    disabled={currentPage === numberOfPages}
+                />
+                <Pagination.Last
+                    onClick={lastPageHandler}
+                    disabled={currentPage === numberOfPages}
+                />
+            </Pagination>
             <Modal
                 show={!!error}
                 message={error}
