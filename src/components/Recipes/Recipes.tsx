@@ -32,7 +32,7 @@ const Recipes: React.FC = () => {
             search: '',
             categoryId: null,
             tags: [],
-            page: currentPage-1,
+            page: currentPage - 1,
             pageSize: 2,
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
             order: Api.RecipeSearchCriteria.OrderEnum.ASC,
@@ -192,47 +192,52 @@ const Recipes: React.FC = () => {
                     );
                 })}
             </Row>
-            <Pagination className='justify-content-center'>
-                <Pagination.First
-                    onClick={firstPageHandler}
-                    disabled={currentPage === 1}
-                />
-                <Pagination.Prev
-                    onClick={previousPageHandler}
-                    disabled={currentPage === 1}
-                />
-                {currentPage === numberOfPages && (
-                    <Pagination.Item onClick={previousPageHandler2}>
-                        {currentPage - 2}
-                    </Pagination.Item>
-                )}
+            {numberOfPages !== 1 && (
+                <Pagination className='justify-content-center'>
+                    <Pagination.First
+                        onClick={firstPageHandler}
+                        disabled={currentPage === 1}
+                    />
+                    <Pagination.Prev
+                        onClick={previousPageHandler}
+                        disabled={currentPage === 1}
+                    />
+                    {currentPage !== 1 && currentPage === numberOfPages && numberOfPages !== 2 && (
+                        <Pagination.Item onClick={previousPageHandler2}>
+                            {currentPage - 2}
+                        </Pagination.Item>
+                    )}
 
-                {currentPage !== 1 && (
-                    <Pagination.Item onClick={previousPageHandler1}>
-                        {currentPage - 1}
-                    </Pagination.Item>
-                )}
-                <Pagination.Item active>{currentPage}</Pagination.Item>
-                {currentPage !== numberOfPages && (
-                    <Pagination.Item onClick={nextPageHandler1}>
-                        {currentPage + 1}
-                    </Pagination.Item>
-                )}
-                {currentPage === 1 && (
-                    <Pagination.Item onClick={nextPageHandler2}>
-                        {currentPage + 2}
-                    </Pagination.Item>
-                )}
+                    {currentPage !== 1 && (
+                        <Pagination.Item onClick={previousPageHandler1}>
+                            {currentPage - 1}
+                        </Pagination.Item>
+                    )}
 
-                <Pagination.Next
-                    onClick={nextPageHandler}
-                    disabled={currentPage === numberOfPages}
-                />
-                <Pagination.Last
-                    onClick={lastPageHandler}
-                    disabled={currentPage === numberOfPages}
-                />
-            </Pagination>
+                    <Pagination.Item active>{currentPage}</Pagination.Item>
+
+                    {currentPage !== numberOfPages && (
+                        <Pagination.Item onClick={nextPageHandler1}>
+                            {currentPage + 1}
+                        </Pagination.Item>
+                    )}
+
+                    {currentPage !== numberOfPages && currentPage === 1 && numberOfPages !== 2 && (
+                        <Pagination.Item onClick={nextPageHandler2}>
+                            {currentPage + 2}
+                        </Pagination.Item>
+                    )}
+
+                    <Pagination.Next
+                        onClick={nextPageHandler}
+                        disabled={currentPage === numberOfPages}
+                    />
+                    <Pagination.Last
+                        onClick={lastPageHandler}
+                        disabled={currentPage === numberOfPages}
+                    />
+                </Pagination>
+            )}
             <Modal
                 show={!!error}
                 message={error}

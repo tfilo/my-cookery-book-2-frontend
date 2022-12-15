@@ -17,11 +17,8 @@ const RecipeView: React.FC = () => {
     const [recipe, setRecipe] = useState<UpdatedRecipe>();
     const [error, setError] = useState<string>();
     const params = useParams();
-
+    const [serves, setServes] = useState<number>();
     const componentRef = useRef<HTMLDivElement>(null);
-    // const handlePrint = useReactToPrint({
-    //     content: () => componentRef.current,
-    // });
 
     type UpdatedRecipe = {
         id: number;
@@ -99,7 +96,9 @@ const RecipeView: React.FC = () => {
                             picture.url = url;
                         }
                     }
-
+                    if (rec.serves) {
+                        setServes(rec.serves);
+                    }
                     setRecipe(rec);
                 }
             } catch (err) {
@@ -110,6 +109,12 @@ const RecipeView: React.FC = () => {
 
     const getPageMargins = () => {
         return `@page { margin: 40px !important; }`;
+    };
+
+    const changeServesHandler = (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setServes(+event.target.value);
     };
 
     return (
@@ -130,7 +135,15 @@ const RecipeView: React.FC = () => {
                 {recipe?.serves !== null && (
                     <section>
                         <h2>Počet porcií</h2>
-                        <p>{recipe?.serves}</p>
+                        <input
+                            type='number'
+                            defaultValue={serves}
+                            onChange={changeServesHandler}
+                            style={{
+                                width: 50,
+                            }}
+                            className='border-0'
+                        ></input>
                     </section>
                 )}
 
@@ -155,12 +168,68 @@ const RecipeView: React.FC = () => {
                             <h3>Suroviny</h3>
                             <ul>
                                 {section.ingredients.map((ingredient) => {
-                                    if (ingredient.value !== null) {
-                                        return (
-                                            <li
-                                                key={ingredient.id}
-                                            >{`${ingredient.value} ${ingredient.unitAbbreviation} ${ingredient.name}`}</li>
-                                        );
+                                    if (
+                                        ingredient.value !== null &&
+                                        serves &&
+                                        recipe.serves
+                                    ) {
+                                        if (
+                                            (ingredient.value / recipe.serves) *
+                                                serves <
+                                            10
+                                        ) {
+                                            return (
+                                                <li key={ingredient.id}>
+                                                    {`${
+                                                        (+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(3) /
+                                                            1000) *
+                                                        1000
+                                                    } ${
+                                                        ingredient.unitAbbreviation
+                                                    } ${ingredient.name}`}
+                                                </li>
+                                            );
+                                        } else if (
+                                            (ingredient.value / recipe.serves) *
+                                                serves <
+                                            100
+                                        ) {
+                                            return (
+                                                <li key={ingredient.id}>
+                                                    {`${
+                                                        (+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(2) /
+                                                            100) *
+                                                        100
+                                                    } ${
+                                                        ingredient.unitAbbreviation
+                                                    } ${ingredient.name}`}
+                                                </li>
+                                            );
+                                        } else {
+                                            return (
+                                                <li key={ingredient.id}>
+                                                    {`${
+                                                        (+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(1) /
+                                                            10) *
+                                                        10
+                                                    } ${
+                                                        ingredient.unitAbbreviation
+                                                    } ${ingredient.name}`}
+                                                </li>
+                                            );
+                                        }
                                     } else {
                                         return (
                                             <li
