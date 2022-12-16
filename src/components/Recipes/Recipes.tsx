@@ -344,7 +344,7 @@ const Recipes: React.FC = () => {
                 })}
             </Row>
             
-            {(list?.count / list?.pageSize) > 1 && (
+            {list && (list.count / list.pageSize) > 1 && (
                 <Pagination className='justify-content-center'>
                     <Pagination.First
                         onClick={firstPageHandler}
