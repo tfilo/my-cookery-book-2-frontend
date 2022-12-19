@@ -1,6 +1,5 @@
 import React, {
     Fragment,
-    useCallback,
     useEffect,
     useMemo,
     useState,
@@ -12,7 +11,6 @@ import { pictureApi, recipeApi } from '../../utils/apiWrapper';
 import Modal from '../UI/Modal';
 import defImg from '../../assets/defaultRecipe.jpg';
 import { formatErrorMessage } from '../../utils/errorMessages';
-
 
 type RecipeWithUrl = {
     page: number;
@@ -27,15 +25,15 @@ type RecipeWithUrl = {
     count: number;
 };
 
+const pagesToShow = 5;
+
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
-    const [list, setList] = useState<RecipeWithUrl>();
+    const [recipes, setRecipes] = useState<RecipeWithUrl>();
     const [currentPage, setCurrentPage] = useState(1);
-    const [numberOfPages, setNumberOfPages] = useState<number>();
-    const [arrayOfPageNumbers, setArrayOfPageNumbers] = useState<number[]>();
 
-    const data: Api.RecipeSearchCriteria = useMemo(() => {
+    const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         return {
             search: '',
             categoryId: null,
@@ -47,39 +45,40 @@ const Recipes: React.FC = () => {
         };
     }, [currentPage]);
 
-    const pagesToShow = 5;
-    const calculateArray = useCallback(
-        (currentPage: number, numberOfPages: number) => {
+    const numOfPages = recipes
+        ? Math.ceil(recipes.count / recipes.pageSize)
+        : undefined;
+
+    const pages = useMemo(() => {
             const showNumbers: number[] = [];
-            if (numberOfPages) {
+            if (numOfPages) {
                 const firstPage = Math.max(
                     Math.min(
                         currentPage - Math.floor((pagesToShow - 1) / 2),
-                        numberOfPages - pagesToShow + 1
+                        numOfPages - pagesToShow + 1
                     ),
                     1
                 );
                 const lastPage = Math.min(
                     firstPage + (pagesToShow - 1),
-                    numberOfPages
+                    numOfPages
                 );
-
-                console.log(firstPage, lastPage, currentPage, numberOfPages);
 
                 for (let i = firstPage; i <= lastPage; i++) {
                     showNumbers.push(i);
                 }
             }
-            setArrayOfPageNumbers(showNumbers);
-            console.log(showNumbers);
+            return showNumbers;
         },
-        []
+        [numOfPages, currentPage]
     );
 
     useEffect(() => {
         (async () => {
             try {
-                const recipes: RecipeWithUrl = await recipeApi.findRecipe(data);
+                const recipes: RecipeWithUrl = await recipeApi.findRecipe(
+                    criteria
+                );
 
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
@@ -103,24 +102,14 @@ const Recipes: React.FC = () => {
                     }
                     formattedRecipe.rows.push(r);
                 }
-                const round = Math.ceil(
-                    formattedRecipe?.count / formattedRecipe?.pageSize
-                );
-
-                setNumberOfPages(round);
-                setList(formattedRecipe);
-
-                calculateArray(recipes.page + 1, round);
-                // console.warn(
-                //     `currentPage: ${currentPage}, page: ${formattedRecipe?.page} count: ${formattedRecipe?.count} pageSize: ${formattedRecipe?.pageSize} numberOfPages: ${numberOfPages}`
-                // );
+                setRecipes(formattedRecipe);
             } catch (err) {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
                 });
             }
         })();
-    }, [data, calculateArray]);
+    }, [criteria]);
 
     const createRecipeHandler = () => {
         navigate('/recipe/create');
@@ -134,30 +123,9 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/display/${id}`);
     };
 
-    const previousPageHandler = () => {
-        setCurrentPage(currentPage - 1);
-    };
-
-    const nextPageHandler = () => {
-        setCurrentPage((currentPage) => currentPage + 1);
-    };
-
-    const firstPageHandler = () => {
-        setCurrentPage(1);
-    };
-
-    const lastPageHandler = () => {
-        if (numberOfPages) {
-            setCurrentPage(numberOfPages);
-        }
-    };
-
     const changePageHandler = (pageNumber: number) => {
         setCurrentPage(pageNumber);
     };
-
-    
-    console.log(list);
 
     return (
         <Fragment>
@@ -172,7 +140,7 @@ const Recipes: React.FC = () => {
                 </Button>
             </div>
             <Row xs={1} sm={2} lg={4} className='g-4'>
-                {list?.rows.map((row) => {
+                {recipes?.rows.map((row) => {
                     return (
                         <Col key={row.id}>
                             <Card className='mb-4'>
@@ -227,18 +195,18 @@ const Recipes: React.FC = () => {
                 })}
             </Row>
 
-            {list && list.count / list.pageSize > 1 && (
+            {numOfPages && numOfPages > 1 && (
                 <Pagination className='justify-content-center'>
                     <Pagination.First
-                        onClick={firstPageHandler}
+                        onClick={() => changePageHandler(1)}
                         disabled={currentPage === 1}
                     />
                     <Pagination.Prev
-                        onClick={previousPageHandler}
+                        onClick={() => changePageHandler(currentPage - 1)}
                         disabled={currentPage === 1}
                     />
 
-                    {arrayOfPageNumbers?.map((v, idx) => (
+                    {pages.map((v, idx) => (
                         <Pagination.Item
                             key={idx}
                             onClick={() => changePageHandler(v)}
@@ -249,12 +217,12 @@ const Recipes: React.FC = () => {
                     ))}
 
                     <Pagination.Next
-                        onClick={nextPageHandler}
-                        disabled={currentPage === numberOfPages}
+                        onClick={() => changePageHandler(currentPage + 1)}
+                        disabled={currentPage === numOfPages}
                     />
                     <Pagination.Last
-                        onClick={lastPageHandler}
-                        disabled={currentPage === numberOfPages}
+                        onClick={() => changePageHandler(numOfPages)}
+                        disabled={currentPage === numOfPages}
                     />
                 </Pagination>
             )}
