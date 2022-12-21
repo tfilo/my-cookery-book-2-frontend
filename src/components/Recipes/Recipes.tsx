@@ -1,5 +1,18 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
-import { Button, Card, Col, Form, Pagination, Row } from 'react-bootstrap';
+import React, {
+    Fragment,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
+import {
+    Button,
+    Card,
+    Col,
+    Collapse,
+    Form,
+    Pagination,
+    Row,
+} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import {
@@ -12,28 +25,22 @@ import Modal from '../UI/Modal';
 import defImg from '../../assets/defaultRecipe.jpg';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import {
+    faFilter,
+    faMagnifyingGlass,
+    faPencil,
+} from '@fortawesome/free-solid-svg-icons';
+import { Typeahead } from 'react-bootstrap-typeahead';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import { debounce } from 'lodash';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
-    url?: string
+    url?: string;
 }
 
 interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
-    rows: SimpleRecipeWithUrl[]
+    rows: SimpleRecipeWithUrl[];
 }
-
-// type RecipeWithUrl = {
-//     page: number;
-//     pageSize: number;
-//     rows: {
-//         id: number;
-//         name: string;
-//         description: string | null;
-//         url?: string;
-//         pictures: Api.SimpleRecipe.Picture[];
-//     }[];
-//     count: number;
-// };
 
 const pagesToShow = 5;
 const pageSize = 2;
@@ -47,13 +54,15 @@ const Recipes: React.FC = () => {
     const [searchingCategory, setSearchingCategory] = useState<number | null>(
         null
     );
-    const [searchingTags, setSearchingTags] = useState<number[]>([]);
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
+    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
+    const [showFilter, setShowFilter] = useState(false);
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
+        const searchingTags = multiSelections.map((t) => t.id);
         return {
             search: searchingText,
             categoryId: searchingCategory,
@@ -63,7 +72,7 @@ const Recipes: React.FC = () => {
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
             order: Api.RecipeSearchCriteria.OrderEnum.ASC,
         };
-    }, [currentPage, searchingText, searchingCategory, searchingTags]);
+    }, [currentPage, searchingText, searchingCategory, multiSelections]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -91,30 +100,24 @@ const Recipes: React.FC = () => {
         return showNumbers;
     }, [numOfPages, currentPage]);
 
-    // useEffect(() => {
-    //     (async() => {
-    //         try {
-    //             const categories = await categoryApi.getCategories();
-    //             setListOfCategories(categories);
-    //             const tags = await tagApi.getTags();
-    //             setListOfTags(tags);
-    //         }
-
-    //     })();
-    // }, [])
+    useEffect(() => {
+        (async () => {
+            try {
+                const categories = await categoryApi.getCategories();
+                setListOfCategories(categories);
+                const tags = await tagApi.getTags();
+                setListOfTags(tags);
+            } catch (err) {
+                formatErrorMessage(err).then((message) => {
+                    setError(message);
+                });
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         (async () => {
             try {
-
-                // TODO toto sa nema tahat pri kazdej zmene kriterii, nie je na to dovod
-                const categories = await categoryApi.getCategories();
-                setListOfCategories(categories);
-
-                // TODO toto sa nema tahat pri kazdej zmene kriterii, nie je na to dovod
-                const tags = await tagApi.getTags();
-                setListOfTags(tags);
-
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
@@ -154,7 +157,11 @@ const Recipes: React.FC = () => {
         navigate('/recipe/create');
     };
 
-    const updateRecipeHandler = (id: number) => {
+    const updateRecipeHandler = (
+        event: React.MouseEvent<HTMLButtonElement>,
+        id: number
+    ) => {
+        event.stopPropagation();
         navigate(`/recipe/${id}`);
     };
 
@@ -166,17 +173,13 @@ const Recipes: React.FC = () => {
         setCurrentPage(pageNumber);
     };
 
-    const changeSearchingHandler = (
-        event: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        const selectedOptions = (event.currentTarget.selectedOptions);
-        const options = [];
-        for (let o = 0;  o < selectedOptions.length; o++) {
-            options.push(+selectedOptions[o].value)
-        }
-        console.log(options);
-        setSearchingTags(options);
+    const searchTextHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchingText(event.target.value);
     };
+
+    const debouncedChangeHandler = useMemo(
+        () => debounce(searchTextHandler, 500)
+      , []);
 
     return (
         <Fragment>
@@ -190,6 +193,7 @@ const Recipes: React.FC = () => {
                     Pridať recept
                 </Button>
             </div>
+
             <div className='input-group mb-3'>
                 <span className='input-group-text'>
                     <FontAwesomeIcon icon={faMagnifyingGlass} />
@@ -199,61 +203,91 @@ const Recipes: React.FC = () => {
                     className='form-control'
                     placeholder='Vyhľadávanie'
                     aria-label='vyhľadávanie'
-                    onChange={(e) => setSearchingText(e.target.value)}
+                    onChange={debouncedChangeHandler}
                 />
+                <Button
+                    // className='input-group-text'
+                    variant='primary'
+                    title='Zobraziť filter'
+                    onClick={() => setShowFilter(!showFilter)}
+                    aria-controls='collapse'
+                    aria-expanded={showFilter}
+                >
+                    <FontAwesomeIcon icon={faFilter} />
+                </Button>
             </div>
-            <Form.Select
-                aria-label='Výber kategórie receptu'
-                className='mb-3'
-                onChange={(e) => setSearchingCategory(+e.target.value)}
-            >
-                <option>Vyberte kategóriu receptu</option>
-                {listOfCategories?.map((category) => (
-                    <option key={category.id} value={category.id}>
-                        {category.name}
-                    </option>
-                ))}
-            </Form.Select>
-            {listOfCategories.length < 1 && (
-                <p className='text-danger'>
-                    Nie je možné vybrať žiadnu kategóriu, nakoľko žiadna nie je
-                    zadefinovaná.
-                </p>
-            )}
-            <Form.Select
-                aria-label='Viacnásobný výber značky receptu'
-                className='mb-3'
-                multiple
-                onChange={changeSearchingHandler}
-            >
-                {listOfTags?.map((tag) => (
-                    <option key={tag.id} value={tag.id}>
-                        {tag.name}
-                    </option>
-                ))}
-            </Form.Select>
-            {listOfTags.length < 1 && (
-                <p className='text-danger'>
-                    Nie je možné vybrať žiadnu značku, nakoľko žiadna nie je
-                    zadefinovaná.
-                </p>
-            )}
+
+            <Collapse in={showFilter}>
+                <div>
+                    <Card className='mb-3' id='collapse'>
+                        <div className='m-3'>
+                            <Form.Group className='mb-3'>
+                                <Form.Label htmlFor='categorySelection'>
+                                    Kategória
+                                </Form.Label>
+                                <Form.Select
+                                    id='categorySelection'
+                                    aria-label='Výber kategórie receptu'
+                                    onChange={(e) =>
+                                        setSearchingCategory(+e.target.value)
+                                    }
+                                >
+                                    <option>Vyberte kategóriu receptu</option>
+                                    {listOfCategories?.map((category) => (
+                                        <option
+                                            key={category.id}
+                                            value={category.id}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label htmlFor='tagsMultiselection'>
+                                    Značky
+                                </Form.Label>
+                                <Typeahead
+                                    id='tagsMultiselection'
+                                    labelKey='name'
+                                    onChange={(selected) =>
+                                        setMultiSelections(
+                                            selected as Api.SimpleTag[]
+                                        )
+                                    }
+                                    options={listOfTags}
+                                    placeholder='Vyberte ľubovoľný počet značiek'
+                                    selected={multiSelections}
+                                    multiple
+                                />
+                                {listOfTags.length < 1 && (
+                                    <p className='text-danger'>
+                                        Nie je možné vybrať žiadnu značku,
+                                        nakoľko žiadna nie je zadefinovaná.
+                                    </p>
+                                )}
+                            </Form.Group>
+                        </div>
+                    </Card>
+                </div>
+            </Collapse>
+
             <Row xs={1} sm={2} lg={4} className='g-4'>
                 {recipes?.rows.map((row) => {
                     return (
                         <Col key={row.id}>
-                            <Card className='mb-4'>
+                            <Card
+                                className='mb-3 overflow-hidden'
+                                role='button'
+                                onClick={showRecipeHandler.bind(null, row.id)}
+                            >
                                 {row.pictures.length === 0 && (
                                     <Card.Img
-                                        onClick={showRecipeHandler.bind(
-                                            null,
-                                            row.id
-                                        )}
                                         variant='top'
                                         src={defImg}
                                         alt='obrázok'
                                         style={{
-                                            aspectRatio: 1.33,
+                                            aspectRatio: 1,
                                             objectFit: 'cover',
                                             opacity: 0.3,
                                         }}
@@ -269,32 +303,56 @@ const Recipes: React.FC = () => {
                                         src={row.url}
                                         alt='obrázok'
                                         style={{
-                                            aspectRatio: 1.33,
+                                            aspectRatio: 1,
                                             objectFit: 'cover',
                                         }}
                                     />
                                 )}
-                                <Card.Body>
-                                    <Card.Title>{row.name}</Card.Title>
-                                    <Button
-                                        variant='outline-primary'
-                                        type='button'
-                                        onClick={updateRecipeHandler.bind(
-                                            null,
-                                            row.id
-                                        )}
-                                        className='w-100'
+                                <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                    <Card.Text
+                                        className='m-0 p-2'
+                                        style={{
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                        }}
                                     >
-                                        Upraviť recept
+                                        <span className='text-white'>
+                                            {row.description}
+                                        </span>
+                                    </Card.Text>
+                                    <Card.Title
+                                        className='m-0 p-2'
+                                        style={{
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                        }}
+                                    >
+                                        <span className='text-white'>
+                                            {row.name}
+                                        </span>
+                                    </Card.Title>
+                                    <Button
+                                        title='Upraviť'
+                                        variant='outline-secondary'
+                                        type='button'
+                                        onClick={(e) =>
+                                            updateRecipeHandler(e, row.id)
+                                        }
+                                        className='position-absolute border-0'
+                                        style={{ top: 0, right: 0 }}
+                                    >
+                                        <FontAwesomeIcon icon={faPencil} />
                                     </Button>
-                                </Card.Body>
+                                </Card.ImgOverlay>
                             </Card>
                         </Col>
                     );
                 })}
             </Row>
 
-            {numOfPages && numOfPages > 1 && (
+            {recipes && recipes?.rows.length < 1 && (
+                <p className='mt-3'>Neboli nájdené žiadne výsledky.</p>
+            )}
+
+            {!!numOfPages && numOfPages > 1 && (
                 <Pagination className='justify-content-center'>
                     <Pagination.First
                         onClick={() => changePageHandler(1)}
