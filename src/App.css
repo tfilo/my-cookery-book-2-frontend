@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.mojaClassa { 
+  /* background-color: yellow !important;  */
+  font-size: xx-large !important;
+  background-color: aqua !important;
+
+} 
+
+.mojaClassa :focus{ 
+  /* background-color: yellow !important;  */
+  font-size: xx-small !important;
+  background-color: lightblue !important;
+
+} 

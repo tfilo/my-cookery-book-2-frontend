@@ -1,9 +1,4 @@
-import React, {
-    Fragment,
-    useEffect,
-    useMemo,
-    useState,
-} from 'react';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
 import {
     Button,
     Card,
@@ -51,8 +46,8 @@ const Recipes: React.FC = () => {
     const [recipes, setRecipes] = useState<RecipeWithUrl>();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchingText, setSearchingText] = useState('');
-    const [searchingCategory, setSearchingCategory] = useState<number | null>(
-        null
+    const [searchingCategory, setSearchingCategory] = useState<number>(
+        -1
     );
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
@@ -60,12 +55,13 @@ const Recipes: React.FC = () => {
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
     const [showFilter, setShowFilter] = useState(false);
+    // const [isHover, setIsHover] = useState(false);
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
         return {
             search: searchingText,
-            categoryId: searchingCategory,
+            categoryId: searchingCategory === -1 ? null : searchingCategory,
             tags: searchingTags,
             page: currentPage - 1,
             pageSize: pageSize,
@@ -118,6 +114,7 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
+                console.log(criteria);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
@@ -178,8 +175,11 @@ const Recipes: React.FC = () => {
     };
 
     const debouncedChangeHandler = useMemo(
-        () => debounce(searchTextHandler, 500)
-      , []);
+        () => debounce(searchTextHandler, 500),
+        []
+    );
+
+    console.log(searchingCategory);
 
     return (
         <Fragment>
@@ -226,17 +226,25 @@ const Recipes: React.FC = () => {
                                     Kategória
                                 </Form.Label>
                                 <Form.Select
+                                
                                     id='categorySelection'
                                     aria-label='Výber kategórie receptu'
+                                    className={searchingCategory === -1 ? 'text-secondary' : ''}
                                     onChange={(e) =>
                                         setSearchingCategory(+e.target.value)
                                     }
                                 >
-                                    <option>Vyberte kategóriu receptu</option>
+                                    <option
+                                        value='-1'
+                                        className='text-dark mojaClassa'
+                                    >
+                                        Vyberte kategóriu receptu
+                                    </option>
                                     {listOfCategories?.map((category) => (
                                         <option
                                             key={category.id}
                                             value={category.id}
+                                            className='text-dark mojaClassa'
                                         >
                                             {category.name}
                                         </option>
