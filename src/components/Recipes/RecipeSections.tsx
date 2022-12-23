@@ -83,7 +83,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                         type='button'
                                         onClick={() => move(index, index + 1)}
                                         className='border-0'
-                                        disabled={index === array.length-1}
+                                        disabled={index === array.length - 1}
                                     >
                                         <FontAwesomeIcon
                                             className='text-dark'
@@ -112,11 +112,12 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 />
                                 {/* </Stack> */}
                                 <IngredientUpdate
-                                // <Ingredients
+                                    // <Ingredients
                                     ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
                                 <Textarea
+                                    className='mt-3'
                                     label='Postup prípravy'
                                     name={`recipeSections.${index}.method`}
                                 />

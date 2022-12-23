@@ -6,6 +6,7 @@ type TextareaProps = {
     label: string;
     name: string;
     disabled?: boolean;
+    className?: string;
 };
 
 const Textarea: React.FC<TextareaProps> = (props) => {
@@ -18,7 +19,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
     const errorMessage = errors[props.name]?.message;
 
     return (
-        <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
+        <Form.Group className={`mb-3 ${props.className ?? ''}`} controlId={`${id}_${props.name}`}>
             <Form.Label>{props.label}</Form.Label>
             <Form.Control
                 {...register(props.name)}
