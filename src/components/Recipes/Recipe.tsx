@@ -184,7 +184,7 @@ const Recipe: React.FC = () => {
                     ingredients: [
                         {
                             name: '',
-                            value: 0,
+                            value: undefined,
                             unitId: -1,
                         },
                     ],

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, Stack } from 'react-bootstrap';
+import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray } from 'react-hook-form';
 import InputWithBtn from '../UI/InputWithBtn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,7 +19,7 @@ const Sources: React.FC = () => {
     return (
         <>
             <Stack direction='horizontal' gap={3}>
-                <h2>Zdroj receptu</h2>
+                <Form.Label>Zdroj receptu</Form.Label>
                 <Button
                     aria-label='pridať zdroj receptu'
                     variant='outline-success'
@@ -36,7 +36,7 @@ const Sources: React.FC = () => {
             </Stack>
 
             {sourcesFields.length > 0 && (
-                <Card>
+                <Card className='mb-3'>
                     <Card.Body>
                         {sourcesFields.map((field, index) => {
                             return (

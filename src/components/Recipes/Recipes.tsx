@@ -236,7 +236,7 @@ const Recipes: React.FC = () => {
                                 >
                                     <option
                                         value='-1'
-                                        className='text-dark mojaClassa'
+                                        className='text-dark'
                                     >
                                         Vyberte kategóriu receptu
                                     </option>
@@ -244,7 +244,7 @@ const Recipes: React.FC = () => {
                                         <option
                                             key={category.id}
                                             value={category.id}
-                                            className='text-dark mojaClassa'
+                                            className='text-dark'
                                         >
                                             {category.name}
                                         </option>

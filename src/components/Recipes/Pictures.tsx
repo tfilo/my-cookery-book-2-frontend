@@ -73,7 +73,7 @@ const Pictures: React.FC = () => {
                 {fields.map((field, index) => {
                     return (
                         <Col key={field?.id}>
-                            <Card >
+                            <Card>
                                 <Card.Img
                                     variant='top'
                                     src={field.url}

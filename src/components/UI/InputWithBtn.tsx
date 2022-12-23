@@ -24,7 +24,7 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <InputGroup className='mb-3'>
+        <InputGroup className='mb-1'>
             <Form.Control
                 {...register(props.name)}
                 id={`${id}_${props.name}`}

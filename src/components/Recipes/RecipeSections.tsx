@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Card, Stack } from 'react-bootstrap';
+import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
-import Ingredients from './Ingredients';
+// import Ingredients from './Ingredients';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCirclePlus,
@@ -12,6 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
+import IngredientUpdate from './IngredientUpdate';
 
 type RecipeSectionsProps = {
     ingredientsData: SelectGroupOptions[];
@@ -27,7 +28,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
     return (
         <>
             <Stack direction='horizontal' gap={3}>
-                <h2>Sekcie</h2>
+                <Form.Label>Sekcie</Form.Label>
                 <Button
                     aria-label='pridať sekciu'
                     variant='outline-success'
@@ -53,7 +54,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
 
             {fields.map((field, index, array) => {
                 return (
-                    <Card key={field?.id} className='mb-4'>
+                    <Card key={field?.id} className='mb-3'>
                         <Card.Body>
                             <section>
                                 <div
@@ -110,7 +111,8 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     className='col-12'
                                 />
                                 {/* </Stack> */}
-                                <Ingredients
+                                <IngredientUpdate
+                                // <Ingredients
                                     ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
