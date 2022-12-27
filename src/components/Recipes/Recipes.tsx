@@ -8,7 +8,7 @@ import {
     Pagination,
     Row,
 } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Api } from '../../openapi';
 import {
     categoryApi,
@@ -56,6 +56,10 @@ const Recipes: React.FC = () => {
     const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
     const [showFilter, setShowFilter] = useState(false);
     // const [isHover, setIsHover] = useState(false);
+
+    const params = useParams();
+    const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
+    console.log(categoryId);
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
@@ -179,8 +183,6 @@ const Recipes: React.FC = () => {
         []
     );
 
-    console.log(searchingCategory);
-
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
@@ -207,11 +209,19 @@ const Recipes: React.FC = () => {
                 />
                 <Button
                     // className='input-group-text'
-                    variant='primary'
+                    variant='outline-secondary'
                     title='Zobraziť filter'
                     onClick={() => setShowFilter(!showFilter)}
                     aria-controls='collapse'
                     aria-expanded={showFilter}
+                    style={{
+                        borderRightColor: '#ced4da',
+                        borderTopColor: '#ced4da',
+                        borderBottomColor: '#ced4da',
+                        borderLeftColor: '#ced4da',
+                        backgroundColor: '#e9ecef',
+                        color: '#212529',
+                    }}
                 >
                     <FontAwesomeIcon icon={faFilter} />
                 </Button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
 import { unitCategoryApi } from '../../utils/apiWrapper';
@@ -41,7 +41,9 @@ const UnitCategory: React.FC = () => {
             console.log(params.id);
             const paramsNumber = params?.id;
             (async () => {
-                const data = await unitCategoryApi.getUnitCategory(parseInt(paramsNumber));
+                const data = await unitCategoryApi.getUnitCategory(
+                    parseInt(paramsNumber)
+                );
                 console.log(data);
                 methods.reset(data);
             })();
@@ -52,10 +54,15 @@ const UnitCategory: React.FC = () => {
         navigate('/units');
     };
 
-    const submitHandler: SubmitHandler<UnitCategoryForm> = async (data: UnitCategoryForm) => {
+    const submitHandler: SubmitHandler<UnitCategoryForm> = async (
+        data: UnitCategoryForm
+    ) => {
         try {
             if (params.id) {
-                await unitCategoryApi.updateUnitCategory(parseInt(params.id), data);
+                await unitCategoryApi.updateUnitCategory(
+                    parseInt(params.id),
+                    data
+                );
                 navigate('/units');
             } else {
                 await unitCategoryApi.createUnitCategory(data);
@@ -71,8 +78,12 @@ const UnitCategory: React.FC = () => {
             <div className='col-lg-6 pt-3'>
                 <h1>Kategória jednotiek</h1>
                 <FormProvider {...methods}>
-                        <Form noValidate onSubmit={methods.handleSubmit(submitHandler)}>
-                            <Input name='name' label='Názov kategórie jednotiek' />
+                    <Form
+                        noValidate
+                        onSubmit={methods.handleSubmit(submitHandler)}
+                    >
+                        <Input name='name' label='Názov kategórie jednotiek' />
+                        <Stack direction='horizontal' gap={2}>
                             <Button variant='primary' type='submit'>
                                 {params.id
                                     ? 'Zmeniť kategóriu'
@@ -85,9 +96,10 @@ const UnitCategory: React.FC = () => {
                             >
                                 Zrušiť
                             </Button>
-                            {isSubmitting && <Spinner />}
-                        </Form>
-                    </FormProvider>
+                        </Stack>
+                        {isSubmitting && <Spinner />}
+                    </Form>
+                </FormProvider>
             </div>
             <Modal
                 show={!!error}

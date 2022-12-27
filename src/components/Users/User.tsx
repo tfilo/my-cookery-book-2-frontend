@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
 import { userApi } from '../../utils/apiWrapper';
@@ -140,18 +140,20 @@ const User: React.FC = () => {
                             ]}
                             multiple={true}
                         />
-                        <Button variant='primary' type='submit'>
-                            {params.id
-                                ? 'Zmeniť používateľa'
-                                : 'Vytvoriť používateľa'}
-                        </Button>{' '}
-                        <Button
-                            variant='warning'
-                            type='button'
-                            onClick={cancelHandler}
-                        >
-                            Zrušiť
-                        </Button>
+                        <Stack direction='horizontal' gap={2}>
+                            <Button variant='primary' type='submit'>
+                                {params.id
+                                    ? 'Zmeniť používateľa'
+                                    : 'Vytvoriť používateľa'}
+                            </Button>{' '}
+                            <Button
+                                variant='warning'
+                                type='button'
+                                onClick={cancelHandler}
+                            >
+                                Zrušiť
+                            </Button>
+                        </Stack>
                         {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>

@@ -1,3 +1,5 @@
+import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -75,7 +77,6 @@ const Users: React.FC = () => {
                         <th>Priezvisko</th>
                         <th>Rola</th>
                         <th></th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,22 +107,28 @@ const Users: React.FC = () => {
                             <td className='align-middle '>
                                 <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
                                     <Button
-                                        variant='primary'
+                                        title='Upraviť'
+                                        aria-label='Upraviť'
+                                        variant='outline-secondary'
                                         onClick={updateUserHandler.bind(
                                             null,
                                             user.id
                                         )}
+                                        style={{border: 'none'}}
                                     >
-                                        Upraviť
+                                        <FontAwesomeIcon icon={faPencil} />
                                     </Button>
                                     <Button
-                                        variant='danger'
+                                        title='Vymazať'
+                                        aria-label='Vymazať'
+                                        variant='outline-danger'
                                         onClick={deleteUserHandler.bind(
                                             null,
                                             user
                                         )}
+                                        style={{border: 'none'}}
                                     >
-                                        Vymazať
+                                        <FontAwesomeIcon icon={faTrash} />
                                     </Button>
                                 </div>
                             </td>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
 import { tagApi } from '../../utils/apiWrapper';
@@ -70,18 +70,25 @@ const Tag: React.FC = () => {
             <div className='col-lg-6 pt-3'>
                 <h1>Značka</h1>
                 <FormProvider {...methods}>
-                    <Form noValidate onSubmit={methods.handleSubmit(submitHandler)}>
+                    <Form
+                        noValidate
+                        onSubmit={methods.handleSubmit(submitHandler)}
+                    >
                         <Input name='name' label='Značka' />
-                        <Button variant='primary' type='submit'>
-                            {params.id ? 'Zmeniť značku' : 'Vytvoriť značku'}
-                        </Button>{' '}
-                        <Button
-                            variant='warning'
-                            type='button'
-                            onClick={cancelHandler}
-                        >
-                            Zrušiť
-                        </Button>
+                        <Stack direction='horizontal' gap={2}>
+                            <Button variant='primary' type='submit'>
+                                {params.id
+                                    ? 'Zmeniť značku'
+                                    : 'Vytvoriť značku'}
+                            </Button>{' '}
+                            <Button
+                                variant='warning'
+                                type='button'
+                                onClick={cancelHandler}
+                            >
+                                Zrušiť
+                            </Button>
+                        </Stack>
                         {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>

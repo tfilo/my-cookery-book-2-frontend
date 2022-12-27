@@ -15,7 +15,7 @@ import {
     unitCategoryApi,
 } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import Select, { SelectGroupOptions } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
@@ -449,6 +449,7 @@ const Recipe: React.FC = () => {
                         )}
                         <Sources />
                         <Pictures />
+                        <Stack direction='horizontal' gap={2}>
                         <Button variant='primary' type='submit'>
                             {params.recipeId
                                 ? 'Zmeniť recept'
@@ -459,18 +460,19 @@ const Recipe: React.FC = () => {
                             variant='warning'
                             type='button'
                             onClick={cancelHandler}
-                        >
+                            >
                             Zrušiť
                         </Button>
                         {params.recipeId && (
                             <Button
-                                variant='outline-danger'
-                                type='button'
-                                onClick={deleteRecipeHandler}
+                            variant='outline-danger'
+                            type='button'
+                            onClick={deleteRecipeHandler}
                             >
                                 Vymazať recept
                             </Button>
                         )}
+                        </Stack>
                     </Form>
                 </FormProvider>
             </div>

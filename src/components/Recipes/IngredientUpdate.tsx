@@ -16,34 +16,44 @@ type IngredientsProps = {
 };
 
 const IngredientUpdate: React.FC<IngredientsProps> = (props) => {
-const [drag1, setDrag1] = useState();
-const [drag2, setDrag2] = useState();
-
     const { register } = useFormContext();
     const { fields, append, remove, move } = useFieldArray({
         name: `${props.recipeSectionName}.ingredients`,
     });
 
-    const dragStart = (e, position) => {
-        setDrag1(position)
-        console.log(`position1: ${position}`)
-        console.log(e.target.innerHTML);
-      };
-     
-      const dragEnter = (e, position) => {
-        setDrag2(position);
-        console.log(`position2: ${position}`)
-        console.log(e.target.innerHTML);
-      };
-     
-      const drop = () => {
-        if (drag1 && drag2) {
-            move(drag1, drag2)
+    const [dragableGroup, setDragableGroup] = useState<number>();
+
+    const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
+        console.log(e.target);
+        if (dragableGroup) {
+            console.log(`position1: ${position}`);
+            // e.preventDefault();
+            e.dataTransfer.setData('pos1_position', position.toString());
+            e.dataTransfer.dropEffect = 'move';
+            // setButtonOnClick(false);
+        } else {
+            console.log('nie som button');
         }
-        setDrag1(undefined);
-        setDrag2(undefined)
-      };
-    
+    };
+
+    const dragOver = (e: React.DragEvent<HTMLElement>, position: number) => {
+        e.preventDefault();
+        console.log(`position2: ${position}`);
+        e.dataTransfer.setData('pos2_position', position.toString());
+        e.dataTransfer.dropEffect = 'move';
+    };
+
+    const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
+        console.log(`position3: ${position}`);
+        console.log('ahoj');
+        // e.preventDefault();
+        const data1 = +e.dataTransfer.getData('pos1_position');
+        const data2 = +e.dataTransfer.getData('pos2_position');
+        console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
+        move(data1, position);
+    };
+    console.log(dragableGroup);
+
     return (
         <>
             <Stack direction='horizontal' gap={3}>
@@ -57,7 +67,7 @@ const [drag2, setDrag2] = useState();
                         append({
                             name: '',
                             sortNumber: null,
-                            value: undefined,
+                            value: null,
                             unitId: null,
                         })
                     }
@@ -75,26 +85,27 @@ const [drag2, setDrag2] = useState();
                             )}
                             type='hidden'
                         />
-                        <InputGroup as={'li'} className='mb-2'
-                        onDragStart={(e) => dragStart(e, index)}
-                        onDragEnter={(e) => dragEnter(e, index)}
-                        onDragEnd={drop}
-                        draggable
-                        
+                        <InputGroup
+                            className='mb-2'
+                            onDragStart={(e) => dragStart(e, index)}
+                            onDragOver={(e) => dragOver(e, index)}
+                            onDrop={(e) => drop(e, index)}
+                            draggable={dragableGroup === index}
                         >
                             <Button
                                 variant='outline-secondary'
                                 aria-label='posunúť ingredienciu'
                                 type='button'
-                                //onClick={() => remove(index)}
-                                // onDrag={()=> move(index, index + 1)}
-                                
                                 style={{
                                     borderLeftColor: 'rgba(0, 0, 0, 0.175)',
                                     borderTopColor: 'rgba(0, 0, 0, 0.175)',
                                     borderBottomColor: 'rgba(0, 0, 0, 0.175)',
                                     borderRightColor: 'rgba(0, 0, 0, 0)',
                                 }}
+                                onMouseOver={() => setDragableGroup(index)}
+                                onMouseOut={() => setDragableGroup(undefined)}
+                                onTouchStart={() => setDragableGroup(index)}
+                                onTouchEnd={() => setDragableGroup(undefined)}
                             >
                                 <FontAwesomeIcon icon={faGripVertical} />
                             </Button>

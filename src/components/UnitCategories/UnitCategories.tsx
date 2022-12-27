@@ -1,5 +1,11 @@
+import {
+    faCirclePlus,
+    faPencil,
+    faTrash,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { unitCategoryApi } from '../../utils/apiWrapper';
@@ -88,45 +94,58 @@ const UnitCategories: React.FC = () => {
                     <Table striped responsive key={unitCategory.id}>
                         <thead>
                             <tr>
-                                <th>{unitCategory.name}</th>
-                                <th></th>
-                                <th>
-                                    <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                <th style={{border: 'none'}} colSpan={3}>
+                                    <Stack direction='horizontal' gap={2}>
+                                        {unitCategory.name}
+                                        {/* <th></th> */}
+
+                                        {/* <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'> */}
                                         <Button
-                                            variant='primary'
+                                            title={`Pridať jednotku kategórie ${unitCategory.name}`}
+                                            aria-label={`Pridať jednotku kategórie ${unitCategory.name}`}
+                                            variant='outline-success'
+                                            type='button'
+                                            onClick={createUnitHandler.bind(
+                                                null,
+                                                unitCategory.id
+                                            )}
+                                        >
+                                            <FontAwesomeIcon
+                                                icon={faCirclePlus}
+                                            />
+                                        </Button>
+                                        <Button
+                                            title={`Upraviť jednotku kategórie ${unitCategory.name}`}
+                                            aria-label={`Upraviť jednotku kategórie ${unitCategory.name}`}
+                                            variant='outline-secondary'
                                             onClick={updateUnitCategoryHandler.bind(
                                                 null,
                                                 unitCategory.id
                                             )}
                                         >
-                                            Upraviť
+                                            <FontAwesomeIcon icon={faPencil} />
                                         </Button>
                                         <Button
-                                            variant='danger'
+                                            title={`Vymazať jednotku kategórie ${unitCategory.name}`}
+                                            aria-label={`Vymazať jednotku kategórie ${unitCategory.name}`}
+                                            variant='outline-danger'
                                             onClick={deleteUnitCategoryHandler.bind(
                                                 null,
                                                 unitCategory
                                             )}
                                         >
-                                            Vymazať
+                                            <FontAwesomeIcon icon={faTrash} />
                                         </Button>
-                                    </div>
+                                        {/* </div> */}
+                                    </Stack>
                                 </th>
                             </tr>
                             <tr>
                                 <th>Názov jednotky</th>
-                                <th>Skratka jednotky</th>
-                                <th>
-                                    <Button
-                                        variant='primary'
-                                        onClick={createUnitHandler.bind(null, unitCategory.id)}
-                                    >
-                                        Pridať jednotku
-                                    </Button>
-                                </th>
+                                <th colSpan={2}>Skratka jednotky</th>
                             </tr>
                         </thead>
-                        <Units unitCategoryId={unitCategory.id}/>
+                        <Units unitCategoryId={unitCategory.id} />
                     </Table>
                 ))}
             </div>

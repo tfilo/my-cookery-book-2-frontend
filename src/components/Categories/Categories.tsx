@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState, Fragment } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -74,7 +76,6 @@ const Categories: React.FC = () => {
                     <tr>
                         <th>Názov kategórie</th>
                         <th></th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -84,23 +85,29 @@ const Categories: React.FC = () => {
                             <td className='align-middle '>
                                 <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
                                     <Button
-                                        variant='primary'
+                                        title='Upraviť'
+                                        aria-label='Upraviť'
+                                        variant='outline-secondary'
                                         onClick={updateCategoryHandler.bind(
                                             null,
                                             category.id
                                         )}
+                                        style={{border: 'none'}}
                                     >
-                                        Upraviť
+                                        <FontAwesomeIcon icon={faPencil} />
                                     </Button>
 
                                     <Button
-                                        variant='danger'
+                                        title='Vymazať'
+                                        aria-label='Vymazať'
+                                        variant='outline-danger'
                                         onClick={deleteCategoryHandler.bind(
                                             null,
                                             category
                                         )}
+                                        style={{border: 'none'}}
                                     >
-                                        Vymazať
+                                        <FontAwesomeIcon icon={faTrash} />
                                     </Button>
                                 </div>
                             </td>

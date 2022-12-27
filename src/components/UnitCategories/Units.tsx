@@ -1,3 +1,5 @@
+import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -67,19 +69,25 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                         <td>
                             <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
                                 <Button
-                                    variant='primary'
+                                    title='Upraviť'
+                                    aria-label='Upraviť'
+                                    variant='outline-secondary'
                                     onClick={updateUnitHandler.bind(
                                         null,
                                         unit.id
                                     )}
+                                    style={{border: 'none'}}
                                 >
-                                    Upraviť
+                                   <FontAwesomeIcon icon={faPencil} />
                                 </Button>
                                 <Button
-                                    variant='danger'
+                                    title='Vymazať'
+                                    aria-label='Vymazať'
+                                    variant='outline-danger'
                                     onClick={deleteUnitHandler.bind(null, unit)}
+                                    style={{border: 'none'}}
                                 >
-                                    Vymazať
+                                    <FontAwesomeIcon icon={faTrash} />
                                 </Button>
                             </div>
                         </td>

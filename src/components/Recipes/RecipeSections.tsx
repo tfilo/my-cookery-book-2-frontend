@@ -41,7 +41,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                             ingredients: [
                                 {
                                     name: '',
-                                    value: 0,
+                                    value: null,
                                     unitId: -1,
                                 },
                             ],

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
 import { categoryApi } from '../../utils/apiWrapper';
@@ -52,13 +52,12 @@ const Category: React.FC = () => {
         navigate('/categories');
     };
 
-    const submitHandler: SubmitHandler<CategoryForm> = async (data: CategoryForm) => {
+    const submitHandler: SubmitHandler<CategoryForm> = async (
+        data: CategoryForm
+    ) => {
         try {
             if (params.id) {
-                await categoryApi.updateCategory(
-                    parseInt(params.id),
-                    data
-                );
+                await categoryApi.updateCategory(parseInt(params.id), data);
                 navigate('/categories');
             } else {
                 await categoryApi.createCategory(data);
@@ -79,18 +78,20 @@ const Category: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
                         <Input name='name' label='Kategória' />
-                        <Button variant='primary' type='submit'>
-                            {params.id
-                                ? 'Zmeniť kategóriu'
-                                : 'Vytvoriť kategóriu'}
-                        </Button>{' '}
-                        <Button
-                            variant='warning'
-                            type='button'
-                            onClick={cancelHandler}
-                        >
-                            Zrušiť
-                        </Button>
+                        <Stack direction='horizontal' gap={2}>
+                            <Button variant='primary' type='submit'>
+                                {params.id
+                                    ? 'Zmeniť kategóriu'
+                                    : 'Vytvoriť kategóriu'}
+                            </Button>{' '}
+                            <Button
+                                variant='warning'
+                                type='button'
+                                onClick={cancelHandler}
+                            >
+                                Zrušiť
+                            </Button>
+                        </Stack>
                         {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>

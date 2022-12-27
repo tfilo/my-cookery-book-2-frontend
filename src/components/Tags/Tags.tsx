@@ -1,3 +1,5 @@
+import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
 import { Button, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -82,22 +84,28 @@ const Tags: React.FC = () => {
                             <td className='align-middle '>
                                 <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
                                     <Button
-                                        variant='primary'
+                                        title='Upraviť'
+                                        aria-label='Upraviť'
+                                        variant='outline-secondary'
                                         onClick={updateTagHandler.bind(
                                             null,
                                             tag.id
                                         )}
+                                        style={{ border: 'none' }}
                                     >
-                                        Upraviť
+                                        <FontAwesomeIcon icon={faPencil} />
                                     </Button>
                                     <Button
-                                        variant='danger'
+                                        title='Vymazať'
+                                        aria-label='Vymazať'
+                                        variant='outline-danger'
                                         onClick={deleteTagHandler.bind(
                                             null,
                                             tag
                                         )}
+                                        style={{ border: 'none' }}
                                     >
-                                        Vymazať
+                                        <FontAwesomeIcon icon={faTrash} />
                                     </Button>
                                 </div>
                             </td>

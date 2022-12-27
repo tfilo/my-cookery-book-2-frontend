@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
 import { unitApi } from '../../utils/apiWrapper';
@@ -94,18 +94,20 @@ const Unit: React.FC = () => {
                         <Input name='name' label='Názov jednotky' />
                         <Input name='abbreviation' label='Skratka' />
                         <Checkbox name='required' label='Povinná hodnota' />
-                        <Button variant='primary' type='submit'>
-                            {params.unitId
-                                ? 'Zmeniť jednotku'
-                                : 'Vytvoriť jednotku'}
-                        </Button>{' '}
-                        <Button
-                            variant='warning'
-                            type='button'
-                            onClick={cancelHandler}
-                        >
-                            Zrušiť
-                        </Button>
+                        <Stack direction='horizontal' gap={2}>
+                            <Button variant='primary' type='submit'>
+                                {params.unitId
+                                    ? 'Zmeniť jednotku'
+                                    : 'Vytvoriť jednotku'}
+                            </Button>{' '}
+                            <Button
+                                variant='warning'
+                                type='button'
+                                onClick={cancelHandler}
+                            >
+                                Zrušiť
+                            </Button>
+                        </Stack>
                         {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
