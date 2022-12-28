@@ -55,7 +55,6 @@ const Recipes: React.FC = () => {
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
     const [showFilter, setShowFilter] = useState(false);
-    // const [isHover, setIsHover] = useState(false);
 
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
@@ -65,14 +64,14 @@ const Recipes: React.FC = () => {
         const searchingTags = multiSelections.map((t) => t.id);
         return {
             search: searchingText,
-            categoryId: searchingCategory === -1 ? null : searchingCategory,
+            categoryId: categoryId ? categoryId : searchingCategory === -1 ? null : searchingCategory,
             tags: searchingTags,
             page: currentPage - 1,
             pageSize: pageSize,
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
             order: Api.RecipeSearchCriteria.OrderEnum.ASC,
         };
-    }, [currentPage, searchingText, searchingCategory, multiSelections]);
+    }, [currentPage, searchingText, searchingCategory, multiSelections, categoryId]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -240,8 +239,10 @@ const Recipes: React.FC = () => {
                                     id='categorySelection'
                                     aria-label='Výber kategórie receptu'
                                     className={searchingCategory === -1 ? 'text-secondary' : ''}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                        navigate(`/recipes/${e.target.value}`);
                                         setSearchingCategory(+e.target.value)
+                                    }
                                     }
                                 >
                                     <option

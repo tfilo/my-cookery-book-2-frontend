@@ -94,15 +94,12 @@ const UnitCategories: React.FC = () => {
                     <Table striped responsive key={unitCategory.id}>
                         <thead>
                             <tr>
-                                <th style={{border: 'none'}} colSpan={3}>
+                                <th style={{ border: 'none' }} colSpan={3}>
                                     <Stack direction='horizontal' gap={2}>
                                         {unitCategory.name}
-                                        {/* <th></th> */}
-
-                                        {/* <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'> */}
                                         <Button
-                                            title={`Pridať jednotku kategórie ${unitCategory.name}`}
-                                            aria-label={`Pridať jednotku kategórie ${unitCategory.name}`}
+                                            title={`Pridať kategóriu jednotky ${unitCategory.name}`}
+                                            aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
                                             variant='outline-success'
                                             type='button'
                                             onClick={createUnitHandler.bind(
@@ -115,8 +112,8 @@ const UnitCategories: React.FC = () => {
                                             />
                                         </Button>
                                         <Button
-                                            title={`Upraviť jednotku kategórie ${unitCategory.name}`}
-                                            aria-label={`Upraviť jednotku kategórie ${unitCategory.name}`}
+                                            title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
+                                            aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
                                             variant='outline-secondary'
                                             onClick={updateUnitCategoryHandler.bind(
                                                 null,
@@ -126,8 +123,8 @@ const UnitCategories: React.FC = () => {
                                             <FontAwesomeIcon icon={faPencil} />
                                         </Button>
                                         <Button
-                                            title={`Vymazať jednotku kategórie ${unitCategory.name}`}
-                                            aria-label={`Vymazať jednotku kategórie ${unitCategory.name}`}
+                                            title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
+                                            aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
                                             variant='outline-danger'
                                             onClick={deleteUnitCategoryHandler.bind(
                                                 null,
@@ -136,7 +133,6 @@ const UnitCategories: React.FC = () => {
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </Button>
-                                        {/* </div> */}
                                     </Stack>
                                 </th>
                             </tr>

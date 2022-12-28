@@ -1,7 +1,7 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Stack } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { unitApi } from '../../utils/apiWrapper';
@@ -64,10 +64,10 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
             <tbody>
                 {listOfUnits.map((unit) => (
                     <tr key={unit.id}>
-                        <td>{unit.name}</td>
-                        <td>{unit.abbreviation}</td>
+                        <td className='align-middle'>{unit.name}</td>
+                        <td className='align-middle'>{unit.abbreviation}</td>
                         <td>
-                            <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                            <Stack direction='horizontal' gap={2} className='justify-content-end'>
                                 <Button
                                     title='Upraviť'
                                     aria-label='Upraviť'
@@ -76,20 +76,20 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                                         null,
                                         unit.id
                                     )}
-                                    style={{border: 'none'}}
+                                    style={{ border: 'none' }}
                                 >
-                                   <FontAwesomeIcon icon={faPencil} />
+                                    <FontAwesomeIcon icon={faPencil} />
                                 </Button>
                                 <Button
                                     title='Vymazať'
                                     aria-label='Vymazať'
                                     variant='outline-danger'
                                     onClick={deleteUnitHandler.bind(null, unit)}
-                                    style={{border: 'none'}}
+                                    style={{ border: 'none' }}
                                 >
                                     <FontAwesomeIcon icon={faTrash} />
                                 </Button>
-                            </div>
+                            </Stack>
                         </td>
                     </tr>
                 ))}

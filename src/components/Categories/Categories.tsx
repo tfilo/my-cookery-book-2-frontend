@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState, Fragment } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { categoryApi } from '../../utils/apiWrapper';
@@ -83,7 +83,8 @@ const Categories: React.FC = () => {
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
-                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                                {/* <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'> */}
+                                <Stack direction='horizontal' gap={2}>
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
@@ -92,7 +93,7 @@ const Categories: React.FC = () => {
                                             null,
                                             category.id
                                         )}
-                                        style={{border: 'none'}}
+                                        style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faPencil} />
                                     </Button>
@@ -105,11 +106,12 @@ const Categories: React.FC = () => {
                                             null,
                                             category
                                         )}
-                                        style={{border: 'none'}}
+                                        style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </Button>
-                                </div>
+                                </Stack>
+                                {/* </div> */}
                             </td>
                         </tr>
                     ))}

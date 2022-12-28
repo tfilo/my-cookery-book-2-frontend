@@ -1,7 +1,7 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState, Fragment } from 'react';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
@@ -105,7 +105,7 @@ const Users: React.FC = () => {
                                     .join(', ')}
                             </td>
                             <td className='align-middle '>
-                                <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'>
+                            <Stack direction='horizontal' gap={2}>
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
@@ -130,7 +130,7 @@ const Users: React.FC = () => {
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </Button>
-                                </div>
+                                </Stack>
                             </td>
                         </tr>
                     ))}
