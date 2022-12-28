@@ -354,7 +354,7 @@ const Recipe: React.FC = () => {
                 };
             }),
         };
-        console.log(sendData);
+
         try {
             if (params.recipeId) {
                 await recipeApi.updateRecipe(+params.recipeId, sendData);

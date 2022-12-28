@@ -4,6 +4,7 @@ import {
     Card,
     Col,
     Collapse,
+    Dropdown,
     Form,
     Pagination,
     Row,
@@ -21,7 +22,10 @@ import defImg from '../../assets/defaultRecipe.jpg';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+    faArrowDownAZ,
+    faArrowDownZA,
     faFilter,
+    faGripVertical,
     faMagnifyingGlass,
     faPencil,
 } from '@fortawesome/free-solid-svg-icons';
@@ -46,32 +50,45 @@ const Recipes: React.FC = () => {
     const [recipes, setRecipes] = useState<RecipeWithUrl>();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchingText, setSearchingText] = useState('');
-    const [searchingCategory, setSearchingCategory] = useState<number>(
-        -1
-    );
+    const [searchingCategory, setSearchingCategory] = useState<number>(-1);
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
     const [showFilter, setShowFilter] = useState(false);
+    const [order, setOrder] = useState(Api.RecipeSearchCriteria.OrderEnum.ASC);
 
     const params = useParams();
-    const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
-    console.log(categoryId);
+    let categoryId: number | undefined;
+
+    if (params.categoryId) {
+        categoryId = parseInt(params?.categoryId);
+    }
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
         return {
             search: searchingText,
-            categoryId: categoryId ? categoryId : searchingCategory === -1 ? null : searchingCategory,
+            categoryId: categoryId
+                ? categoryId
+                : searchingCategory === -1
+                ? null
+                : searchingCategory,
             tags: searchingTags,
             page: currentPage - 1,
             pageSize: pageSize,
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
-            order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+            order: order,
         };
-    }, [currentPage, searchingText, searchingCategory, multiSelections, categoryId]);
+    }, [
+        currentPage,
+        searchingText,
+        searchingCategory,
+        multiSelections,
+        categoryId,
+        order,
+    ]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -121,7 +138,6 @@ const Recipes: React.FC = () => {
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
-
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
@@ -207,7 +223,6 @@ const Recipes: React.FC = () => {
                     onChange={debouncedChangeHandler}
                 />
                 <Button
-                    // className='input-group-text'
                     variant='outline-secondary'
                     title='Zobraziť filter'
                     onClick={() => setShowFilter(!showFilter)}
@@ -224,6 +239,74 @@ const Recipes: React.FC = () => {
                 >
                     <FontAwesomeIcon icon={faFilter} />
                 </Button>
+                {order === 'DESC' && (
+                    <Button
+                        variant='outline-secondary'
+                        title='Zoradiť vzostupne'
+                        onClick={() => {
+                            setOrder(Api.RecipeSearchCriteria.OrderEnum.ASC);
+                        }}
+                        aria-controls='collapse'
+                        // aria-expanded={showFilter}
+                        style={{
+                            borderRightColor: '#ced4da',
+                            borderTopColor: '#ced4da',
+                            borderBottomColor: '#ced4da',
+                            borderLeftColor: '#ced4da',
+                            backgroundColor: '#e9ecef',
+                            color: '#212529',
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faArrowDownAZ} />
+                    </Button>
+                )}
+                {order === 'ASC' && (
+                    <Button
+                        variant='outline-secondary'
+                        title='Zoradiť zostupne'
+                        onClick={() => {
+                            setOrder(Api.RecipeSearchCriteria.OrderEnum.DESC);
+                        }}
+                        aria-controls='collapse'
+                        // aria-expanded={showFilter}
+                        style={{
+                            borderRightColor: '#ced4da',
+                            borderTopColor: '#ced4da',
+                            borderBottomColor: '#ced4da',
+                            borderLeftColor: '#ced4da',
+                            backgroundColor: '#e9ecef',
+                            color: '#212529',
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faArrowDownZA} />
+                    </Button>
+                )}
+                    <Dropdown>
+                        <Dropdown.Toggle
+                            variant='outline-secondary'
+                          
+                            style={{
+                                borderRightColor: '#ced4da',
+                                borderTopColor: '#ced4da',
+                                borderBottomColor: '#ced4da',
+                                borderLeftColor: '#ced4da',
+                                backgroundColor: '#e9ecef',
+                                color: '#212529',
+                                borderTopRightRadius: '0.375rem',
+                                borderBottomRightRadius:'0.375rem',
+                                borderTopLeftRadius: '0rem',
+                                borderBottomLeftRadius:'0rem',
+                            }}
+                        > 
+                        <FontAwesomeIcon icon={faGripVertical} />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item>Názov</Dropdown.Item>
+                            <Dropdown.Item>Dátum vytvorenia</Dropdown.Item>
+                            <Dropdown.Item>Dátum úpravy</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                {/* )} */}
             </div>
 
             <Collapse in={showFilter}>
@@ -235,20 +318,19 @@ const Recipes: React.FC = () => {
                                     Kategória
                                 </Form.Label>
                                 <Form.Select
-                                
                                     id='categorySelection'
                                     aria-label='Výber kategórie receptu'
-                                    className={searchingCategory === -1 ? 'text-secondary' : ''}
+                                    className={
+                                        searchingCategory === -1
+                                            ? 'text-secondary'
+                                            : ''
+                                    }
                                     onChange={(e) => {
                                         navigate(`/recipes/${e.target.value}`);
-                                        setSearchingCategory(+e.target.value)
-                                    }
-                                    }
+                                        setSearchingCategory(+e.target.value);
+                                    }}
                                 >
-                                    <option
-                                        value='-1'
-                                        className='text-dark'
-                                    >
+                                    <option value='-1' className='text-dark'>
                                         Vyberte kategóriu receptu
                                     </option>
                                     {listOfCategories?.map((category) => (

@@ -52,7 +52,6 @@ const IngredientUpdate: React.FC<IngredientsProps> = (props) => {
         console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
         move(data1, position);
     };
-    console.log(dragableGroup);
 
     return (
         <>

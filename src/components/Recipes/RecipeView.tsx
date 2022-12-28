@@ -4,88 +4,31 @@ import { Button, Card, Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
 import { Api } from '../../openapi';
-import {
-    pictureApi,
-    recipeApi,
-    unitApi,
-    userApi,
-} from '../../utils/apiWrapper';
+import { pictureApi, recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 
 const RecipeView: React.FC = () => {
-    const [recipe, setRecipe] = useState<UpdatedRecipe>();
+    const [recipe, setRecipe] = useState<RecipesWithUrlInPictures>();
     const [error, setError] = useState<string>();
     const params = useParams();
     const [serves, setServes] = useState<number>();
     const componentRef = useRef<HTMLDivElement>(null);
 
-    type UpdatedRecipe = {
-        id: number;
-        name: string;
-        description: string | null;
-        serves: number | null;
-        method: string | null;
-        sources: string[];
-        categoryId: number;
-        modifierId: number;
-        modifierUsername?: string;
-        modifierFirstName?: string | null;
-        modifierLastName?: string | null;
-        creatorId: number;
-        creatorUsername?: string;
-        creatorFirstName?: string | null;
-        creatorLastName?: string | null;
-        recipeSections: {
-            id: number;
-            name: string;
-            sortNumber: number;
-            method: string | null;
-            ingredients: {
-                id: number;
-                name: string;
-                sortNumber: number;
-                value: number;
-                unitId: number;
-                unitAbbreviation?: string;
-            }[];
-        }[];
-        associatedRecipes: Api.Recipe.AssociatedRecipe[];
-        tags: Api.Recipe.Tag[];
-        pictures: {
-            id: number;
-            name: string;
-            sortNumber: number;
-            url?: string;
-        }[];
-        createdAt: string;
-        updatedAt: string;
-    };
+    interface PicturesWithUrl extends Api.Recipe.Picture {
+        url?: string;
+    }
+
+    interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
+        pictures: PicturesWithUrl[];
+    }
 
     useEffect(() => {
         (async () => {
             try {
                 if (params.recipeId) {
-                    const rec: UpdatedRecipe = await recipeApi.getRecipe(
-                        +params.recipeId
-                    );
-                    const creatorInfo = await userApi.getUser(rec.creatorId);
-                    rec.creatorUsername = creatorInfo.username;
-                    rec.creatorFirstName = creatorInfo.firstName;
-                    rec.creatorLastName = creatorInfo.lastName;
-                    const modifierInfo = await userApi.getUser(rec.modifierId);
-                    rec.modifierUsername = modifierInfo.username;
-                    rec.modifierFirstName = modifierInfo.firstName;
-                    rec.modifierLastName = modifierInfo.lastName;
-
-                    for (let section of rec.recipeSections) {
-                        for (let ingredient of section.ingredients) {
-                            const unit = await unitApi.getUnit(
-                                ingredient.unitId
-                            );
-                            ingredient.unitAbbreviation = unit.abbreviation;
-                        }
-                    }
+                    const rec: RecipesWithUrlInPictures =
+                        await recipeApi.getRecipe(+params.recipeId);
 
                     for (let picture of rec.pictures) {
                         const data = await pictureApi.getPictureThumbnail(
@@ -96,6 +39,7 @@ const RecipeView: React.FC = () => {
                             picture.url = url;
                         }
                     }
+
                     if (rec.serves) {
                         setServes(rec.serves);
                     }
@@ -116,6 +60,54 @@ const RecipeView: React.FC = () => {
     ) => {
         setServes(+event.target.value);
     };
+
+    //1
+    //     const isValidUrl = (urlString: string) => {
+    //         let urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
+    //       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
+    //       '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
+    //       '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
+    //       '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
+    //       '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
+    //     return !!urlPattern.test(urlString);
+    //   }
+
+    //     const xy = isValidUrl('adresa: https://www.freecodemp.org/news/check-if-a-javascript-string-is-a-url/');
+
+    //     console.log(xy);
+
+    //2
+    // function replaceURLWithHTMLLinks(text: string) {
+    //     var exp =
+    //         /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    //     return text.replace(exp, "<a href='$1'>$1</a>");
+    // }
+
+    // const xy = replaceURLWithHTMLLinks(
+    //     'adresa: https://www.freecodemp.org/news/check-if-a-javascript-string-is-a-url/'
+    // );
+
+    // console.log(xy);
+
+    //3
+    function urlify(text: string) {
+        var urlRegex = /(https?:\/\/[^\s]+)/g;
+
+        return text.replace(urlRegex, function (url) {
+            var hyperlink = url;
+            if (!hyperlink.match('^https?://')) {
+                hyperlink = 'http://' + hyperlink;
+            }
+            return (
+                '<a className="blue" href="' +
+                url +
+                '" rel="noopener" noreferrer>' +
+                url +
+                '</a>'
+            );
+        });
+        // or alternatively
+    }
 
     return (
         <div>
@@ -153,11 +145,16 @@ const RecipeView: React.FC = () => {
                         <p>{recipe?.method}</p>
                     </section>
                 )}
-                {recipe?.sources.length !== undefined && (
+                {recipe && recipe.sources && recipe?.sources.length >= 1 && (
                     <section>
                         <h2>Zdroje</h2>
                         {recipe.sources.map((source) => (
-                            <p key={source}>{source}</p>
+                            <p
+                                key={source}
+                                dangerouslySetInnerHTML={{
+                                    __html: urlify(source),
+                                }}
+                            ></p>
                         ))}
                     </section>
                 )}
@@ -189,7 +186,8 @@ const RecipeView: React.FC = () => {
                                                             1000) *
                                                         1000
                                                     } ${
-                                                        ingredient.unitAbbreviation
+                                                        ingredient.unit
+                                                            .abbreviation
                                                     } ${ingredient.name}`}
                                                 </li>
                                             );
@@ -209,7 +207,8 @@ const RecipeView: React.FC = () => {
                                                             100) *
                                                         100
                                                     } ${
-                                                        ingredient.unitAbbreviation
+                                                        ingredient.unit
+                                                            .abbreviation
                                                     } ${ingredient.name}`}
                                                 </li>
                                             );
@@ -225,7 +224,8 @@ const RecipeView: React.FC = () => {
                                                             10) *
                                                         10
                                                     } ${
-                                                        ingredient.unitAbbreviation
+                                                        ingredient.unit
+                                                            .abbreviation
                                                     } ${ingredient.name}`}
                                                 </li>
                                             );
@@ -234,7 +234,7 @@ const RecipeView: React.FC = () => {
                                         return (
                                             <li
                                                 key={ingredient.id}
-                                            >{`${ingredient.unitAbbreviation} ${ingredient.name}`}</li>
+                                            >{`${ingredient.unit.abbreviation} ${ingredient.name}`}</li>
                                         );
                                     }
                                 })}
@@ -264,15 +264,17 @@ const RecipeView: React.FC = () => {
                         ))}
                     </Row>
                 </section>
+                <br></br>
                 <hr />
                 <p>
                     {recipe &&
+                        recipe.creator &&
                         `Pridal: ${
-                            recipe.creatorFirstName
-                                ? recipe.creatorFirstName +
+                            recipe.creator.firstName
+                                ? recipe.creator.firstName +
                                       ' ' +
-                                      recipe.creatorLastName ?? ''
-                                : recipe.creatorUsername
+                                      recipe.creator.lastName ?? ''
+                                : recipe.creator.username
                         } dňa: ${new Date(
                             recipe.createdAt
                         ).toLocaleDateString()}`.trim()}
@@ -280,11 +282,11 @@ const RecipeView: React.FC = () => {
                 <p>
                     {recipe &&
                         `Upravil: ${
-                            recipe.modifierFirstName
-                                ? recipe.modifierFirstName +
+                            recipe.modifier.firstName
+                                ? recipe.modifier.firstName +
                                       ' ' +
-                                      recipe.modifierLastName ?? ''
-                                : recipe.modifierUsername
+                                      recipe.modifier.lastName ?? ''
+                                : recipe.modifier.username
                         } dňa: ${new Date(
                             recipe.updatedAt
                         ).toLocaleDateString()}`.trim()}
