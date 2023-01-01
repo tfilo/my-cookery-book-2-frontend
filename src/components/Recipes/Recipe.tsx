@@ -61,10 +61,11 @@ const schema = yup.object({
         .nullable(),
     serves: yup
         .number()
-        .integer('xy')
-        .defined('xy')
-        .min(0, 'xy')
-        .max(100, 'Musí byť maximálne 100 znakov')
+        .transform((val) => val === /^\[0-9]+$/.test(val) ? val : null) 
+        .integer()
+        .defined()
+        .min(0, 'Musí byť minimálne 0')
+        .max(100, 'Musí byť maximálne 100')
         .default(null)
         .nullable(),
     method: yup
@@ -98,7 +99,7 @@ const schema = yup.object({
                     .trim()
                     // .min(1, 'Musí byť minimálne 1 znak')
                     .max(80, 'Musí byť maximálne 80 znakov')
-                    .required(),
+                    .required('Povinná položka'),
                 method: yup
                     .string()
                     .defined()
@@ -177,19 +178,7 @@ const Recipe: React.FC = () => {
             serves: null,
             method: null,
             sources: [],
-            recipeSections: [
-                // {
-                //     name: '',
-                //     method: null,
-                //     ingredients: [
-                //         {
-                //             name: '',
-                //             value: undefined,
-                //             unitId: -1,
-                //         },
-                //     ],
-                // },
-            ],
+            recipeSections: [],
             tags: [],
             associatedRecipes: [],
             categoryId: -1,

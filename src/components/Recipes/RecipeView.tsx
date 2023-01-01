@@ -61,52 +61,12 @@ const RecipeView: React.FC = () => {
         setServes(+event.target.value);
     };
 
-    //1
-    //     const isValidUrl = (urlString: string) => {
-    //         let urlPattern = new RegExp('^(https?:\\/\\/)?'+ // validate protocol
-    //       '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // validate domain name
-    //       '((\\d{1,3}\\.){3}\\d{1,3}))'+ // validate OR ip (v4) address
-    //       '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // validate port and path
-    //       '(\\?[;&a-z\\d%_.~+=-]*)?'+ // validate query string
-    //       '(\\#[-a-z\\d_]*)?$','i'); // validate fragment locator
-    //     return !!urlPattern.test(urlString);
-    //   }
-
-    //     const xy = isValidUrl('adresa: https://www.freecodemp.org/news/check-if-a-javascript-string-is-a-url/');
-
-    //     console.log(xy);
-
-    //2
-    // function replaceURLWithHTMLLinks(text: string) {
-    //     var exp =
-    //         /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-    //     return text.replace(exp, "<a href='$1'>$1</a>");
-    // }
-
-    // const xy = replaceURLWithHTMLLinks(
-    //     'adresa: https://www.freecodemp.org/news/check-if-a-javascript-string-is-a-url/'
-    // );
-
-    // console.log(xy);
-
-    //3
     function urlify(text: string) {
         var urlRegex = /(https?:\/\/[^\s]+)/g;
 
-        return text.replace(urlRegex, function (url) {
-            var hyperlink = url;
-            if (!hyperlink.match('^https?://')) {
-                hyperlink = 'http://' + hyperlink;
-            }
-            return (
-                '<a className="blue" href="' +
-                url +
-                '" rel="noopener" noreferrer>' +
-                url +
-                '</a>'
-            );
+        return text.replace(urlRegex, (url) => {
+            return `<a href="${url}" rel="noopener">${url}</a>`;
         });
-        // or alternatively
     }
 
     return (

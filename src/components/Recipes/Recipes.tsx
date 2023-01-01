@@ -41,8 +41,8 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
     rows: SimpleRecipeWithUrl[];
 }
 
-const pagesToShow = 5;
-const pageSize = 2;
+const pagesToShow = 3;
+const pageSize = 1;
 
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
@@ -50,7 +50,6 @@ const Recipes: React.FC = () => {
     const [recipes, setRecipes] = useState<RecipeWithUrl>();
     const [currentPage, setCurrentPage] = useState(1);
     const [searchingText, setSearchingText] = useState('');
-    const [searchingCategory, setSearchingCategory] = useState<number>(-1);
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
@@ -60,35 +59,20 @@ const Recipes: React.FC = () => {
     const [order, setOrder] = useState(Api.RecipeSearchCriteria.OrderEnum.ASC);
 
     const params = useParams();
-    let categoryId: number | undefined;
-
-    if (params.categoryId) {
-        categoryId = parseInt(params?.categoryId);
-    }
+    const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
         return {
             search: searchingText,
-            categoryId: categoryId
-                ? categoryId
-                : searchingCategory === -1
-                ? null
-                : searchingCategory,
+            categoryId: categoryId === -1 ? null : categoryId,
             tags: searchingTags,
             page: currentPage - 1,
             pageSize: pageSize,
             orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
             order: order,
         };
-    }, [
-        currentPage,
-        searchingText,
-        searchingCategory,
-        multiSelections,
-        categoryId,
-        order,
-    ]);
+    }, [currentPage, searchingText, multiSelections, categoryId, order]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -155,8 +139,6 @@ const Recipes: React.FC = () => {
                             const url = URL.createObjectURL(receivedData);
                             r.url = url;
                         }
-                    } else {
-                        r.url = '';
                     }
                     formattedRecipe.rows.push(r);
                 }
@@ -198,6 +180,14 @@ const Recipes: React.FC = () => {
         []
     );
 
+    const toggleOrder = () => {
+        setOrder((old) =>
+            old === Api.RecipeSearchCriteria.OrderEnum.ASC
+                ? Api.RecipeSearchCriteria.OrderEnum.DESC
+                : Api.RecipeSearchCriteria.OrderEnum.ASC
+        );
+    };
+
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
@@ -228,85 +218,43 @@ const Recipes: React.FC = () => {
                     onClick={() => setShowFilter(!showFilter)}
                     aria-controls='collapse'
                     aria-expanded={showFilter}
-                    style={{
-                        borderRightColor: '#ced4da',
-                        borderTopColor: '#ced4da',
-                        borderBottomColor: '#ced4da',
-                        borderLeftColor: '#ced4da',
-                        backgroundColor: '#e9ecef',
-                        color: '#212529',
-                    }}
+                    className='search-button'
                 >
                     <FontAwesomeIcon icon={faFilter} />
                 </Button>
-                {order === 'DESC' && (
-                    <Button
+                <Button
+                    variant='outline-secondary'
+                    title={
+                        order === Api.RecipeSearchCriteria.OrderEnum.ASC
+                            ? 'Zoradiť zostupne'
+                            : 'Zoradiť vzostupne'
+                    }
+                    onClick={() => {
+                        toggleOrder();
+                    }}
+                    className='search-button'
+                >
+                    <FontAwesomeIcon
+                        icon={
+                            order === Api.RecipeSearchCriteria.OrderEnum.ASC
+                                ? faArrowDownZA
+                                : faArrowDownAZ
+                        }
+                    />
+                </Button>
+                <Dropdown>
+                    <Dropdown.Toggle
                         variant='outline-secondary'
-                        title='Zoradiť vzostupne'
-                        onClick={() => {
-                            setOrder(Api.RecipeSearchCriteria.OrderEnum.ASC);
-                        }}
-                        aria-controls='collapse'
-                        // aria-expanded={showFilter}
-                        style={{
-                            borderRightColor: '#ced4da',
-                            borderTopColor: '#ced4da',
-                            borderBottomColor: '#ced4da',
-                            borderLeftColor: '#ced4da',
-                            backgroundColor: '#e9ecef',
-                            color: '#212529',
-                        }}
+                        className='search-button dropdown'
                     >
-                        <FontAwesomeIcon icon={faArrowDownAZ} />
-                    </Button>
-                )}
-                {order === 'ASC' && (
-                    <Button
-                        variant='outline-secondary'
-                        title='Zoradiť zostupne'
-                        onClick={() => {
-                            setOrder(Api.RecipeSearchCriteria.OrderEnum.DESC);
-                        }}
-                        aria-controls='collapse'
-                        // aria-expanded={showFilter}
-                        style={{
-                            borderRightColor: '#ced4da',
-                            borderTopColor: '#ced4da',
-                            borderBottomColor: '#ced4da',
-                            borderLeftColor: '#ced4da',
-                            backgroundColor: '#e9ecef',
-                            color: '#212529',
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faArrowDownZA} />
-                    </Button>
-                )}
-                    <Dropdown>
-                        <Dropdown.Toggle
-                            variant='outline-secondary'
-                          
-                            style={{
-                                borderRightColor: '#ced4da',
-                                borderTopColor: '#ced4da',
-                                borderBottomColor: '#ced4da',
-                                borderLeftColor: '#ced4da',
-                                backgroundColor: '#e9ecef',
-                                color: '#212529',
-                                borderTopRightRadius: '0.375rem',
-                                borderBottomRightRadius:'0.375rem',
-                                borderTopLeftRadius: '0rem',
-                                borderBottomLeftRadius:'0rem',
-                            }}
-                        > 
                         <FontAwesomeIcon icon={faGripVertical} />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item>Názov</Dropdown.Item>
-                            <Dropdown.Item>Dátum vytvorenia</Dropdown.Item>
-                            <Dropdown.Item>Dátum úpravy</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                {/* )} */}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item>Názov</Dropdown.Item>
+                        <Dropdown.Item>Dátum vytvorenia</Dropdown.Item>
+                        <Dropdown.Item>Dátum úpravy</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </div>
 
             <Collapse in={showFilter}>
@@ -321,14 +269,18 @@ const Recipes: React.FC = () => {
                                     id='categorySelection'
                                     aria-label='Výber kategórie receptu'
                                     className={
-                                        searchingCategory === -1
+                                        categoryId === -1
                                             ? 'text-secondary'
                                             : ''
                                     }
                                     onChange={(e) => {
-                                        navigate(`/recipes/${e.target.value}`);
-                                        setSearchingCategory(+e.target.value);
+                                        e.target.value === '-1'
+                                            ? navigate('/recipes')
+                                            : navigate(
+                                                  `/recipes/${e.target.value}`
+                                              );
                                     }}
+                                    value={`${categoryId}`}
                                 >
                                     <option value='-1' className='text-dark'>
                                         Vyberte kategóriu receptu
@@ -382,33 +334,16 @@ const Recipes: React.FC = () => {
                                 role='button'
                                 onClick={showRecipeHandler.bind(null, row.id)}
                             >
-                                {row.pictures.length === 0 && (
-                                    <Card.Img
-                                        variant='top'
-                                        src={defImg}
-                                        alt='obrázok'
-                                        style={{
-                                            aspectRatio: 1,
-                                            objectFit: 'cover',
-                                            opacity: 0.3,
-                                        }}
-                                    />
-                                )}
-                                {row.pictures.length > 0 && (
-                                    <Card.Img
-                                        onClick={showRecipeHandler.bind(
-                                            null,
-                                            row.id
-                                        )}
-                                        variant='top'
-                                        src={row.url}
-                                        alt='obrázok'
-                                        style={{
-                                            aspectRatio: 1,
-                                            objectFit: 'cover',
-                                        }}
-                                    />
-                                )}
+                                <Card.Img
+                                    variant='top'
+                                    src={row.url ?? defImg}
+                                    alt='obrázok'
+                                    style={{
+                                        aspectRatio: 1,
+                                        objectFit: 'cover',
+                                        opacity: row.url ? 1 : 0.3,
+                                    }}
+                                />
                                 <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
                                     <Card.Text
                                         className='m-0 p-2'
@@ -468,7 +403,7 @@ const Recipes: React.FC = () => {
                         <Pagination.Item
                             key={idx}
                             onClick={() => changePageHandler(v)}
-                            active={v === currentPage}
+                        active={v === currentPage}
                         >
                             {v}
                         </Pagination.Item>
