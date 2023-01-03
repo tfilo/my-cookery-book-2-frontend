@@ -29,7 +29,7 @@ const Users: React.FC = () => {
         navigate('/user');
     };
 
-    const updateUserHandler = (id: number) => {
+    const editUserHandler = (id: number) => {
         console.log(id);
         navigate(`/user/${id}`);
     };
@@ -105,12 +105,12 @@ const Users: React.FC = () => {
                                     .join(', ')}
                             </td>
                             <td className='align-middle '>
-                            <Stack direction='horizontal' gap={2}>
+                            <Stack direction='horizontal' gap={2} className='justify-content-end'>
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
                                         variant='outline-secondary'
-                                        onClick={updateUserHandler.bind(
+                                        onClick={editUserHandler.bind(
                                             null,
                                             user.id
                                         )}

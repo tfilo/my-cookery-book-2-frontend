@@ -20,7 +20,7 @@ import Select, { SelectGroupOptions } from '../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
 import Textarea from '../UI/Textarea';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 
@@ -47,7 +47,7 @@ const schema = yup.object({
     name: yup
         .string()
         .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
+        .min(1, 'Povinná položka')
         .max(80, 'Musí byť maximálne 80 znakov')
         .required(),
     description: yup
@@ -61,10 +61,12 @@ const schema = yup.object({
         .nullable(),
     serves: yup
         .number()
-        .transform((val) => val === /^\[0-9]+$/.test(val) ? val : null) 
+        .transform((val) =>
+            /\b([1-9]|[1-9][0-9]|100)\b/.test(val) ? val : null
+        )
         .integer()
         .defined()
-        .min(0, 'Musí byť minimálne 0')
+        .min(1, 'Musí byť minimálne 1 porcia alebo porciu nedefinovať')
         .max(100, 'Musí byť maximálne 100')
         .default(null)
         .nullable(),
@@ -89,7 +91,11 @@ const schema = yup.object({
             })
         )
         .required(),
-    categoryId: yup.number().integer().min(1, 'Prosím vyberte možnosť').required(),
+    categoryId: yup
+        .number()
+        .integer()
+        .min(1, 'Prosím vyberte možnosť')
+        .required(),
     recipeSections: yup
         .array()
         .of(
@@ -117,18 +123,18 @@ const schema = yup.object({
                                 .trim()
                                 // .min(1, 'Musí byť minimálne 1 znak')
                                 .max(80, 'Musí byť maximálne 80 znakov')
-                                .required(),
+                                .required('Povinná položka'),
                             value: yup
                                 .number()
                                 .defined()
-                                .min(0)
+                                .min(1, 'Hodnota musí byť minimálne 1')
                                 .default(null)
                                 .nullable()
                                 .transform((val) => (isNaN(val) ? null : val)),
                             unitId: yup
                                 .number()
                                 .integer()
-                                .min(1, 'Prosím vyberte možnosť')
+                                .min(1, 'Povinná položka')
                                 .required(),
                         })
                     )
@@ -146,7 +152,7 @@ const schema = yup.object({
                 name: yup
                     .string()
                     .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
+                    .min(1, 'Povinná položka')
                     .max(80, 'Musí byť maximálne 80 znakov')
                     .required(),
             })
@@ -161,7 +167,7 @@ const schema = yup.object({
                 name: yup
                     .string()
                     .trim()
-                    .min(1, 'Musí byť minimálne 1 znak')
+                    .min(1, 'Povinná položka')
                     .max(80, 'Musí byť maximálne 80 znakov')
                     .required(),
             })
@@ -214,6 +220,8 @@ const Recipe: React.FC = () => {
     const navigate = useNavigate();
     const params = useParams();
 
+    const location = useLocation();
+
     useEffect(() => {
         (async () => {
             try {
@@ -254,6 +262,7 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
+                    console.log(data);
 
                     const formattedData: RecipeForm = {
                         ...data,
@@ -294,12 +303,13 @@ const Recipe: React.FC = () => {
     }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
-        navigate('/recipes');
+        navigate('/recipes', { state: location.state });
     };
 
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
+        // console.log(data);
         const sendData = {
             ...data,
             sources: data.sources.map((s) => s.value),
@@ -355,7 +365,7 @@ const Recipe: React.FC = () => {
                 URL.revokeObjectURL(pic.url);
             }
 
-            navigate('/recipes');
+            navigate('/recipes', { state: location.state });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -371,7 +381,13 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     try {
                         await recipeApi.deleteRecipe(+params.recipeId);
-                        navigate('/recipes');
+                        navigate('/recipes', {
+                            state: {
+                                searchingText: location.state.searchingText,
+                                searchingTags: location.state.searchingTags,
+                                currentPage: 1,
+                            },
+                        });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
@@ -395,6 +411,7 @@ const Recipe: React.FC = () => {
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
+                        autoComplete='off'
                     >
                         <Input name='name' label='Názov' />
                         <Textarea name='description' label='Popis' />
@@ -402,6 +419,7 @@ const Recipe: React.FC = () => {
                             name='serves'
                             label='Počet porcií'
                             type='number'
+                            min={1}
                         />
                         <Textarea label='Postup prípravy' name='method' />
                         <RecipeSections ingredientsData={ingredientsData} />
@@ -438,33 +456,36 @@ const Recipe: React.FC = () => {
                         )}
                         <Sources />
                         <Pictures />
-                        <Stack direction='horizontal' gap={2}>
-                        <Button variant='primary' type='submit'>
-                            {params.recipeId
-                                ? 'Zmeniť recept'
-                                : 'Pridať recept'}
-                        </Button>
-                        {isSubmitting && <Spinner />}
-                        <Button
-                            variant='warning'
-                            type='button'
-                            onClick={cancelHandler}
-                            >
-                            Zrušiť
-                        </Button>
-                        {params.recipeId && (
-                            <Button
-                            variant='outline-danger'
-                            type='button'
-                            onClick={deleteRecipeHandler}
-                            >
-                                Vymazať recept
+                        <Stack gap={2} className='flex-md-row'>
+                            <Button variant='primary' type='submit'>
+                                {params.recipeId
+                                    ? 'Zmeniť recept'
+                                    : 'Pridať recept'}
                             </Button>
-                        )}
+
+                            <Button
+                                variant='warning'
+                                type='button'
+                                onClick={cancelHandler}
+                            >
+                                Zrušiť
+                            </Button>
+                            <div className='flex-grow-1 d-none d-md-block'></div>
+
+                            {params.recipeId && (
+                                <Button
+                                    variant='danger'
+                                    type='button'
+                                    onClick={deleteRecipeHandler}
+                                >
+                                    Vymazať recept
+                                </Button>
+                            )}
                         </Stack>
                     </Form>
                 </FormProvider>
             </div>
+            {isSubmitting && <Spinner />}
             <Modal
                 show={!!deleteModal}
                 type='question'

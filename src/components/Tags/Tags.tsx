@@ -29,7 +29,7 @@ const Tags: React.FC = () => {
         navigate('/tag');
     };
 
-    const updateTagHandler = (id: number) => {
+    const editTagHandler = (id: number) => {
         console.log(id);
         navigate(`/tag/${id}`);
     };
@@ -80,12 +80,12 @@ const Tags: React.FC = () => {
                         <tr key={tag.id}>
                             <td className='align-middle'>{tag.name}</td>
                             <td className='align-middle '>
-                            <Stack direction='horizontal' gap={2}>
+                            <Stack direction='horizontal' gap={2} className='justify-content-end'>
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
                                         variant='outline-secondary'
-                                        onClick={updateTagHandler.bind(
+                                        onClick={editTagHandler.bind(
                                             null,
                                             tag.id
                                         )}

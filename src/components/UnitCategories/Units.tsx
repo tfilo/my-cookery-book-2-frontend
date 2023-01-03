@@ -27,7 +27,7 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
         })();
     }, [props.unitCategoryId]);
 
-    const updateUnitHandler = (id: number) => {
+    const editUnitHandler = (id: number) => {
         console.log(id);
         navigate(`/unit/${props.unitCategoryId}/${id}`);
     };
@@ -72,7 +72,7 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                                     title='Upraviť'
                                     aria-label='Upraviť'
                                     variant='outline-secondary'
-                                    onClick={updateUnitHandler.bind(
+                                    onClick={editUnitHandler.bind(
                                         null,
                                         unit.id
                                     )}

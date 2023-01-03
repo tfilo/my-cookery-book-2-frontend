@@ -31,13 +31,12 @@ const Categories: React.FC = () => {
         navigate('/category');
     };
 
-    const updateCategoryHandler = (id: number) => {
+    const editCategoryHandler = (id: number) => {
         console.log(id);
         navigate(`/category/${id}`);
     };
 
     const deleteCategoryHandler = (category: Api.SimpleCategory) => {
-        console.log(category.id);
         setCategory(category);
     };
 
@@ -84,12 +83,12 @@ const Categories: React.FC = () => {
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
                                 {/* <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'> */}
-                                <Stack direction='horizontal' gap={2}>
+                                <Stack direction='horizontal' gap={2} className='justify-content-end'>
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
                                         variant='outline-secondary'
-                                        onClick={updateCategoryHandler.bind(
+                                        onClick={editCategoryHandler.bind(
                                             null,
                                             category.id
                                         )}

@@ -11,6 +11,7 @@ type InputProps = {
     autoComplete?: 'on' | 'off';
     disabled?: boolean;
     type?: 'text' | 'password' | 'number';
+    min?: number;
 };
 
 const Input: React.FC<InputProps> = (props) => {
@@ -36,6 +37,7 @@ const Input: React.FC<InputProps> = (props) => {
                 autoComplete={props.autoComplete}
                 placeholder={props.placeholder}
                 isInvalid={!!errorMessage}
+                min={props.min}
             />
             <Form.Control.Feedback type='invalid'>
                 {errorMessage?.toString()}

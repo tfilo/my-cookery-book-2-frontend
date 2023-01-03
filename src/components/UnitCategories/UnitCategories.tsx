@@ -42,7 +42,7 @@ const UnitCategories: React.FC = () => {
         navigate(`/unit/${unitCategoryId}`);
     };
 
-    const updateUnitCategoryHandler = (id: number) => {
+    const editUnitCategoryHandler = (id: number) => {
         console.log(id);
         navigate(`/unitCategory/${id}`);
     };
@@ -115,7 +115,7 @@ const UnitCategories: React.FC = () => {
                                             title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
                                             aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
                                             variant='outline-secondary'
-                                            onClick={updateUnitCategoryHandler.bind(
+                                            onClick={editUnitCategoryHandler.bind(
                                                 null,
                                                 unitCategory.id
                                             )}

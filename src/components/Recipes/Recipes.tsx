@@ -9,7 +9,7 @@ import {
     Pagination,
     Row,
 } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Api } from '../../openapi';
 import {
     categoryApi,
@@ -47,19 +47,32 @@ const pageSize = 1;
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
+    const { state } = useLocation();
     const [recipes, setRecipes] = useState<RecipeWithUrl>();
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchingText, setSearchingText] = useState('');
+    const [currentPage, setCurrentPage] = useState(state?.currentPage ?? 1);
+    const [searchingText, setSearchingText] = useState(
+        state?.searchingText ?? ''
+    );
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
+    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>(
+        state?.searchingTags ?? []
+    );
     const [showFilter, setShowFilter] = useState(false);
     const [order, setOrder] = useState(Api.RecipeSearchCriteria.OrderEnum.ASC);
 
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
+
+    useEffect(() => {
+        if (categoryId > 0 || multiSelections.length > 0) {
+            setShowFilter(true);
+        }
+    }, [categoryId, multiSelections]);
+
+    // console.log(searchingText, multiSelections, currentPage)
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
@@ -118,10 +131,11 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                console.log(criteria);
+                // console.log(criteria);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
+                // console.log(recipes);
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
@@ -155,16 +169,28 @@ const Recipes: React.FC = () => {
         navigate('/recipe/create');
     };
 
-    const updateRecipeHandler = (
+    const editRecipeHandler = (
         event: React.MouseEvent<HTMLButtonElement>,
         id: number
     ) => {
         event.stopPropagation();
-        navigate(`/recipe/${id}`);
+        navigate(`/recipe/${id}`, {
+            state: {
+                searchingText: searchingText,
+                searchingTags: multiSelections,
+                currentPage: currentPage,
+            },
+        });
     };
 
     const showRecipeHandler = (id: number) => {
-        navigate(`/recipe/display/${id}`);
+        navigate(`/recipe/display/${id}`, {
+            state: {
+                searchingText: searchingText,
+                searchingTags: multiSelections,
+                currentPage: currentPage,
+            },
+        });
     };
 
     const changePageHandler = (pageNumber: number) => {
@@ -173,6 +199,7 @@ const Recipes: React.FC = () => {
 
     const searchTextHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchingText(event.target.value);
+        setCurrentPage(1);
     };
 
     const debouncedChangeHandler = useMemo(
@@ -211,6 +238,7 @@ const Recipes: React.FC = () => {
                     placeholder='Vyhľadávanie'
                     aria-label='vyhľadávanie'
                     onChange={debouncedChangeHandler}
+                    defaultValue={searchingText}
                 />
                 <Button
                     variant='outline-secondary'
@@ -279,6 +307,7 @@ const Recipes: React.FC = () => {
                                             : navigate(
                                                   `/recipes/${e.target.value}`
                                               );
+                                        setCurrentPage(1);
                                     }}
                                     value={`${categoryId}`}
                                 >
@@ -303,11 +332,12 @@ const Recipes: React.FC = () => {
                                 <Typeahead
                                     id='tagsMultiselection'
                                     labelKey='name'
-                                    onChange={(selected) =>
+                                    onChange={(selected) => {
                                         setMultiSelections(
                                             selected as Api.SimpleTag[]
-                                        )
-                                    }
+                                        );
+                                        setCurrentPage(1);
+                                    }}
                                     options={listOfTags}
                                     placeholder='Vyberte ľubovoľný počet značiek'
                                     selected={multiSelections}
@@ -370,7 +400,7 @@ const Recipes: React.FC = () => {
                                         variant='outline-secondary'
                                         type='button'
                                         onClick={(e) =>
-                                            updateRecipeHandler(e, row.id)
+                                            editRecipeHandler(e, row.id)
                                         }
                                         className='position-absolute border-0'
                                         style={{ top: 0, right: 0 }}
@@ -403,7 +433,7 @@ const Recipes: React.FC = () => {
                         <Pagination.Item
                             key={idx}
                             onClick={() => changePageHandler(v)}
-                        active={v === currentPage}
+                            active={v === currentPage}
                         >
                             {v}
                         </Pagination.Item>

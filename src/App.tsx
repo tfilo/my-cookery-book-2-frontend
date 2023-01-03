@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 
 import './App.css';
 import { AuthContext } from './store/auth-context';
-import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
 import UsersPage from './pages/UsersPage';
 import UnitsPage from './pages/UnitsPage';
@@ -56,15 +55,17 @@ function App() {
         })();
     }, []);
 
-    let username = '';
-    if (userInfo) {
-        username = `${userInfo.firstName ?? ''} ${
-            userInfo.lastName ?? ''
-        }`.trim();
-        if (username === '') {
-            username = userInfo.username;
-        }
-    }
+    let username = userInfo?.firstName ? userInfo.firstName + '' + userInfo.lastName : userInfo?.username
+
+    // if (userInfo) {
+    //     username = `${userInfo.firstName ?? ''} ${
+    //         userInfo.lastName ?? ''
+    //     }`.trim();
+    //     if (username === '') {
+    //         username = userInfo.username;
+    //         console.log(username);
+    //     }
+    // }
 
     const openOffcanvas = () => {
         setExpanded(true);
@@ -89,7 +90,7 @@ function App() {
                 >
                     <Container fluid>
                         <Navbar.Toggle onClick={openOffcanvas} />
-                        <Navbar.Brand as={Link} to='/'>
+                        <Navbar.Brand as={Link} to='/recipes'>
                             Kuchárska kniha
                         </Navbar.Brand>
                         <Button onClick={logoutHandler}>Odhlásiť sa</Button>
@@ -144,7 +145,7 @@ function App() {
                                     >
                                         Pridať recept
                                     </Nav.Link>
-                                    <hr/>
+                                    <hr />
                                     <Nav.Link
                                         to='/recipes'
                                         as={Link}
@@ -152,18 +153,18 @@ function App() {
                                     >
                                         Všetky recepty
                                     </Nav.Link>
-                                    <hr/>
+                                    <hr />
                                     {listOfCategories.map((category) => (
                                         <Nav.Link
-                                        to={`/recipes/${category.id}`}
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                        key={category.id}
+                                            to={`/recipes/${category.id}`}
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                            key={category.id}
                                         >
-                                        {category.name}
+                                            {category.name}
                                         </Nav.Link>
                                     ))}
-                                    </Nav>
+                                </Nav>
                             </Offcanvas.Body>
                         </Navbar.Offcanvas>
                     </Container>
@@ -173,7 +174,6 @@ function App() {
                 <Routes>
                     {isLoggedIn ? (
                         <Fragment>
-                            <Route path='/home' element={<HomePage />} />
                             <Route path='/profile' element={<ProfilePage />} />
                             <Route path='/users' element={<UsersPage />} />
                             <Route path='/user' element={<UserPage />} />
@@ -218,7 +218,7 @@ function App() {
                                 path='/recipe/:recipeId'
                                 element={<RecipePage />}
                             />
-                             <Route
+                            <Route
                                 path='/recipe/display/:recipeId'
                                 element={<RecipeViewPage />}
                             />
@@ -237,7 +237,7 @@ function App() {
                         element={
                             <Navigate
                                 replace
-                                to={isLoggedIn ? '/home' : '/signIn'}
+                                to={isLoggedIn ? '/recipes' : '/signIn'}
                             />
                         }
                     />

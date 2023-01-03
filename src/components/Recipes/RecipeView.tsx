@@ -1,22 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, Col, Row } from 'react-bootstrap';
+import { Button, Card, Col, Row, Stack } from 'react-bootstrap';
 
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
 import { Api } from '../../openapi';
 import { pictureApi, recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import Recipes from './Recipes';
 
 const RecipeView: React.FC = () => {
     const [recipe, setRecipe] = useState<RecipesWithUrlInPictures>();
     const [error, setError] = useState<string>();
     const params = useParams();
-    const [serves, setServes] = useState<number>();
+    const [serves, setServes] = useState<number>(1);
     const componentRef = useRef<HTMLDivElement>(null);
+    const [indexOfPic, setIndexOfPic] = useState<number>();
+
+    const navigate = useNavigate();
+    const location = useLocation();
 
     interface PicturesWithUrl extends Api.Recipe.Picture {
         url?: string;
+        fullPic?: string;
     }
 
     interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
@@ -61,16 +69,51 @@ const RecipeView: React.FC = () => {
         setServes(+event.target.value);
     };
 
-    function urlify(text: string) {
-        var urlRegex = /(https?:\/\/[^\s]+)/g;
-
+    const urlify = (text: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
         return text.replace(urlRegex, (url) => {
             return `<a href="${url}" rel="noopener">${url}</a>`;
         });
-    }
+    };
+
+    const showPictureHandler = (id: number) => {
+        console.log(id);
+        (async () => {
+            try {
+                const data = await pictureApi.getPictureData(id);
+                if (data instanceof Blob) {
+                    const fullPic = URL.createObjectURL(data);
+                    console.log(recipe);
+                    if (id && recipe) {
+                        const index = recipe?.pictures.findIndex(
+                            (p) => p.id === id
+                        );
+                        console.log(index);
+                        setIndexOfPic(index);
+                        console.log(recipe?.pictures[index]);
+                        recipe.pictures[index].fullPic = fullPic;
+                    }
+                }
+                console.log(recipe);
+            } catch (err) {
+                // formatErrorMessage(err).then((message) => setError(message));
+            }
+        })();
+    };
 
     return (
         <div>
+            <Button
+                variant='light'
+                aria-label='späť'
+                type='button'
+                onClick={() => {
+                    navigate('/recipes', { state: location.state });
+                }}
+                className='border-0'
+            >
+                <FontAwesomeIcon icon={faCircleArrowLeft} />
+            </Button>
             <ReactToPrint
                 trigger={() => <Button variant='light'>Vytlačiť</Button>}
                 content={() => componentRef.current}
@@ -95,9 +138,33 @@ const RecipeView: React.FC = () => {
                                 width: 50,
                             }}
                             className='border-0'
+                            min={1}
                         ></input>
                     </section>
                 )}
+
+                {recipe?.serves === null &&
+                    recipe.recipeSections.length > 0 && (
+                        <section>
+                            <h2>Počet porcií</h2>
+                            <Stack direction='horizontal' gap={2}>
+                                <input
+                                    type='number'
+                                    defaultValue={serves}
+                                    onChange={changeServesHandler}
+                                    style={{
+                                        width: 50,
+                                    }}
+                                    className='border-0'
+                                    min={1}
+                                ></input>
+                                <span>
+                                    * Počet porcií nie je v recepte
+                                    zadefinovaný.
+                                </span>
+                            </Stack>
+                        </section>
+                    )}
 
                 {recipe?.method !== null && (
                     <section>
@@ -118,97 +185,198 @@ const RecipeView: React.FC = () => {
                         ))}
                     </section>
                 )}
-                {recipe?.recipeSections.map((section) => {
-                    return (
-                        <section key={section.id}>
-                            <h2>{section.name}</h2>
-                            <h3>Suroviny</h3>
-                            <ul>
-                                {section.ingredients.map((ingredient) => {
-                                    if (
-                                        ingredient.value !== null &&
-                                        serves &&
-                                        recipe.serves
-                                    ) {
+                {recipe?.serves === null &&
+                    recipe.recipeSections.map((section) => {
+                        return (
+                            <section key={section.id}>
+                                <h2>{section.name}</h2>
+                                <h3>Suroviny</h3>
+                                <ul>
+                                    {section.ingredients.map((ingredient) => {
                                         if (
-                                            (ingredient.value / recipe.serves) *
-                                                serves <
-                                            10
+                                            ingredient.value !== null &&
+                                            serves
                                         ) {
-                                            return (
-                                                <li key={ingredient.id}>
-                                                    {`${
-                                                        (+(
-                                                            (ingredient.value /
-                                                                recipe.serves) *
-                                                            serves
-                                                        ).toFixed(3) /
-                                                            1000) *
-                                                        1000
-                                                    } ${
-                                                        ingredient.unit
-                                                            .abbreviation
-                                                    } ${ingredient.name}`}
-                                                </li>
-                                            );
-                                        } else if (
-                                            (ingredient.value / recipe.serves) *
-                                                serves <
-                                            100
-                                        ) {
-                                            return (
-                                                <li key={ingredient.id}>
-                                                    {`${
-                                                        (+(
-                                                            (ingredient.value /
-                                                                recipe.serves) *
-                                                            serves
-                                                        ).toFixed(2) /
-                                                            100) *
-                                                        100
-                                                    } ${
-                                                        ingredient.unit
-                                                            .abbreviation
-                                                    } ${ingredient.name}`}
-                                                </li>
-                                            );
+                                            if (
+                                                ingredient.value * serves <
+                                                10
+                                            ) {
+                                                return (
+                                                    <li
+                                                        key={ingredient.id}
+                                                        title={
+                                                            ingredient.unit.name
+                                                        }
+                                                    >
+                                                        {`${
+                                                            (+(
+                                                                ingredient.value *
+                                                                serves
+                                                            ).toFixed(3) /
+                                                                1000) *
+                                                            1000
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            } else if (
+                                                ingredient.value * serves <
+                                                100
+                                            ) {
+                                                return (
+                                                    <li
+                                                        key={ingredient.id}
+                                                        title={
+                                                            ingredient.unit.name
+                                                        }
+                                                    >
+                                                        {`${
+                                                            (+(
+                                                                ingredient.value *
+                                                                serves
+                                                            ).toFixed(2) /
+                                                                100) *
+                                                            100
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            } else {
+                                                return (
+                                                    <li key={ingredient.id}>
+                                                        {`${
+                                                            (+(
+                                                                ingredient.value *
+                                                                serves
+                                                            ).toFixed(1) /
+                                                                10) *
+                                                            10
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            }
                                         } else {
                                             return (
-                                                <li key={ingredient.id}>
-                                                    {`${
-                                                        (+(
-                                                            (ingredient.value /
-                                                                recipe.serves) *
-                                                            serves
-                                                        ).toFixed(1) /
-                                                            10) *
-                                                        10
-                                                    } ${
-                                                        ingredient.unit
-                                                            .abbreviation
-                                                    } ${ingredient.name}`}
-                                                </li>
+                                                <li
+                                                    key={ingredient.id}
+                                                >{`${ingredient.unit.abbreviation} ${ingredient.name}`}</li>
                                             );
                                         }
-                                    } else {
-                                        return (
-                                            <li
-                                                key={ingredient.id}
-                                            >{`${ingredient.unit.abbreviation} ${ingredient.name}`}</li>
-                                        );
-                                    }
-                                })}
-                            </ul>
-                            <h3>Postup prípravy</h3>
-                            <p>{section?.method}</p>
-                        </section>
-                    );
-                })}
+                                    })}
+                                </ul>
+                                <h3>Postup prípravy</h3>
+                                <p>{section?.method}</p>
+                            </section>
+                        );
+                    })}
+
+                {/* toto */}
+                {recipe?.serves !== null &&
+                    recipe?.recipeSections.map((section) => {
+                        return (
+                            <section key={section.id}>
+                                <h2>{section.name}</h2>
+                                <h3>Suroviny</h3>
+                                <ul>
+                                    {section.ingredients.map((ingredient) => {
+                                        if (
+                                            ingredient.value !== null &&
+                                            serves &&
+                                            recipe.serves
+                                        ) {
+                                            if (
+                                                (ingredient.value /
+                                                    recipe.serves) *
+                                                    serves <
+                                                10
+                                            ) {
+                                                return (
+                                                    <li
+                                                        key={ingredient.id}
+                                                        title={
+                                                            ingredient.unit.name
+                                                        }
+                                                    >
+                                                        {`${
+                                                            (+(
+                                                                (ingredient.value /
+                                                                    recipe.serves) *
+                                                                serves
+                                                            ).toFixed(3) /
+                                                                1000) *
+                                                            1000
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            } else if (
+                                                (ingredient.value /
+                                                    recipe.serves) *
+                                                    serves <
+                                                100
+                                            ) {
+                                                return (
+                                                    <li key={ingredient.id}>
+                                                        {`${
+                                                            (+(
+                                                                (ingredient.value /
+                                                                    recipe.serves) *
+                                                                serves
+                                                            ).toFixed(2) /
+                                                                100) *
+                                                            100
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            } else {
+                                                return (
+                                                    <li key={ingredient.id}>
+                                                        {`${
+                                                            (+(
+                                                                (ingredient.value /
+                                                                    recipe.serves) *
+                                                                serves
+                                                            ).toFixed(1) /
+                                                                10) *
+                                                            10
+                                                        } ${
+                                                            ingredient.unit
+                                                                .abbreviation
+                                                        } ${ingredient.name}`}
+                                                    </li>
+                                                );
+                                            }
+                                        } else {
+                                            return (
+                                                <li
+                                                    key={ingredient.id}
+                                                >{`${ingredient.unit.abbreviation} ${ingredient.name}`}</li>
+                                            );
+                                        }
+                                    })}
+                                </ul>
+                                <h3>Postup prípravy</h3>
+                                <p>{section?.method}</p>
+                            </section>
+                        );
+                    })}
                 <section>
                     <Row xs={1} sm={2} lg={4} className='g-4'>
                         {recipe?.pictures.map((picture) => (
                             <Col key={picture.id}>
-                                <Card.Img
+                                {/* <Card.Img
                                     variant='top'
                                     src={picture.url}
                                     alt='obrázok'
@@ -219,7 +387,40 @@ const RecipeView: React.FC = () => {
                                 />
                                 <Card.Body>
                                     <Card.Title>{picture.name}</Card.Title>
-                                </Card.Body>
+                                </Card.Body> */}
+
+                                {/* toto je nove */}
+                                <Card
+                                    className='mb-3 overflow-hidden'
+                                    role='button'
+                                    onClick={showPictureHandler.bind(
+                                        null,
+                                        picture.id
+                                    )}
+                                >
+                                    <Card.Img
+                                        variant='top'
+                                        src={picture.url}
+                                        alt='obrázok'
+                                        style={{
+                                            aspectRatio: 1,
+                                            objectFit: 'cover',
+                                        }}
+                                    />
+                                    <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                        <Card.Title
+                                            className='m-0 p-2'
+                                            style={{
+                                                backgroundColor:
+                                                    'rgba(0,0,0,0.5)',
+                                            }}
+                                        >
+                                            <span className='text-white'>
+                                                {picture.name}
+                                            </span>
+                                        </Card.Title>
+                                    </Card.ImgOverlay>
+                                </Card>
                             </Col>
                         ))}
                     </Row>
@@ -251,6 +452,11 @@ const RecipeView: React.FC = () => {
                             recipe.updatedAt
                         ).toLocaleDateString()}`.trim()}
                 </p>
+            </div>
+            <div>
+                {(indexOfPic || indexOfPic === 0) && recipe && (
+                <img alt={recipe.pictures[indexOfPic].name} src={recipe.pictures[indexOfPic].fullPic} ></img>)}
+                
             </div>
             <Modal
                 show={!!error}

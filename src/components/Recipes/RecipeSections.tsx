@@ -2,7 +2,6 @@ import React from 'react';
 import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
-// import Ingredients from './Ingredients';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCirclePlus,
@@ -12,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
-import IngredientUpdate from './IngredientUpdate';
+import Ingredients from './Ingredients';
 
 type RecipeSectionsProps = {
     ingredientsData: SelectGroupOptions[];
@@ -111,7 +110,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     className='col-12'
                                 />
                                 {/* </Stack> */}
-                                <IngredientUpdate
+                                <Ingredients
                                     // <Ingredients
                                     ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
