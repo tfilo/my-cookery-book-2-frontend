@@ -12,10 +12,22 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Select from '../UI/Select';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+// import { Typeahead } from 'react-bootstrap-typeahead';
+
+// export interface UserForm
+//     extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
+//     roles: {
+//         value: string;
+//         name: string;
+//     }[];
+//     confirmPassword?: string;
+// }
 
 type UserForm = (Api.CreateUser | Api.UpdateUser) & {
     confirmPassword?: string;
 };
+
+// type Roles = { value: string; name: string }[];
 
 const schema = yup.object({
     username: yup
@@ -67,6 +79,7 @@ const schema = yup.object({
 
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
+    // const [multiSelections, setMultiSelections] = useState<Roles>();
     const navigate = useNavigate();
     const params = useParams();
 
@@ -81,6 +94,14 @@ const User: React.FC = () => {
         formState: { isSubmitting },
     } = methods;
 
+    // const roleOptions = [
+    //     { value: 'ADMIN', name: 'Administrátor' },
+    //     {
+    //         value: 'CREATOR',
+    //         name: 'Tvorca obsahu',
+    //     },
+    // ];
+
     useEffect(() => {
         if (params.id) {
             console.log(params.id);
@@ -88,7 +109,30 @@ const User: React.FC = () => {
             (async () => {
                 const data = await userApi.getUser(parseInt(paramsNumber));
                 console.log(data);
-                methods.reset({ ...data, password: '', confirmPassword: '' });
+
+                // const receivedRoles = [];
+                // for (let r of data.roles) {
+                //     if (r === 'ADMIN') {
+                //         receivedRoles.push({
+                //             value: 'ADMIN',
+                //             name: 'Administrátor',
+                //         });
+                //     }
+                //     if (r === 'CREATOR') {
+                //         receivedRoles.push({
+                //             value: 'CREATOR',
+                //             name: 'Tvorca obsahu',
+                //         });
+                //     }
+                // }
+                // setMultiSelections(receivedRoles);
+                const formattedData: UserForm = {
+                    ...data,
+                    password: '',
+                    confirmPassword: '',
+                    // roles: receivedRoles,
+                };
+                methods.reset(formattedData);
             })();
         }
     }, [params.id, methods]);
@@ -98,13 +142,20 @@ const User: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
+        // console.log(data)
+        // console.log(multiSelections);
+        // const selectedRoles = multiSelections?.map((role) => role.value);
+        // const sendData = {
+        //     ...data,
+        //     roles: selectedRoles,
+        // };
+        // console.log(sendData);
         try {
             if (params.id) {
                 await userApi.updateUser(parseInt(params.id), data);
                 navigate('/users');
             } else {
-                await userApi.createUser(data as Api.CreateUser);
-                navigate('/users');
+                await userApi.createUser(data as Api.CreateUser)
             }
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
@@ -128,6 +179,25 @@ const User: React.FC = () => {
                             name='confirmPassword'
                             label='Potvrdenie hesla'
                         />
+
+                        {/* <Form.Group className='mb-3'>
+                            <Form.Label htmlFor='tagsMultiselection'>
+                                Značky
+                            </Form.Label>
+                            <Typeahead
+                                {...methods.register('roles')}
+                                id='roles'
+                                labelKey='name'
+                                onChange={(selected) => {
+                                    setMultiSelections(selected as Roles);
+                                }}
+                                options={roleOptions}
+                                placeholder='Vyberte ľubovoľný počet značiek'
+                                selected={multiSelections}
+                                multiple
+                            />
+                        </Form.Group> */}
+
                         <Select
                             name='roles'
                             label='Používateľské role'

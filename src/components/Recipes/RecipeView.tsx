@@ -8,8 +8,8 @@ import { pictureApi, recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import Recipes from './Recipes';
+import { faCircleArrowLeft, faXmark } from '@fortawesome/free-solid-svg-icons';
+import BootstrapModal from 'react-bootstrap/Modal';
 
 const RecipeView: React.FC = () => {
     const [recipe, setRecipe] = useState<RecipesWithUrlInPictures>();
@@ -18,6 +18,7 @@ const RecipeView: React.FC = () => {
     const [serves, setServes] = useState<number>(1);
     const componentRef = useRef<HTMLDivElement>(null);
     const [indexOfPic, setIndexOfPic] = useState<number>();
+    const [fullscreen, setFullscreen] = useState(true);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -70,10 +71,24 @@ const RecipeView: React.FC = () => {
     };
 
     const urlify = (text: string) => {
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        return text.replace(urlRegex, (url) => {
-            return `<a href="${url}" rel="noopener">${url}</a>`;
-        });
+        if (text.includes('http://') || text.includes('https://')) {
+            const start = text.indexOf('https://');
+            let end = text.indexOf(' ', start);
+            if (end === -1) {
+                end = text.length;
+            }
+            return (
+                <>
+                    {text.substring(0, start)}
+                    <a href={text.substring(start, end)} rel='noopener'>
+                        {text.substring(start, end)}
+                    </a>
+                    {text.substring(end, text.length)}
+                </>
+            );
+        } else {
+            return text;
+        }
     };
 
     const showPictureHandler = (id: number) => {
@@ -108,6 +123,7 @@ const RecipeView: React.FC = () => {
                 aria-label='späť'
                 type='button'
                 onClick={() => {
+                    console.log(location.state);
                     navigate('/recipes', { state: location.state });
                 }}
                 className='border-0'
@@ -178,10 +194,12 @@ const RecipeView: React.FC = () => {
                         {recipe.sources.map((source) => (
                             <p
                                 key={source}
-                                dangerouslySetInnerHTML={{
-                                    __html: urlify(source),
-                                }}
-                            ></p>
+                                // dangerouslySetInnerHTML={{
+                                //     __html: ,
+                                // }}
+                            >
+                                {urlify(source)}
+                            </p>
                         ))}
                     </section>
                 )}
@@ -455,8 +473,51 @@ const RecipeView: React.FC = () => {
             </div>
             <div>
                 {(indexOfPic || indexOfPic === 0) && recipe && (
-                <img alt={recipe.pictures[indexOfPic].name} src={recipe.pictures[indexOfPic].fullPic} ></img>)}
-                
+                    <div>
+                        <Button
+                            size='lg'
+                            title='Zavrieť'
+                            variant='outline-secondary'
+                            type='button'
+                            onClick={() => setIndexOfPic(undefined)}
+                            className='position-absolute border-0'
+                            style={{ top: 0, right: 0 }}
+                        >
+                            <FontAwesomeIcon icon={faXmark} />
+                        </Button>
+                        <BootstrapModal
+                            show={!!indexOfPic || indexOfPic === 0}
+                            onHide={() => setIndexOfPic(undefined)}
+                            fullscreen={fullscreen}
+                        >
+                            <Modal.Header closeButton></Modal.Header>
+                            <Card.Img
+                                variant='top'
+                                src={recipe.pictures[indexOfPic].fullPic}
+                                alt='obrázok'
+                                style={
+                                    {
+                                        // aspectRatio: 1,
+                                        // objectFit: 'cover',
+                                    }
+                                }
+                                // className='fullScreenPic'
+                            />
+                            <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                <Card.Title
+                                    className='m-0 p-2'
+                                    style={{
+                                        backgroundColor: 'rgba(0,0,0,0.5)',
+                                    }}
+                                >
+                                    <span className='text-white'>
+                                        {recipe.pictures[indexOfPic].name}
+                                    </span>
+                                </Card.Title>
+                            </Card.ImgOverlay>
+                        </BootstrapModal>
+                    </div>
+                )}
             </div>
             <Modal
                 show={!!error}

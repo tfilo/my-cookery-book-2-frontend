@@ -42,7 +42,7 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
 }
 
 const pagesToShow = 3;
-const pageSize = 1;
+const pageSize = 12;
 
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
@@ -61,7 +61,8 @@ const Recipes: React.FC = () => {
         state?.searchingTags ?? []
     );
     const [showFilter, setShowFilter] = useState(false);
-    const [order, setOrder] = useState(Api.RecipeSearchCriteria.OrderEnum.ASC);
+    const [order, setOrder] = useState(state?.order ?? Api.RecipeSearchCriteria.OrderEnum.ASC);
+    const [orderBy, setOrderBy] = useState(state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name);
 
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
@@ -82,10 +83,10 @@ const Recipes: React.FC = () => {
             tags: searchingTags,
             page: currentPage - 1,
             pageSize: pageSize,
-            orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
+            orderBy: orderBy,
             order: order,
         };
-    }, [currentPage, searchingText, multiSelections, categoryId, order]);
+    }, [currentPage, searchingText, multiSelections, categoryId, order, orderBy]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -179,6 +180,8 @@ const Recipes: React.FC = () => {
                 searchingText: searchingText,
                 searchingTags: multiSelections,
                 currentPage: currentPage,
+                order: order,
+                orderBy: orderBy
             },
         });
     };
@@ -189,6 +192,8 @@ const Recipes: React.FC = () => {
                 searchingText: searchingText,
                 searchingTags: multiSelections,
                 currentPage: currentPage,
+                order: order,
+                orderBy: orderBy
             },
         });
     };
@@ -208,8 +213,8 @@ const Recipes: React.FC = () => {
     );
 
     const toggleOrder = () => {
-        setOrder((old) =>
-            old === Api.RecipeSearchCriteria.OrderEnum.ASC
+        setOrder(
+            order === Api.RecipeSearchCriteria.OrderEnum.ASC
                 ? Api.RecipeSearchCriteria.OrderEnum.DESC
                 : Api.RecipeSearchCriteria.OrderEnum.ASC
         );
@@ -278,9 +283,9 @@ const Recipes: React.FC = () => {
                         <FontAwesomeIcon icon={faGripVertical} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item>Názov</Dropdown.Item>
-                        <Dropdown.Item>Dátum vytvorenia</Dropdown.Item>
-                        <Dropdown.Item>Dátum úpravy</Dropdown.Item>
+                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.Name); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.Name}>Názov</Dropdown.Item>
+                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.CreatedAt); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.CreatedAt}>Dátum vytvorenia</Dropdown.Item>
+                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt}>Dátum úpravy</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>

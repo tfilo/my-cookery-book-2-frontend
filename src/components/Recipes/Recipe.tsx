@@ -23,11 +23,12 @@ import Textarea from '../UI/Textarea';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 export interface RecipeForm
     extends Omit<
         Api.CreateRecipe | Api.UpdateRecipe,
-        'sources' | 'pictures' | 'associatedRecipes'
+        'sources' | 'pictures' | 'associatedRecipes' | 'tags'
     > {
     sources: {
         value: string;
@@ -38,6 +39,10 @@ export interface RecipeForm
         url: string;
     }[];
     associatedRecipes: {
+        id: number;
+        name: string;
+    }[];
+    tags: {
         id: number;
         name: string;
     }[];
@@ -158,7 +163,12 @@ const schema = yup.object({
             })
         )
         .nullable(),
-    tags: yup.array().of(yup.number().integer().min(1).required()).required(),
+    tags: yup.array().of(
+        yup.object({
+            id: yup.number().integer().min(1).required().required(),
+            name: yup.string(),
+        })
+    ),
     pictures: yup
         .array()
         .of(
@@ -216,6 +226,7 @@ const Recipe: React.FC = () => {
 
     const [nameOfRecipe, setNameOfRecipe] = useState<string>();
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
+    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
 
     const navigate = useNavigate();
     const params = useParams();
@@ -263,7 +274,7 @@ const Recipe: React.FC = () => {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
                     console.log(data);
-
+                    setMultiSelections(data.tags);
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -272,9 +283,9 @@ const Recipe: React.FC = () => {
                         associatedRecipes: data.associatedRecipes.map((ar) => {
                             return { id: ar.id, name: ar.name };
                         }),
-                        tags: data.tags.map((t) => t.id),
                         pictures: [],
                     };
+                    console.log(formattedData);
 
                     for (let pic of data.pictures) {
                         const response = await pictureApi.getPictureThumbnail(
@@ -306,12 +317,17 @@ const Recipe: React.FC = () => {
         navigate('/recipes', { state: location.state });
     };
 
+    console.log(multiSelections);
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
-        // console.log(data);
+        console.log(data);
+        console.log(multiSelections);
+        const selectedtags = multiSelections.map((tag) => tag.id);
+        console.warn(selectedtags);
         const sendData = {
             ...data,
+            tags: selectedtags,
             sources: data.sources.map((s) => s.value),
             associatedRecipes: data.associatedRecipes.map((rec) => rec.id),
             recipeSections: data.recipeSections.map((rs, rsIndex) => {
@@ -319,6 +335,7 @@ const Recipe: React.FC = () => {
                     ...rs,
                     sortNumber: rsIndex + 1,
                     id: 'id' in rs && rs.id ? rs.id : undefined,
+                    tags: multiSelections.map((id) => id.id),
                     ingredients: rs.ingredients.map((i, iIndex) => {
                         if (i.value === null) {
                             const unitById = requiredUnits.find(
@@ -344,7 +361,6 @@ const Recipe: React.FC = () => {
                     }),
                 };
             }),
-
             pictures: data.pictures.map((p, pIndex) => {
                 return {
                     id: p.id,
@@ -354,10 +370,13 @@ const Recipe: React.FC = () => {
             }),
         };
 
+        console.warn(sendData);
+
         try {
             if (params.recipeId) {
                 await recipeApi.updateRecipe(+params.recipeId, sendData);
             } else {
+                console.log(sendData);
                 await recipeApi.createRecipe(sendData);
             }
 
@@ -383,8 +402,7 @@ const Recipe: React.FC = () => {
                         await recipeApi.deleteRecipe(+params.recipeId);
                         navigate('/recipes', {
                             state: {
-                                searchingText: location.state.searchingText,
-                                searchingTags: location.state.searchingTags,
+                                ...location.state,
                                 currentPage: 1,
                             },
                         });
@@ -439,7 +457,32 @@ const Recipe: React.FC = () => {
                             </p>
                         )}
                         <AssociatedRecipes></AssociatedRecipes>
-                        <Select
+                        <Form.Group>
+                            <Form.Label htmlFor='tagsMultiselection'>
+                                Značky
+                            </Form.Label>
+                            <Typeahead
+                                {...methods.register('tags')}
+                                id='tags'
+                                labelKey='name'
+                                onChange={(selected) => {
+                                    setMultiSelections(
+                                        selected as Api.SimpleTag[]
+                                    );
+                                }}
+                                options={listOfTags}
+                                placeholder='Vyberte ľubovoľný počet značiek'
+                                selected={multiSelections}
+                                multiple
+                            />
+                            {listOfTags.length < 1 && (
+                                <p className='text-danger'>
+                                    Nie je možné vybrať žiadnu značku, nakoľko
+                                    žiadna nie je zadefinovaná.
+                                </p>
+                            )}
+                        </Form.Group>
+                        {/* <Select
                             name='tags'
                             label='Pridať značky'
                             options={listOfTags?.map((tag) => ({
@@ -453,7 +496,7 @@ const Recipe: React.FC = () => {
                                 Nie je možné vybrať žiadnu značku, nakoľko
                                 žiadna nie je zadefinovaná.
                             </p>
-                        )}
+                        )} */}
                         <Sources />
                         <Pictures />
                         <Stack gap={2} className='flex-md-row'>

@@ -155,7 +155,7 @@ const Pictures: React.FC = () => {
                                 >
                                     <FontAwesomeIcon icon={faGripVertical} />
                                 </Button>
-                                <Card.Body>
+                                <Card.Body className='pb-0'>
                                     <Input
                                         name={`pictures.${index}.name`}
                                         type='text'
