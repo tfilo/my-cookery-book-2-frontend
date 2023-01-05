@@ -18,7 +18,7 @@ const RecipeView: React.FC = () => {
     const [serves, setServes] = useState<number>(1);
     const componentRef = useRef<HTMLDivElement>(null);
     const [indexOfPic, setIndexOfPic] = useState<number>();
-    const [fullscreen, setFullscreen] = useState(true);
+    const [show, setShow] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -110,6 +110,7 @@ const RecipeView: React.FC = () => {
                     }
                 }
                 console.log(recipe);
+                setShow(true);
             } catch (err) {
                 // formatErrorMessage(err).then((message) => setError(message));
             }
@@ -474,47 +475,63 @@ const RecipeView: React.FC = () => {
             <div>
                 {(indexOfPic || indexOfPic === 0) && recipe && (
                     <div>
-                        <Button
-                            size='lg'
-                            title='Zavrieť'
-                            variant='outline-secondary'
-                            type='button'
-                            onClick={() => setIndexOfPic(undefined)}
-                            className='position-absolute border-0'
-                            style={{ top: 0, right: 0 }}
-                        >
-                            <FontAwesomeIcon icon={faXmark} />
-                        </Button>
                         <BootstrapModal
-                            show={!!indexOfPic || indexOfPic === 0}
-                            onHide={() => setIndexOfPic(undefined)}
-                            fullscreen={fullscreen}
+                            show={show}
+                            fullscreen={true}
+                            onHide={() => {
+                                delete recipe.pictures[indexOfPic].fullPic;
+                                setIndexOfPic(undefined);
+                                setShow(false);
+                            }}
                         >
-                            <Modal.Header closeButton></Modal.Header>
-                            <Card.Img
-                                variant='top'
-                                src={recipe.pictures[indexOfPic].fullPic}
-                                alt='obrázok'
-                                style={
-                                    {
-                                        // aspectRatio: 1,
-                                        // objectFit: 'cover',
-                                    }
-                                }
-                                // className='fullScreenPic'
-                            />
-                            <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                                <Card.Title
-                                    className='m-0 p-2'
-                                    style={{
-                                        backgroundColor: 'rgba(0,0,0,0.5)',
+                            <BootstrapModal.Header
+                                // closeButton
+                                className='bg-dark border-dark'
+                            >
+                                <Button
+                                    size='lg'
+                                    title='Zavrieť'
+                                    variant='outline-secondary'
+                                    type='button'
+                                    onClick={() => {
+                                        setIndexOfPic(undefined);
+                                        setShow(true);
                                     }}
+                                    className='position-absolute border-0'
+                                    style={{ top: 0, right: 0 }}
                                 >
-                                    <span className='text-white'>
-                                        {recipe.pictures[indexOfPic].name}
-                                    </span>
-                                </Card.Title>
-                            </Card.ImgOverlay>
+                                    <FontAwesomeIcon icon={faXmark} />
+                                </Button>
+                                <BootstrapModal.Title className='bg-dark text-white'>
+                                    {recipe.pictures[indexOfPic].name}
+                                </BootstrapModal.Title>
+                            </BootstrapModal.Header>
+                            <BootstrapModal.Body className='p-0 bg-dark'>
+                                <Card.Img
+                                    variant='top'
+                                    src={recipe.pictures[indexOfPic].fullPic}
+                                    alt='obrázok'
+                                    style={
+                                        {
+                                            // aspectRatio: 1,
+                                            // objectFit: 'cover',
+                                        }
+                                    }
+                                    className='fullScreenPic'
+                                />
+                                {/* <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                    <Card.Title
+                                        className='m-0 p-2'
+                                        style={{
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                        }}
+                                    >
+                                        <span className='text-white'>
+                                            {recipe.pictures[indexOfPic].name}
+                                        </span>
+                                    </Card.Title> */}
+                                {/* </Card.ImgOverlay> */}
+                            </BootstrapModal.Body>
                         </BootstrapModal>
                     </div>
                 )}

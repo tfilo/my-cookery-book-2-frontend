@@ -9,25 +9,25 @@ import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
-import Select from '../UI/Select';
+// import Select from '../UI/Select';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-// import { Typeahead } from 'react-bootstrap-typeahead';
+import { Typeahead } from 'react-bootstrap-typeahead';
 
-// export interface UserForm
-//     extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
-//     roles: {
-//         value: string;
-//         name: string;
-//     }[];
-//     confirmPassword?: string;
-// }
-
-type UserForm = (Api.CreateUser | Api.UpdateUser) & {
+export interface UserForm
+    extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
+    roles: {
+        value: string;
+        name: string;
+    }[];
     confirmPassword?: string;
-};
+}
 
-// type Roles = { value: string; name: string }[];
+// type UserForm = (Api.CreateUser | Api.UpdateUser) & {
+//     confirmPassword?: string;
+// };
+
+type Roles = { value: string; name: string }[];
 
 const schema = yup.object({
     username: yup
@@ -73,13 +73,18 @@ const schema = yup.object({
         .required(),
     roles: yup
         .array()
-        .of(yup.string().oneOf(['ADMIN', 'CREATOR']).required())
+        .of(
+            yup.object({
+                value: yup.string().oneOf(['ADMIN', 'CREATOR']).required(),
+                name: yup.string(),
+            })
+        )
         .required(),
 });
 
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
-    // const [multiSelections, setMultiSelections] = useState<Roles>();
+    const [multiSelections, setMultiSelections] = useState<Roles>();
     const navigate = useNavigate();
     const params = useParams();
 
@@ -94,43 +99,43 @@ const User: React.FC = () => {
         formState: { isSubmitting },
     } = methods;
 
-    // const roleOptions = [
-    //     { value: 'ADMIN', name: 'Administrátor' },
-    //     {
-    //         value: 'CREATOR',
-    //         name: 'Tvorca obsahu',
-    //     },
-    // ];
+    const roleOptions = [
+        { value: 'ADMIN', name: 'Administrátor' },
+        {
+            value: 'CREATOR',
+            name: 'Tvorca obsahu',
+        },
+    ];
 
     useEffect(() => {
         if (params.id) {
-            console.log(params.id);
+            // console.log(params.id);
             const paramsNumber = params?.id;
             (async () => {
                 const data = await userApi.getUser(parseInt(paramsNumber));
-                console.log(data);
+                // console.log(data);
 
-                // const receivedRoles = [];
-                // for (let r of data.roles) {
-                //     if (r === 'ADMIN') {
-                //         receivedRoles.push({
-                //             value: 'ADMIN',
-                //             name: 'Administrátor',
-                //         });
-                //     }
-                //     if (r === 'CREATOR') {
-                //         receivedRoles.push({
-                //             value: 'CREATOR',
-                //             name: 'Tvorca obsahu',
-                //         });
-                //     }
-                // }
-                // setMultiSelections(receivedRoles);
+                const receivedRoles = [];
+                for (let r of data.roles) {
+                    if (r === 'ADMIN') {
+                        receivedRoles.push({
+                            value: 'ADMIN',
+                            name: 'Administrátor',
+                        });
+                    }
+                    if (r === 'CREATOR') {
+                        receivedRoles.push({
+                            value: 'CREATOR',
+                            name: 'Tvorca obsahu',
+                        });
+                    }
+                }
+                setMultiSelections(receivedRoles);
                 const formattedData: UserForm = {
                     ...data,
                     password: '',
                     confirmPassword: '',
-                    // roles: receivedRoles,
+                    roles: receivedRoles,
                 };
                 methods.reset(formattedData);
             })();
@@ -142,20 +147,33 @@ const User: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
-        // console.log(data)
+        // console.log(data);
         // console.log(multiSelections);
-        // const selectedRoles = multiSelections?.map((role) => role.value);
-        // const sendData = {
-        //     ...data,
-        //     roles: selectedRoles,
-        // };
-        // console.log(sendData);
+        const selectedRoles: Api.User.RolesEnum[] = [];
+        const roles = multiSelections?.map((role) => role.value);
+        if (roles && roles.length > 0) {
+            for (let role of roles) {
+                if (role === 'ADMIN') {
+                    selectedRoles.push(Api.User.RolesEnum.ADMIN);
+                }
+                if (role === 'CREATOR') {
+                    selectedRoles.push(Api.User.RolesEnum.CREATOR);
+                }
+            }
+        }
+        // const selectedRoles: Api.User.RolesEnum[] = multiSelections?.map((role) => role.value);
+        const sendData = {
+            ...data,
+            roles: selectedRoles,
+        };
+        console.log(sendData);
         try {
             if (params.id) {
-                await userApi.updateUser(parseInt(params.id), data);
+                await userApi.updateUser(parseInt(params.id), sendData);
                 navigate('/users');
             } else {
-                await userApi.createUser(data as Api.CreateUser)
+                await userApi.createUser(sendData as Api.CreateUser);
+                navigate('/users');
             }
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
@@ -180,7 +198,7 @@ const User: React.FC = () => {
                             label='Potvrdenie hesla'
                         />
 
-                        {/* <Form.Group className='mb-3'>
+                        <Form.Group className='mb-3'>
                             <Form.Label htmlFor='tagsMultiselection'>
                                 Značky
                             </Form.Label>
@@ -196,9 +214,9 @@ const User: React.FC = () => {
                                 selected={multiSelections}
                                 multiple
                             />
-                        </Form.Group> */}
+                        </Form.Group>
 
-                        <Select
+                        {/* <Select
                             name='roles'
                             label='Používateľské role'
                             options={[
@@ -209,7 +227,7 @@ const User: React.FC = () => {
                                 },
                             ]}
                             multiple={true}
-                        />
+                        /> */}
                         <Stack direction='horizontal' gap={2}>
                             <Button variant='primary' type='submit'>
                                 {params.id

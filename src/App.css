@@ -14,7 +14,7 @@
     border-bottom-left-radius: 0rem;
 }
 
-/* .fullScreenPic {
-    max-width: 95vw;
-    /* max-height: 95vh;
-} */
+.fullScreenPic {
+    max-width: 100vw;
+    max-height: 93vh;
+}
