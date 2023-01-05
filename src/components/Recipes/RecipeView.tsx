@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleArrowLeft, faXmark } from '@fortawesome/free-solid-svg-icons';
 import BootstrapModal from 'react-bootstrap/Modal';
 
+import { Link } from 'react-router-dom';
+
 const RecipeView: React.FC = () => {
     const [recipe, setRecipe] = useState<RecipesWithUrlInPictures>();
     const [error, setError] = useState<string>();
@@ -31,6 +33,7 @@ const RecipeView: React.FC = () => {
     interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
         pictures: PicturesWithUrl[];
     }
+    console.log(recipe);
 
     useEffect(() => {
         (async () => {
@@ -119,6 +122,7 @@ const RecipeView: React.FC = () => {
 
     return (
         <div>
+            {/* <Stack direction='horizontal'> */}
             <Button
                 variant='light'
                 aria-label='späť'
@@ -135,18 +139,19 @@ const RecipeView: React.FC = () => {
                 trigger={() => <Button variant='light'>Vytlačiť</Button>}
                 content={() => componentRef.current}
             ></ReactToPrint>
+            {/* </Stack> */}
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
-                <h1>{recipe?.name}</h1>
+                <h3>{recipe?.name}</h3>
                 {recipe?.description !== null && (
                     <section>
-                        <h2>Popis</h2>
+                        <h4>Popis</h4>
                         <p>{recipe?.description}</p>
                     </section>
                 )}
                 {recipe?.serves !== null && (
                     <section>
-                        <h2>Počet porcií</h2>
+                        <h4>Počet porcií</h4>
                         <input
                             type='number'
                             defaultValue={serves}
@@ -163,7 +168,7 @@ const RecipeView: React.FC = () => {
                 {recipe?.serves === null &&
                     recipe.recipeSections.length > 0 && (
                         <section>
-                            <h2>Počet porcií</h2>
+                            <h4>Počet porcií</h4>
                             <Stack direction='horizontal' gap={2}>
                                 <input
                                     type='number'
@@ -185,31 +190,17 @@ const RecipeView: React.FC = () => {
 
                 {recipe?.method !== null && (
                     <section>
-                        <h2>Postup prípravy</h2>
+                        <h4>Postup prípravy</h4>
                         <p>{recipe?.method}</p>
                     </section>
                 )}
-                {recipe && recipe.sources && recipe?.sources.length >= 1 && (
-                    <section>
-                        <h2>Zdroje</h2>
-                        {recipe.sources.map((source) => (
-                            <p
-                                key={source}
-                                // dangerouslySetInnerHTML={{
-                                //     __html: ,
-                                // }}
-                            >
-                                {urlify(source)}
-                            </p>
-                        ))}
-                    </section>
-                )}
+
                 {recipe?.serves === null &&
                     recipe.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
-                                <h2>{section.name}</h2>
-                                <h3>Suroviny</h3>
+                                <h4>{section.name}</h4>
+                                <h6>Suroviny</h6>
                                 <ul>
                                     {section.ingredients.map((ingredient) => {
                                         if (
@@ -290,7 +281,7 @@ const RecipeView: React.FC = () => {
                                         }
                                     })}
                                 </ul>
-                                <h3>Postup prípravy</h3>
+                                <h6>Postup prípravy</h6>
                                 <p>{section?.method}</p>
                             </section>
                         );
@@ -301,8 +292,8 @@ const RecipeView: React.FC = () => {
                     recipe?.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
-                                <h2>{section.name}</h2>
-                                <h3>Suroviny</h3>
+                                <h4>{section.name}</h4>
+                                <h6>Suroviny</h6>
                                 <ul>
                                     {section.ingredients.map((ingredient) => {
                                         if (
@@ -386,7 +377,7 @@ const RecipeView: React.FC = () => {
                                         }
                                     })}
                                 </ul>
-                                <h3>Postup prípravy</h3>
+                                <h6>Postup prípravy</h6>
                                 <p>{section?.method}</p>
                             </section>
                         );
@@ -410,7 +401,7 @@ const RecipeView: React.FC = () => {
 
                                 {/* toto je nove */}
                                 <Card
-                                    className='mb-3 overflow-hidden'
+                                    className='overflow-hidden'
                                     role='button'
                                     onClick={showPictureHandler.bind(
                                         null,
@@ -444,9 +435,37 @@ const RecipeView: React.FC = () => {
                         ))}
                     </Row>
                 </section>
-                <br></br>
+                {recipe &&
+                    recipe.associatedRecipes &&
+                    recipe?.associatedRecipes.length >= 1 && (
+                        <section className='mt-3'>
+                            <h4>Súvisiace recepty</h4>
+                            {recipe.associatedRecipes.map((recipe) => (
+                                <div key={recipe.id}>
+                                    <Link
+                                        to={`/recipe/display/${recipe.id}`}
+                                        className='mb-0'
+                                        
+                                    >
+                                        {recipe.name}
+                                    </Link>
+                                    <br></br>
+                                </div>
+                            ))}
+                        </section>
+                    )}
+                {recipe && recipe.sources && recipe?.sources.length >= 1 && (
+                    <section className='mt-3'>
+                        <h4>Zdroje</h4>
+                        {recipe.sources.map((source) => (
+                            <p className='mb-0' key={source}>
+                                {urlify(source)}
+                            </p>
+                        ))}
+                    </section>
+                )}
                 <hr />
-                <p>
+                <p className='mb-0'>
                     {recipe &&
                         recipe.creator &&
                         `Pridal: ${
@@ -459,7 +478,7 @@ const RecipeView: React.FC = () => {
                             recipe.createdAt
                         ).toLocaleDateString()}`.trim()}
                 </p>
-                <p>
+                <p className='mb-0'>
                     {recipe &&
                         `Upravil: ${
                             recipe.modifier.firstName

@@ -7,6 +7,8 @@ type TextareaProps = {
     name: string;
     disabled?: boolean;
     className?: string;
+    // style?: React.CSSProperties
+    rows?: any
 };
 
 const Textarea: React.FC<TextareaProps> = (props) => {
@@ -27,6 +29,8 @@ const Textarea: React.FC<TextareaProps> = (props) => {
                 name={props.name}
                 disabled={props.disabled}
                 isInvalid={!!errorMessage}
+                // style={props.style}
+                rows= {props.rows}
             />
             <Form.Control.Feedback type='invalid'>
                 {errorMessage?.toString()}

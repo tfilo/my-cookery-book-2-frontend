@@ -200,7 +200,7 @@ const User: React.FC = () => {
 
                         <Form.Group className='mb-3'>
                             <Form.Label htmlFor='tagsMultiselection'>
-                                Značky
+                                Používateľské role
                             </Form.Label>
                             <Typeahead
                                 {...methods.register('roles')}

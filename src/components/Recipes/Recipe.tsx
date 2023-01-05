@@ -273,7 +273,7 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
-                    console.log(data);
+                    // console.log(data);
                     setMultiSelections(data.tags);
                     const formattedData: RecipeForm = {
                         ...data,
@@ -285,7 +285,7 @@ const Recipe: React.FC = () => {
                         }),
                         pictures: [],
                     };
-                    console.log(formattedData);
+                    // console.log(formattedData);
 
                     for (let pic of data.pictures) {
                         const response = await pictureApi.getPictureThumbnail(
@@ -317,14 +317,14 @@ const Recipe: React.FC = () => {
         navigate('/recipes', { state: location.state });
     };
 
-    console.log(multiSelections);
+    // console.log(multiSelections);
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
-        console.log(data);
-        console.log(multiSelections);
+        // console.log(data);
+        // console.log(multiSelections);
         const selectedtags = multiSelections.map((tag) => tag.id);
-        console.warn(selectedtags);
+        // console.warn(selectedtags);
         const sendData = {
             ...data,
             tags: selectedtags,
@@ -370,7 +370,7 @@ const Recipe: React.FC = () => {
             }),
         };
 
-        console.warn(sendData);
+        // console.warn(sendData);
 
         try {
             if (params.recipeId) {
@@ -439,7 +439,7 @@ const Recipe: React.FC = () => {
                             type='number'
                             min={1}
                         />
-                        <Textarea label='Postup prípravy' name='method' />
+                        <Textarea label='Postup prípravy' name='method' rows={10}/>
                         <RecipeSections ingredientsData={ingredientsData} />
                         <Select
                             name='categoryId'
