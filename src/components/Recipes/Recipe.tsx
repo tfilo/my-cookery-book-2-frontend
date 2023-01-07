@@ -4,7 +4,12 @@ import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import {
+    useForm,
+    SubmitHandler,
+    FormProvider,
+    Controller,
+} from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
     categoryApi,
@@ -107,10 +112,13 @@ const schema = yup.object({
             yup.object({
                 name: yup
                     .string()
+                    .defined()
                     .trim()
+                    .transform((val) => (val === '' ? null : val))
                     // .min(1, 'Musí byť minimálne 1 znak')
                     .max(80, 'Musí byť maximálne 80 znakov')
-                    .required('Povinná položka'),
+                    .default(null)
+                    .nullable(),
                 method: yup
                     .string()
                     .defined()
@@ -132,7 +140,7 @@ const schema = yup.object({
                             value: yup
                                 .number()
                                 .defined()
-                                .min(1, 'Hodnota musí byť minimálne 1')
+                                .min(0, 'Hodnota musí byť minimálne 0')
                                 .default(null)
                                 .nullable()
                                 .transform((val) => (isNaN(val) ? null : val)),
@@ -209,6 +217,7 @@ const Recipe: React.FC = () => {
 
     const {
         formState: { isSubmitting },
+        control,
     } = methods;
 
     const [error, setError] = useState<string>();
@@ -226,16 +235,18 @@ const Recipe: React.FC = () => {
 
     const [nameOfRecipe, setNameOfRecipe] = useState<string>();
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
-    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>([]);
 
     const navigate = useNavigate();
     const params = useParams();
+
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const location = useLocation();
 
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const categories = await categoryApi.getCategories();
                 setListOfCategories(categories);
 
@@ -273,8 +284,6 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
-                    // console.log(data);
-                    setMultiSelections(data.tags);
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -285,7 +294,6 @@ const Recipe: React.FC = () => {
                         }),
                         pictures: [],
                     };
-                    // console.log(formattedData);
 
                     for (let pic of data.pictures) {
                         const response = await pictureApi.getPictureThumbnail(
@@ -309,6 +317,8 @@ const Recipe: React.FC = () => {
                 }
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, [params.recipeId, methods, defaultValues]);
@@ -317,17 +327,13 @@ const Recipe: React.FC = () => {
         navigate('/recipes', { state: location.state });
     };
 
-    // console.log(multiSelections);
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
         // console.log(data);
-        // console.log(multiSelections);
-        const selectedtags = multiSelections.map((tag) => tag.id);
-        // console.warn(selectedtags);
         const sendData = {
             ...data,
-            tags: selectedtags,
+            tags: data.tags.map((tag) => tag.id),
             sources: data.sources.map((s) => s.value),
             associatedRecipes: data.associatedRecipes.map((rec) => rec.id),
             recipeSections: data.recipeSections.map((rs, rsIndex) => {
@@ -335,7 +341,6 @@ const Recipe: React.FC = () => {
                     ...rs,
                     sortNumber: rsIndex + 1,
                     id: 'id' in rs && rs.id ? rs.id : undefined,
-                    tags: multiSelections.map((id) => id.id),
                     ingredients: rs.ingredients.map((i, iIndex) => {
                         if (i.value === null) {
                             const unitById = requiredUnits.find(
@@ -439,7 +444,11 @@ const Recipe: React.FC = () => {
                             type='number'
                             min={1}
                         />
-                        <Textarea label='Postup prípravy' name='method' rows={10}/>
+                        <Textarea
+                            label='Postup prípravy'
+                            name='method'
+                            rows={10}
+                        />
                         <RecipeSections ingredientsData={ingredientsData} />
                         <Select
                             name='categoryId'
@@ -461,20 +470,24 @@ const Recipe: React.FC = () => {
                             <Form.Label htmlFor='tagsMultiselection'>
                                 Značky
                             </Form.Label>
-                            <Typeahead
-                                {...methods.register('tags')}
-                                id='tags'
-                                labelKey='name'
-                                onChange={(selected) => {
-                                    setMultiSelections(
-                                        selected as Api.SimpleTag[]
-                                    );
-                                }}
-                                options={listOfTags}
-                                placeholder='Vyberte ľubovoľný počet značiek'
-                                selected={multiSelections}
-                                multiple
+                            <Controller
+                                control={control}
+                                name='tags'
+                                render={({
+                                    field: { onChange, value },
+                                }) => (
+                                    <Typeahead
+                                        id='tags'
+                                        labelKey='name'
+                                        onChange={onChange}
+                                        options={listOfTags}
+                                        placeholder='Vyberte ľubovoľný počet značiek'
+                                        selected={value}
+                                        multiple
+                                    />
+                                )}
                             />
+
                             {listOfTags.length < 1 && (
                                 <p className='text-danger'>
                                     Nie je možné vybrať žiadnu značku, nakoľko
@@ -505,7 +518,6 @@ const Recipe: React.FC = () => {
                                     ? 'Zmeniť recept'
                                     : 'Pridať recept'}
                             </Button>
-
                             <Button
                                 variant='warning'
                                 type='button'
@@ -528,7 +540,7 @@ const Recipe: React.FC = () => {
                     </Form>
                 </FormProvider>
             </div>
-            {isSubmitting && <Spinner />}
+            {(isSubmitting || isLoading) && <Spinner />}
             <Modal
                 show={!!deleteModal}
                 type='question'

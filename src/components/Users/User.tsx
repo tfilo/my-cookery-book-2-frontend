@@ -84,7 +84,7 @@ const schema = yup.object({
 
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
-    const [multiSelections, setMultiSelections] = useState<Roles>();
+    const [multiSelections, setMultiSelections] = useState<Roles>([]);
     const navigate = useNavigate();
     const params = useParams();
 

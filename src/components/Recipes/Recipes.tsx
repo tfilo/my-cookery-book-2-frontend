@@ -41,7 +41,7 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
     rows: SimpleRecipeWithUrl[];
 }
 
-const pagesToShow = 3;
+const pagesToShow = 5;
 const pageSize = 12;
 
 const Recipes: React.FC = () => {
@@ -61,8 +61,12 @@ const Recipes: React.FC = () => {
         state?.searchingTags ?? []
     );
     const [showFilter, setShowFilter] = useState(false);
-    const [order, setOrder] = useState(state?.order ?? Api.RecipeSearchCriteria.OrderEnum.ASC);
-    const [orderBy, setOrderBy] = useState(state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name);
+    const [order, setOrder] = useState(
+        state?.order ?? Api.RecipeSearchCriteria.OrderEnum.ASC
+    );
+    const [orderBy, setOrderBy] = useState(
+        state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name
+    );
 
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
@@ -86,7 +90,14 @@ const Recipes: React.FC = () => {
             orderBy: orderBy,
             order: order,
         };
-    }, [currentPage, searchingText, multiSelections, categoryId, order, orderBy]);
+    }, [
+        currentPage,
+        searchingText,
+        multiSelections,
+        categoryId,
+        order,
+        orderBy,
+    ]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -157,7 +168,14 @@ const Recipes: React.FC = () => {
                     }
                     formattedRecipe.rows.push(r);
                 }
-                setRecipes(formattedRecipe);
+                setRecipes((prev) => {
+                    if (prev) {
+                        prev.rows.forEach(
+                            (r) => r.url && URL.revokeObjectURL(r.url)
+                        );
+                    }
+                    return formattedRecipe;
+                });
             } catch (err) {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
@@ -181,7 +199,7 @@ const Recipes: React.FC = () => {
                 searchingTags: multiSelections,
                 currentPage: currentPage,
                 order: order,
-                orderBy: orderBy
+                orderBy: orderBy,
             },
         });
     };
@@ -193,7 +211,7 @@ const Recipes: React.FC = () => {
                 searchingTags: multiSelections,
                 currentPage: currentPage,
                 order: order,
-                orderBy: orderBy
+                orderBy: orderBy,
             },
         });
     };
@@ -283,9 +301,50 @@ const Recipes: React.FC = () => {
                         <FontAwesomeIcon icon={faGripVertical} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.Name); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.Name}>Názov</Dropdown.Item>
-                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.CreatedAt); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.CreatedAt}>Dátum vytvorenia</Dropdown.Item>
-                        <Dropdown.Item onClick={() => {setOrderBy(Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt); setCurrentPage(1)}} active={orderBy === Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt}>Dátum úpravy</Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => {
+                                setOrderBy(
+                                    Api.RecipeSearchCriteria.OrderByEnum.Name
+                                );
+                                setCurrentPage(1);
+                            }}
+                            active={
+                                orderBy ===
+                                Api.RecipeSearchCriteria.OrderByEnum.Name
+                            }
+                        >
+                            Názov
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => {
+                                setOrderBy(
+                                    Api.RecipeSearchCriteria.OrderByEnum
+                                        .CreatedAt
+                                );
+                                setCurrentPage(1);
+                            }}
+                            active={
+                                orderBy ===
+                                Api.RecipeSearchCriteria.OrderByEnum.CreatedAt
+                            }
+                        >
+                            Dátum vytvorenia
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => {
+                                setOrderBy(
+                                    Api.RecipeSearchCriteria.OrderByEnum
+                                        .UpdatedAt
+                                );
+                                setCurrentPage(1);
+                            }}
+                            active={
+                                orderBy ===
+                                Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt
+                            }
+                        >
+                            Dátum úpravy
+                        </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>

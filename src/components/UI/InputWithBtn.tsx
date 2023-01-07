@@ -2,10 +2,16 @@ import React, { useId } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useFormContext } from 'react-hook-form';
 import { get } from 'lodash';
+import { ButtonVariant } from 'react-bootstrap/esm/types';
 
 type InputWithBtnProps = {
     name: string;
-    btnLabel: string;
+    button: {
+        variant?: ButtonVariant;
+        children: string | JSX.Element;
+        label: string;
+        style?: React.CSSProperties;
+    };
     onClick: () => void;
     placeholder?: string;
     autoComplete?: 'on' | 'off';
@@ -24,7 +30,7 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <InputGroup className='mb-1'>
+        <InputGroup className='mb-2 rounded-right'>
             <Form.Control
                 {...register(props.name)}
                 id={`${id}_${props.name}`}
@@ -34,8 +40,15 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
                 placeholder={props.placeholder}
                 isInvalid={!!errorMessage}
             />
-            <Button variant='outline-secondary' onClick={props.onClick}>
-                {props.btnLabel}
+            <Button
+                variant={props.button.variant ?? 'outline-secondary'}
+                onClick={props.onClick}
+                type='button'
+                title={props.button.label}
+                aria-label={props.button.label}
+                style={props.button.style}
+            >
+                {props.button.children}
             </Button>
             <Form.Control.Feedback type='invalid'>
                 {errorMessage?.toString()}

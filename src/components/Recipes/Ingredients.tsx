@@ -116,7 +116,8 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                 aria-label='Názov suroviny'
                                 placeholder='Názov'
                                 type='text'
-                                style={{ width: '28%' }}
+                                style={{flex: 10}}
+                                //style={{ width: '28%' }}
                                 // isInvalid={true}
                             ></Form.Control>
 
@@ -127,7 +128,8 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                 aria-label='Množstvo suroviny'
                                 placeholder='Množstvo'
                                 type='number'
-                                style={{ width: '12%' }}
+                                style={{flex: 3.5}}
+                                //style={{ width: '12%' }}
                                 // isInvalid={false}
                             ></Form.Control>
                             <Form.Select
@@ -136,7 +138,8 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                                 )}
                                 aria-label='Jednotka'
                                 name={`${props.recipeSectionName}.ingredients.${index}.unitId`}
-                                style={{ width: '23%' }}
+                                style={{flex: 5}}
+                                //style={{ width: '23%' }}
                                 // isInvalid={false}
                             >
                                 <option disabled>Vyberte Jednotku</option>

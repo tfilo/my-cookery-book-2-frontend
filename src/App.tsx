@@ -45,27 +45,23 @@ function App() {
     }, [isLoggedIn]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const categories = await categoryApi.getCategories();
-                setListOfCategories(categories);
-            } catch (err) {
-                console.error(err);
-            }
-        })();
-    }, []);
+        if (isLoggedIn) {
+            (async () => {
+                try {
+                    const categories = await categoryApi.getCategories();
+                    setListOfCategories(categories);
+                } catch (err) {
+                    console.error(err);
+                }
+            })();
+        }
+    }, [isLoggedIn]);
 
-    let username = userInfo?.firstName ? userInfo.firstName + '' + userInfo.lastName : userInfo?.username
-
-    // if (userInfo) {
-    //     username = `${userInfo.firstName ?? ''} ${
-    //         userInfo.lastName ?? ''
-    //     }`.trim();
-    //     if (username === '') {
-    //         username = userInfo.username;
-    //         console.log(username);
-    //     }
-    // }
+    
+    let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
+    if (!username) {
+        username = userInfo?.username ?? '';
+    }
 
     const openOffcanvas = () => {
         setExpanded(true);
