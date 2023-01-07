@@ -1,10 +1,10 @@
 FROM node:18-alpine AS builder
 WORKDIR /usr/src/app
 COPY . .
-COPY ./openapi.json .
 RUN npm install --location=global npm@latest
 RUN npm install
-RUN npx openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator openapi.json
+RUN npx openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/alpha-0.0.7/src/openapi.json
+RUN sed -i "s|localVarHeaderParameter.set('Content-Type', 'multipart/form-data');|//removed content type|g" src/openapi/api.ts
 RUN npm run build
 
 FROM nginx:stable-alpine

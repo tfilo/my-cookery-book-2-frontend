@@ -10,14 +10,13 @@ import {
     UnitCategoryApi,
     UserApi,
 } from '../openapi';
-// import { Environment } from './env';
-// import { getToken } from './token';
+import { Environment } from './env';
 
-// declare const env: Environment;
+declare const env: Environment;
 
 const config = new Configuration({
     authorization: () => localStorage.getItem('token'),
-    basePath: '/api', /* env.baseApiUrl,*/
+    basePath: env.baseApiUrl ?? '/api'
 });
 
 const authApi = new AuthApi(config);

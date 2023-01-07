@@ -5,8 +5,6 @@ src/openapi
 .eslintrc.json
 .eslintignore
 build-image.sh
-default.conf
-envreplace.sh
 fileUploadDemo.html
 generateLibrariesNotice.sh
 license-report.json
