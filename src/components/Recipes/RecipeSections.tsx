@@ -11,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
-import Ingredients from './Ingredients';
+import Ingredients from './Ingredients/Ingredients';
 
 type RecipeSectionsProps = {
     ingredientsData: SelectGroupOptions[];

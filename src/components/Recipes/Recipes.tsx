@@ -197,6 +197,7 @@ const Recipes: React.FC = () => {
             state: {
                 searchingText: searchingText,
                 searchingTags: multiSelections,
+                searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
                 orderBy: orderBy,
@@ -209,6 +210,7 @@ const Recipes: React.FC = () => {
             state: {
                 searchingText: searchingText,
                 searchingTags: multiSelections,
+                searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
                 orderBy: orderBy,

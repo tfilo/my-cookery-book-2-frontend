@@ -284,6 +284,7 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
+                    console.log(data)
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -324,7 +325,7 @@ const Recipe: React.FC = () => {
     }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
-        navigate('/recipes', { state: location.state });
+        navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
     };
 
     const submitHandler: SubmitHandler<RecipeForm> = async (
@@ -389,7 +390,7 @@ const Recipe: React.FC = () => {
                 URL.revokeObjectURL(pic.url);
             }
 
-            navigate('/recipes', { state: location.state });
+            navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -405,7 +406,7 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     try {
                         await recipeApi.deleteRecipe(+params.recipeId);
-                        navigate('/recipes', {
+                        navigate(`/recipes/${location.state.searchingCategory}`, {
                             state: {
                                 ...location.state,
                                 currentPage: 1,

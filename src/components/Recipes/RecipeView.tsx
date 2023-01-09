@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, Col, Row, Stack } from 'react-bootstrap';
+import { Button, Card, Col, Row } from 'react-bootstrap';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
@@ -46,7 +46,7 @@ const RecipeView: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    console.log(recipe);
+    // console.log(recipe);
 
     useEffect(() => {
         (async () => {
@@ -82,23 +82,29 @@ const RecipeView: React.FC = () => {
         setServes(+event.target.value);
     };
 
-    // TODO nefunguje pre HTTP
     const urlify = (text: string) => {
         if (text.includes('http://') || text.includes('https://')) {
-            const start = text.indexOf('https://');
+            let start;
+            if (text.includes('http://')) {
+                start = text.indexOf('http://');
+            } else {
+                start = text.indexOf('https://');
+            }
             let end = text.indexOf(' ', start);
             if (end === -1) {
                 end = text.length;
             }
-            return (
-                <>
-                    {text.substring(0, start)}
-                    <a href={text.substring(start, end)} rel='noopener'>
-                        {text.substring(start, end)}
-                    </a>
-                    {text.substring(end, text.length)}
-                </>
-            );
+            if (start) {
+                return (
+                    <>
+                        {text.substring(0, start)}
+                        <a href={text.substring(start, end)} rel='noopener'>
+                            {text.substring(start, end)}
+                        </a>
+                        {text.substring(end, text.length)}
+                    </>
+                );
+            }
         } else {
             return text;
         }
@@ -185,7 +191,7 @@ const RecipeView: React.FC = () => {
                 type='button'
                 onClick={() => {
                     console.log(location.state);
-                    navigate('/recipes', { state: location.state });
+                    navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
                 }}
                 className='border-0'
             >
@@ -224,7 +230,6 @@ const RecipeView: React.FC = () => {
                     recipe.recipeSections.length > 0 && (
                         <section>
                             <h4>Počet porcií</h4>
-                            <Stack direction='horizontal' gap={2}>
                                 <input
                                     type='number'
                                     defaultValue={serves}
@@ -235,11 +240,6 @@ const RecipeView: React.FC = () => {
                                     className='border-0'
                                     min={1}
                                 ></input>
-                                <span>
-                                    * Počet porcií nie je v recepte
-                                    zadefinovaný.
-                                </span>
-                            </Stack>
                         </section>
                     )}
 
@@ -478,6 +478,18 @@ const RecipeView: React.FC = () => {
                             </Col>
                         ))}
                     </Row>
+                    {recipe &&
+                        recipe.sources &&
+                        recipe?.sources.length >= 1 && (
+                            <section className='mt-3'>
+                                <h4>Zdroje</h4>
+                                {recipe.sources.map((source) => (
+                                    <p className='mb-0' key={source}>
+                                        {urlify(source)}
+                                    </p>
+                                ))}
+                            </section>
+                        )}
                 </section>
                 {recipe &&
                     recipe.associatedRecipes &&
@@ -492,21 +504,10 @@ const RecipeView: React.FC = () => {
                                     >
                                         {recipe.name}
                                     </Link>
-                                    <br></br>
                                 </div>
                             ))}
                         </section>
                     )}
-                {recipe && recipe.sources && recipe?.sources.length >= 1 && (
-                    <section className='mt-3'>
-                        <h4>Zdroje</h4>
-                        {recipe.sources.map((source) => (
-                            <p className='mb-0' key={source}>
-                                {urlify(source)}
-                            </p>
-                        ))}
-                    </section>
-                )}
                 <hr />
                 <p className='mb-0'>
                     {recipe &&

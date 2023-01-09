@@ -8,7 +8,7 @@ import {
     faCircleMinus,
     faGripVertical,
 } from '@fortawesome/free-solid-svg-icons';
-import { SelectGroupOptions } from '../UI/Select';
+import { SelectGroupOptions } from '../../UI/Select';
 
 type IngredientsProps = {
     recipeSectionName: string;
