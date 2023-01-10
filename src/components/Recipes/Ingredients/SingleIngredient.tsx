@@ -1,4 +1,7 @@
-import { faCircleMinus, faGripVertical } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCircleMinus,
+    faGripVertical,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
@@ -9,7 +12,6 @@ type SingleIngredientProps = {
     ingredientName: string;
     ingredientIndex: number;
     ingredientsData: SelectGroupOptions[];
-  
 };
 
 const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
@@ -18,7 +20,7 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
     // console.log(props.ingredientsData);
 
     const { remove, move } = useFieldArray({
-        name: props.ingredientName
+        name: props.ingredientName,
     });
 
     const [dragableGroup, setDragableGroup] = useState<number>();
@@ -54,110 +56,92 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
     };
 
     return (
-        
-                <section>
-                    <input
-                        {...register(
-                            `${props.ingredientName}.id`
-                        )}
-                        type='hidden'
-                    />
-                    <InputGroup
-                        className='mb-2 '
-                        onDragStart={(e) => dragStart(e, props.ingredientIndex)}
-                        onDragOver={(e) => dragOver(e, props.ingredientIndex)}
-                        onDrop={(e) => drop(e, props.ingredientIndex)}
-                        draggable={dragableGroup === props.ingredientIndex}
-                    >
-                       <Button
-                            variant='outline-secondary'
-                            title='Presunúť ingredienciu'
-                            type='button'
-                            style={{
-                                borderLeftColor: 'rgba(0, 0, 0, 0.175)',
-                                borderTopColor: 'rgba(0, 0, 0, 0.175)',
-                                borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-                                borderRightColor: 'rgba(0, 0, 0, 0)',
-                            }}
-                            onMouseOver={() => setDragableGroup(props.ingredientIndex)}
-                            onMouseOut={() => setDragableGroup(undefined)}
-                            onTouchStart={() => setDragableGroup(props.ingredientIndex)}
-                            onTouchEnd={() => setDragableGroup(undefined)}
-                        >
-                            <FontAwesomeIcon icon={faGripVertical} />
-                        </Button>
-                        <Form.Control
-                            {...register(
-                                `${props.ingredientName}.name`
-                            )}
-                            aria-label='Názov suroviny'
-                            placeholder='Názov'
-                            type='text'
-                            style={{flex: 10}}
-                            //style={{ width: '28%' }}
-                            // isInvalid={true}
-                        ></Form.Control>
+        <section>
+            <input {...register(`${props.ingredientName}.id`)} type='hidden' />
+            <InputGroup
+                className='mb-2 '
+                onDragStart={(e) => dragStart(e, props.ingredientIndex)}
+                onDragOver={(e) => dragOver(e, props.ingredientIndex)}
+                onDrop={(e) => drop(e, props.ingredientIndex)}
+                draggable={dragableGroup === props.ingredientIndex}
+            >
+                <Button
+                    variant='outline-secondary'
+                    title='Presunúť ingredienciu'
+                    type='button'
+                    style={{
+                        borderLeftColor: 'rgba(0, 0, 0, 0.175)',
+                        borderTopColor: 'rgba(0, 0, 0, 0.175)',
+                        borderBottomColor: 'rgba(0, 0, 0, 0.175)',
+                        borderRightColor: 'rgba(0, 0, 0, 0)',
+                    }}
+                    onMouseOver={() => setDragableGroup(props.ingredientIndex)}
+                    onMouseOut={() => setDragableGroup(undefined)}
+                    onTouchStart={() => setDragableGroup(props.ingredientIndex)}
+                    onTouchEnd={() => setDragableGroup(undefined)}
+                >
+                    <FontAwesomeIcon icon={faGripVertical} />
+                </Button>
+                <Form.Control
+                    {...register(`${props.ingredientName}.name`)}
+                    aria-label='Názov suroviny'
+                    placeholder='Názov'
+                    type='text'
+                    style={{ flex: 10 }}
+                    //style={{ width: '28%' }}
+                    // isInvalid={true}
+                ></Form.Control>
 
-                        <Form.Control
-                            {...register(
-                                `${props.ingredientName}.value`
-                            )}
-                            aria-label='Množstvo suroviny'
-                            placeholder='Množstvo'
-                            type='number'
-                            style={{flex: 3.5}}
-                            //style={{ width: '12%' }}
-                            // isInvalid={false}
-                        ></Form.Control>
-                        <Form.Select
-                            {...register(
-                                `${props.ingredientName}.unitId`
-                            )}
-                            aria-label='Jednotka'
-                            name={`${props.ingredientName}.unitId`}
-                            style={{flex: 5}}
-                            //style={{ width: '23%' }}
-                            // isInvalid={false}
-                        >
-                            <option disabled>Vyberte Jednotku</option>
-                            {props.ingredientsData.map((option) => {
-                                return (
-                                    <optgroup
-                                        key={option.optGroupId}
-                                        label={option.optGroupName}
-                                    >
-                                        {option.options.map((opt) => (
-                                            <option
-                                                key={opt.value}
-                                                value={opt.value}
-                                            >
-                                                {opt.label}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                );
-                            })}
-                        </Form.Select>
-                        <Button
-                            variant='outline-danger'
-                            aria-label='vymazať ingredienciu'
-                            type='button'
-                            onClick={() => remove(props.ingredientIndex)}
-                            style={{
-                                borderRightColor: 'rgba(0, 0, 0, 0.175)',
-                                borderTopColor: 'rgba(0, 0, 0, 0.175)',
-                                borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-                                borderLeftColor: 'rgba(0, 0, 0, 0)',
-                            }}
-                        >
-                            <FontAwesomeIcon icon={faCircleMinus} />
-                        </Button>
-                    </InputGroup> 
-                </section>
-           
-    )
-
-
+                <Form.Control
+                    {...register(`${props.ingredientName}.value`)}
+                    aria-label='Množstvo suroviny'
+                    placeholder='Množstvo'
+                    type='number'
+                    style={{ flex: 3.5 }}
+                    //style={{ width: '12%' }}
+                    // isInvalid={false}
+                ></Form.Control>
+                <Form.Select
+                    {...register(`${props.ingredientName}.unitId`)}
+                    aria-label='Jednotka'
+                    name={`${props.ingredientName}.unitId`}
+                    style={{ flex: 5 }}
+                    //style={{ width: '23%' }}
+                    // isInvalid={false}
+                >
+                    <option disabled>Vyberte Jednotku</option>
+                    {props.ingredientsData.map((option) => {
+                        return (
+                            <optgroup
+                                key={option.optGroupId}
+                                label={option.optGroupName}
+                            >
+                                {option.options.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        );
+                    })}
+                </Form.Select>
+                <Button
+                    variant='outline-danger'
+                    aria-label='vymazať ingredienciu'
+                    type='button'
+                    onClick={() => remove(props.ingredientIndex)}
+                    style={{
+                        borderRightColor: 'rgba(0, 0, 0, 0.175)',
+                        borderTopColor: 'rgba(0, 0, 0, 0.175)',
+                        borderBottomColor: 'rgba(0, 0, 0, 0.175)',
+                        borderLeftColor: 'rgba(0, 0, 0, 0)',
+                    }}
+                >
+                    <FontAwesomeIcon icon={faCircleMinus} />
+                </Button>
+            </InputGroup>
+        </section>
+    );
 };
 
 export default SingleIngredient;

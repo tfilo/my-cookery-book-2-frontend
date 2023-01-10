@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, Col, Row } from 'react-bootstrap';
+import { Button /*Card, Col, Row*/ } from 'react-bootstrap';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
@@ -10,21 +10,24 @@ import Modal from '../../UI/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCircleArrowLeft,
-    faLeftLong,
+    /* faLeftLong,
     faRightLong,
-    faXmark,
+    faXmark,*/
 } from '@fortawesome/free-solid-svg-icons';
-import BootstrapModal from 'react-bootstrap/Modal';
+// import BootstrapModal from 'react-bootstrap/Modal';
 
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import RecipeSectionView from './RecipeSectionView';
+import RecipePictureView from './RecipePictureView';
+import RecipeSourceView from './RecipeSourceView';
+import AssociatedRecipeView from './AssociatedRecipeView';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
     fullPic?: string;
 }
 
-interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
+export interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
     pictures: PicturesWithUrl[];
 }
 
@@ -38,11 +41,11 @@ const RecipeView: React.FC = () => {
     const params = useParams();
     const [serves, setServes] = useState<number>(1);
     const componentRef = useRef<HTMLDivElement>(null);
-    const [show, setShow] = useState<{
-        title: string;
-        url: string;
-        index: number;
-    } | null>(null);
+    // const [show, setShow] = useState<{
+    //     title: string;
+    //     url: string;
+    //     index: number;
+    // } | null>(null);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -82,107 +85,108 @@ const RecipeView: React.FC = () => {
     ) => {
         setServes(+event.target.value);
     };
+    console.log(recipe);
 
-    const urlify = (text: string) => {
-        if (text.includes('http://') || text.includes('https://')) {
-            let start;
-            if (text.includes('http://')) {
-                start = text.indexOf('http://');
-            } else {
-                start = text.indexOf('https://');
-            }
-            let end = text.indexOf(' ', start);
-            if (end === -1) {
-                end = text.length;
-            }
-            if (start) {
-                return (
-                    <>
-                        {text.substring(0, start)}
-                        <a href={text.substring(start, end)} rel='noopener'>
-                            {text.substring(start, end)}
-                        </a>
-                        {text.substring(end, text.length)}
-                    </>
-                );
-            }
-        } else {
-            return text;
-        }
-    };
+    // const urlify = (text: string) => {
+    //     if (text.includes('http://') || text.includes('https://')) {
+    //         let start;
+    //         if (text.includes('http://')) {
+    //             start = text.indexOf('http://');
+    //         } else {
+    //             start = text.indexOf('https://');
+    //         }
+    //         let end = text.indexOf(' ', start);
+    //         if (end === -1) {
+    //             end = text.length;
+    //         }
+    //         if (start) {
+    //             return (
+    //                 <>
+    //                     {text.substring(0, start)}
+    //                     <a href={text.substring(start, end)} rel='noopener'>
+    //                         {text.substring(start, end)}
+    //                     </a>
+    //                     {text.substring(end, text.length)}
+    //                 </>
+    //             );
+    //         }
+    //     } else {
+    //         return text;
+    //     }
+    // };
 
-    const showPictureHandler = (id: number, title: string, idx: number) => {
-        console.log(id);
-        (async () => {
-            try {
-                const data = await pictureApi.getPictureData(id);
-                if (data instanceof Blob) {
-                    const fullPic = URL.createObjectURL(data);
-                    setShow((prev) => {
-                        if (prev) {
-                            URL.revokeObjectURL(prev.url);
-                        }
-                        return {
-                            title: title,
-                            url: fullPic,
-                            index: idx,
-                        };
-                    });
-                    console.log(recipe);
-                }
-                console.log(recipe);
-            } catch (err) {
-                // formatErrorMessage(err).then((message) => setError(message));
-            }
-        })();
-    };
+    // const showPictureHandler = (id: number, title: string, idx: number) => {
+    //     console.log(id);
+    //     (async () => {
+    //         try {
+    //             const data = await pictureApi.getPictureData(id);
+    //             if (data instanceof Blob) {
+    //                 const fullPic = URL.createObjectURL(data);
+    //                 setShow((prev) => {
+    //                     if (prev) {
+    //                         URL.revokeObjectURL(prev.url);
+    //                     }
+    //                     return {
+    //                         title: title,
+    //                         url: fullPic,
+    //                         index: idx,
+    //                     };
+    //                 });
+    //                 console.log(recipe);
+    //             }
+    //             console.log(recipe);
+    //         } catch (err) {
+    //             // formatErrorMessage(err).then((message) => setError(message));
+    //         }
+    //     })();
+    // };
 
-    const nextPictureHandler = () => {
-        if (show && recipe?.pictures) {
-            const next = show.index + 1;
-            if (next >= recipe?.pictures.length) {
-                showPictureHandler(
-                    recipe?.pictures[0].id,
-                    recipe?.pictures[0].name,
-                    0
-                );
-            } else {
-                showPictureHandler(
-                    recipe?.pictures[next].id,
-                    recipe?.pictures[next].name,
-                    next
-                );
-            }
-        }
-    };
+    // const nextPictureHandler = () => {
+    //     if (show && recipe?.pictures) {
+    //         const next = show.index + 1;
+    //         if (next >= recipe?.pictures.length) {
+    //             showPictureHandler(
+    //                 recipe?.pictures[0].id,
+    //                 recipe?.pictures[0].name,
+    //                 0
+    //             );
+    //         } else {
+    //             showPictureHandler(
+    //                 recipe?.pictures[next].id,
+    //                 recipe?.pictures[next].name,
+    //                 next
+    //             );
+    //         }
+    //     }
+    // };
 
-    const prevPictureHandler = () => {
-        if (show && recipe?.pictures) {
-            const prev = show.index - 1;
-            if (prev < 0) {
-                showPictureHandler(
-                    recipe?.pictures[recipe?.pictures.length - 1].id,
-                    recipe?.pictures[recipe?.pictures.length - 1].name,
-                    recipe?.pictures.length - 1
-                );
-            } else {
-                showPictureHandler(
-                    recipe?.pictures[prev].id,
-                    recipe?.pictures[prev].name,
-                    prev
-                );
-            }
-        }
-    };
+    // const prevPictureHandler = () => {
+    //     if (show && recipe?.pictures) {
+    //         const prev = show.index - 1;
+    //         if (prev < 0) {
+    //             showPictureHandler(
+    //                 recipe?.pictures[recipe?.pictures.length - 1].id,
+    //                 recipe?.pictures[recipe?.pictures.length - 1].name,
+    //                 recipe?.pictures.length - 1
+    //             );
+    //         } else {
+    //             showPictureHandler(
+    //                 recipe?.pictures[prev].id,
+    //                 recipe?.pictures[prev].name,
+    //                 prev
+    //             );
+    //         }
+    //     }
+    // };
 
-    const hidePictureHandler = () => {
-        setShow((current) => {
-            if (current) {
-                URL.revokeObjectURL(current.url);
-            }
-            return null;
-        });
-    };
+    // const hidePictureHandler = () => {
+    //     setShow((current) => {
+    //         if (current) {
+    //             URL.revokeObjectURL(current.url);
+    //         }
+    //         return null;
+    //     });
+    // };
 
     return (
         <div>
@@ -242,7 +246,8 @@ const RecipeView: React.FC = () => {
                     </section>
                 )}
                 <RecipeSectionView recipe={recipe} serves={serves} />
-                {/* {recipe?.serves === null &&
+                <div>
+                    {/* {recipe?.serves === null &&
                     recipe.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
@@ -342,7 +347,7 @@ const RecipeView: React.FC = () => {
                     })}
 
                 {/* toto */}
-                {/* {recipe?.serves !== null &&
+                    {/* {recipe?.serves !== null &&
                     recipe?.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
@@ -455,8 +460,10 @@ const RecipeView: React.FC = () => {
                             </section>
                         );
                     })} */}
+                </div>
+                <RecipePictureView recipe={recipe} />
                 <section>
-                    <Row xs={1} sm={2} lg={4} className='g-4'>
+                    {/* <Row xs={1} sm={2} lg={4} className='g-4'>
                         {recipe?.pictures.map((picture, idx) => (
                             <Col key={picture.id}>
                                 <Card
@@ -494,8 +501,11 @@ const RecipeView: React.FC = () => {
                                 </Card>
                             </Col>
                         ))}
-                    </Row>
-                    {recipe &&
+                    </Row> */}
+                </section>
+                <RecipeSourceView recipe={recipe} />
+                <div>
+                    {/* {recipe &&
                         recipe.sources &&
                         recipe?.sources.length >= 1 && (
                             <section className='mt-3'>
@@ -506,25 +516,28 @@ const RecipeView: React.FC = () => {
                                     </p>
                                 ))}
                             </section>
-                        )}
-                </section>
-                {recipe &&
-                    recipe.associatedRecipes &&
-                    recipe?.associatedRecipes.length >= 1 && (
-                        <section className='mt-3'>
-                            <h4>Súvisiace recepty</h4>
-                            {recipe.associatedRecipes.map((recipe) => (
-                                <div key={recipe.id}>
-                                    <Link
-                                        to={`/recipe/display/${recipe.id}`}
-                                        className='mb-0'
-                                    >
-                                        {recipe.name}
-                                    </Link>
-                                </div>
-                            ))}
-                        </section>
-                    )}
+                        )} */}
+                </div>
+                <AssociatedRecipeView recipe={recipe}/>
+                <div>
+                    {/* {recipe &&
+                        recipe.associatedRecipes &&
+                        recipe?.associatedRecipes.length >= 1 && (
+                            <section className='mt-3'>
+                                <h4>Súvisiace recepty</h4>
+                                {recipe.associatedRecipes.map((recipe) => (
+                                    <div key={recipe.id}>
+                                        <Link
+                                            to={`/recipe/display/${recipe.id}`}
+                                            className='mb-0'
+                                        >
+                                            {recipe.name}
+                                        </Link>
+                                    </div>
+                                ))}
+                            </section>
+                        )} */}
+                </div>
                 <hr />
                 <p className='mb-0'>
                     {recipe &&
@@ -553,7 +566,7 @@ const RecipeView: React.FC = () => {
                 </p>
             </div>
             <div>
-                <div>
+                {/* <div>
                     <BootstrapModal
                         show={!!show}
                         fullscreen={true}
@@ -611,7 +624,7 @@ const RecipeView: React.FC = () => {
                             />
                         </BootstrapModal.Body>
                     </BootstrapModal>
-                </div>
+                </div> */}
             </div>
             <Modal
                 show={!!error}

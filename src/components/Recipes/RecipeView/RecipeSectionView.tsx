@@ -1,14 +1,5 @@
 import React from 'react';
-import { Api } from '../../../openapi';
-
-interface PicturesWithUrl extends Api.Recipe.Picture {
-    url?: string;
-    fullPic?: string;
-}
-
-interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
-    pictures: PicturesWithUrl[];
-}
+import { RecipesWithUrlInPictures } from './RecipeView';
 
 type RecipeSectionProps = {
     recipe: RecipesWithUrlInPictures | undefined;
@@ -24,14 +15,6 @@ const RecipeSectionView: React.FC<RecipeSectionProps> = (props) => {
         unitAbbreviation: string,
         ingredientName: string
     ) => {
-        console.log(
-            ingredientId,
-            ingredientValue,
-            serves,
-            unitName,
-            unitAbbreviation,
-            ingredientName
-        );
         const definedServes = props.recipe?.serves ?? 1;
         if (ingredientValue !== null) {
             let decimalPoints;

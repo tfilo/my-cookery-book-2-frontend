@@ -21,6 +21,16 @@ import UnitCategoryPage from './pages/UnitCategoryPage';
 import UnitPage from './pages/UnitPage';
 import RecipesPage from './pages/RecipesPage';
 import RecipeViewPage from './pages/RecipeViewPage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faList,
+    faPizzaSlice,
+    faScaleBalanced,
+    faTags,
+    faUser,
+    faUsers,
+    faUtensils,
+} from '@fortawesome/free-solid-svg-icons';
 
 function App() {
     const authCtx = useContext(AuthContext);
@@ -57,8 +67,9 @@ function App() {
         }
     }, [isLoggedIn]);
 
-    
-    let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
+    let username = `${userInfo?.firstName ?? ''} ${
+        userInfo?.lastName ?? ''
+    }`.trim();
     if (!username) {
         username = userInfo?.username ?? '';
     }
@@ -90,10 +101,9 @@ function App() {
                             Kuchárska kniha
                         </Navbar.Brand>
                         <Button onClick={logoutHandler}>Odhlásiť sa</Button>
-                        <Navbar.Offcanvas placement='start'>
+                        <Navbar.Offcanvas placement='start' onHide={closeOffcanvas}>
                             <Offcanvas.Header
                                 closeButton
-                                onHide={closeOffcanvas}
                             >
                                 <Offcanvas.Title>{username}</Offcanvas.Title>
                             </Offcanvas.Header>
@@ -104,13 +114,14 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        Profil
+                                        <FontAwesomeIcon icon={faUser} /> Profil
                                     </Nav.Link>
                                     <Nav.Link
                                         to='/users'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon icon={faUsers} />{' '}
                                         Používatelia
                                     </Nav.Link>
                                     <Nav.Link
@@ -118,6 +129,7 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon icon={faList} />{' '}
                                         Kategórie
                                     </Nav.Link>
                                     <Nav.Link
@@ -125,6 +137,9 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            icon={faScaleBalanced}
+                                        />{' '}
                                         Jednotky
                                     </Nav.Link>
                                     <Nav.Link
@@ -132,13 +147,14 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        Značky
+                                        <FontAwesomeIcon icon={faTags} /> Značky
                                     </Nav.Link>
                                     <Nav.Link
                                         to='/recipe/create'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon icon={faPizzaSlice} />{' '}
                                         Pridať recept
                                     </Nav.Link>
                                     <hr />
@@ -147,6 +163,7 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon icon={faUtensils} />{' '}
                                         Všetky recepty
                                     </Nav.Link>
                                     <hr />
