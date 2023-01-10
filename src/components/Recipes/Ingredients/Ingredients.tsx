@@ -9,6 +9,7 @@ import {
     faGripVertical,
 } from '@fortawesome/free-solid-svg-icons';
 import { SelectGroupOptions } from '../../UI/Select';
+import SingleIngredient from './SingleIngredient';
 
 type IngredientsProps = {
     recipeSectionName: string;
@@ -16,42 +17,43 @@ type IngredientsProps = {
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
-    const { register } = useFormContext();
+    // const { register } = useFormContext();
+
     const { fields, append, remove, move } = useFieldArray({
         name: `${props.recipeSectionName}.ingredients`,
     });
 
-    const [dragableGroup, setDragableGroup] = useState<number>();
+    // const [dragableGroup, setDragableGroup] = useState<number>();
 
-    const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
-        console.log(e.target);
-        if (dragableGroup) {
-            console.log(`position1: ${position}`);
-            // e.preventDefault();
-            e.dataTransfer.setData('pos1_position', position.toString());
-            e.dataTransfer.dropEffect = 'move';
-            // setButtonOnClick(false);
-        } else {
-            console.log('nie som button');
-        }
-    };
+    // const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
+    //     console.log(e.target);
+    //     if (dragableGroup) {
+    //         console.log(`position1: ${position}`);
+    //         // e.preventDefault();
+    //         e.dataTransfer.setData('pos1_position', position.toString());
+    //         e.dataTransfer.dropEffect = 'move';
+    //         // setButtonOnClick(false);
+    //     } else {
+    //         console.log('nie som button');
+    //     }
+    // };
 
-    const dragOver = (e: React.DragEvent<HTMLElement>, position: number) => {
-        e.preventDefault();
-        console.log(`position2: ${position}`);
-        e.dataTransfer.setData('pos2_position', position.toString());
-        e.dataTransfer.dropEffect = 'move';
-    };
+    // const dragOver = (e: React.DragEvent<HTMLElement>, position: number) => {
+    //     e.preventDefault();
+    //     console.log(`position2: ${position}`);
+    //     e.dataTransfer.setData('pos2_position', position.toString());
+    //     e.dataTransfer.dropEffect = 'move';
+    // };
 
-    const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
-        console.log(`position3: ${position}`);
-        console.log('ahoj');
-        // e.preventDefault();
-        const data1 = +e.dataTransfer.getData('pos1_position');
-        const data2 = +e.dataTransfer.getData('pos2_position');
-        console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
-        move(data1, position);
-    };
+    // const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
+    //     console.log(`position3: ${position}`);
+    //     console.log('ahoj');
+    //     // e.preventDefault();
+    //     const data1 = +e.dataTransfer.getData('pos1_position');
+    //     const data2 = +e.dataTransfer.getData('pos2_position');
+    //     console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
+    //     move(data1, position);
+    // };
 
     return (
         <>
@@ -76,7 +78,22 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
             </Stack>
 
             {fields.map((field, index) => {
-                // console.log(field)
+                console.log(field);
+                return (
+                    <SingleIngredient
+                        key={field.id}
+                        ingredientName={`${props.recipeSectionName}.ingredients.${index}`}
+                        ingredientIndex = {index}
+                        // dragStart = {(e) => dragStart(e, index)}
+                        // dragOver = {(e) => dragOver(e, index)}
+                        // drop = {(e) => drop(e, index)}
+                        ingredientsData={props.ingredientsData}
+                    />
+                );
+            })}
+
+            {/* {fields.map((field, index) => {
+                console.log(field)
                 return (
                     <section key={field?.id}>
                         <input
@@ -175,12 +192,10 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                             >
                                 <FontAwesomeIcon icon={faCircleMinus} />
                             </Button>
-                            
-                            {/* <div onInvalid={()=> console.log('chybicka')}>Prosím dolnte hodnotu</div> */}
                         </InputGroup>
                     </section>
                 );
-            })}
+            })} */}
         </>
     );
 };

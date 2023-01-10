@@ -3,10 +3,10 @@ import { Button, Card, Col, Row } from 'react-bootstrap';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
-import { Api } from '../../openapi';
-import { pictureApi, recipeApi } from '../../utils/apiWrapper';
-import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../UI/Modal';
+import { Api } from '../../../openapi';
+import { pictureApi, recipeApi } from '../../../utils/apiWrapper';
+import { formatErrorMessage } from '../../../utils/errorMessages';
+import Modal from '../../UI/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCircleArrowLeft,
@@ -17,6 +17,7 @@ import {
 import BootstrapModal from 'react-bootstrap/Modal';
 
 import { Link } from 'react-router-dom';
+import RecipeSectionView from './RecipeSectionView';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
@@ -191,7 +192,9 @@ const RecipeView: React.FC = () => {
                 type='button'
                 onClick={() => {
                     console.log(location.state);
-                    navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
+                    navigate(`/recipes/${location.state.searchingCategory}`, {
+                        state: location.state,
+                    });
                 }}
                 className='border-0'
             >
@@ -210,12 +213,18 @@ const RecipeView: React.FC = () => {
                         <p>{recipe?.description}</p>
                     </section>
                 )}
-                {recipe?.serves !== null && (
+                {(recipe?.serves !== null ||
+                    (recipe?.serves === null &&
+                        recipe.recipeSections.length > 0)) && (
                     <section>
                         <h4>Počet porcií</h4>
                         <input
                             type='number'
-                            defaultValue={serves}
+                            defaultValue={
+                                recipe?.serves !== null
+                                    ? recipe?.serves
+                                    : serves
+                            }
                             onChange={changeServesHandler}
                             style={{
                                 width: 50,
@@ -226,31 +235,14 @@ const RecipeView: React.FC = () => {
                     </section>
                 )}
 
-                {recipe?.serves === null &&
-                    recipe.recipeSections.length > 0 && (
-                        <section>
-                            <h4>Počet porcií</h4>
-                                <input
-                                    type='number'
-                                    defaultValue={serves}
-                                    onChange={changeServesHandler}
-                                    style={{
-                                        width: 50,
-                                    }}
-                                    className='border-0'
-                                    min={1}
-                                ></input>
-                        </section>
-                    )}
-
                 {recipe?.method !== null && (
                     <section>
                         <h4>Postup prípravy</h4>
                         <p>{recipe?.method}</p>
                     </section>
                 )}
-
-                {recipe?.serves === null &&
+                <RecipeSectionView recipe={recipe} serves={serves} />
+                {/* {recipe?.serves === null &&
                     recipe.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
@@ -268,23 +260,26 @@ const RecipeView: React.FC = () => {
                                                 10
                                             ) {
                                                 return (
-                                                    <li
-                                                        key={ingredient.id}
-                                                        title={
-                                                            ingredient.unit.name
-                                                        }
-                                                    >
-                                                        {`${
-                                                            (+(
-                                                                ingredient.value *
-                                                                serves
-                                                            ).toFixed(3) /
-                                                                1000) *
-                                                            1000
-                                                        } ${
-                                                            ingredient.unit
-                                                                .abbreviation
-                                                        } ${ingredient.name}`}
+                                                    <li key={ingredient.id}>
+                                                        {(+(
+                                                            ingredient.value *
+                                                            serves
+                                                        ).toFixed(3) /
+                                                            1000) *
+                                                            1000}
+                                                        <span
+                                                            title={
+                                                                ingredient.unit
+                                                                    .name
+                                                            }
+                                                        >
+                                                            {' '}
+                                                            {
+                                                                ingredient.unit
+                                                                    .abbreviation
+                                                            }{' '}
+                                                        </span>
+                                                        {ingredient.name}
                                                     </li>
                                                 );
                                             } else if (
@@ -292,23 +287,26 @@ const RecipeView: React.FC = () => {
                                                 100
                                             ) {
                                                 return (
-                                                    <li
-                                                        key={ingredient.id}
-                                                        title={
-                                                            ingredient.unit.name
-                                                        }
-                                                    >
-                                                        {`${
-                                                            (+(
-                                                                ingredient.value *
-                                                                serves
-                                                            ).toFixed(2) /
-                                                                100) *
-                                                            100
-                                                        } ${
-                                                            ingredient.unit
-                                                                .abbreviation
-                                                        } ${ingredient.name}`}
+                                                    <li key={ingredient.id}>
+                                                        {(+(
+                                                            ingredient.value *
+                                                            serves
+                                                        ).toFixed(2) /
+                                                            100) *
+                                                            100}
+                                                        <span
+                                                            title={
+                                                                ingredient.unit
+                                                                    .name
+                                                            }
+                                                        >
+                                                            {' '}
+                                                            {
+                                                                ingredient.unit
+                                                                    .abbreviation
+                                                            }{' '}
+                                                        </span>
+                                                        {ingredient.name}
                                                     </li>
                                                 );
                                             } else {
@@ -344,7 +342,7 @@ const RecipeView: React.FC = () => {
                     })}
 
                 {/* toto */}
-                {recipe?.serves !== null &&
+                {/* {recipe?.serves !== null &&
                     recipe?.recipeSections.map((section) => {
                         return (
                             <section key={section.id}>
@@ -364,24 +362,27 @@ const RecipeView: React.FC = () => {
                                                 10
                                             ) {
                                                 return (
-                                                    <li
-                                                        key={ingredient.id}
-                                                        title={
-                                                            ingredient.unit.name
-                                                        }
-                                                    >
-                                                        {`${
-                                                            (+(
-                                                                (ingredient.value /
-                                                                    recipe.serves) *
-                                                                serves
-                                                            ).toFixed(3) /
-                                                                1000) *
-                                                            1000
-                                                        } ${
-                                                            ingredient.unit
-                                                                .abbreviation
-                                                        } ${ingredient.name}`}
+                                                    <li key={ingredient.id}>
+                                                        {(+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(3) /
+                                                            1000) *
+                                                            1000}
+                                                        <span
+                                                            title={
+                                                                ingredient.unit
+                                                                    .name
+                                                            }
+                                                        >
+                                                            {' '}
+                                                            {
+                                                                ingredient.unit
+                                                                    .abbreviation
+                                                            }{' '}
+                                                        </span>
+                                                        {ingredient.name}
                                                     </li>
                                                 );
                                             } else if (
@@ -392,35 +393,51 @@ const RecipeView: React.FC = () => {
                                             ) {
                                                 return (
                                                     <li key={ingredient.id}>
-                                                        {`${
-                                                            (+(
-                                                                (ingredient.value /
-                                                                    recipe.serves) *
-                                                                serves
-                                                            ).toFixed(2) /
-                                                                100) *
-                                                            100
-                                                        } ${
-                                                            ingredient.unit
-                                                                .abbreviation
-                                                        } ${ingredient.name}`}
+                                                        {(+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(2) /
+                                                            100) *
+                                                            100}
+                                                        <span
+                                                            title={
+                                                                ingredient.unit
+                                                                    .name
+                                                            }
+                                                        >
+                                                            {' '}
+                                                            {
+                                                                ingredient.unit
+                                                                    .abbreviation
+                                                            }{' '}
+                                                        </span>
+                                                        {ingredient.name}
                                                     </li>
                                                 );
                                             } else {
                                                 return (
                                                     <li key={ingredient.id}>
-                                                        {`${
-                                                            (+(
-                                                                (ingredient.value /
-                                                                    recipe.serves) *
-                                                                serves
-                                                            ).toFixed(1) /
-                                                                10) *
-                                                            10
-                                                        } ${
-                                                            ingredient.unit
-                                                                .abbreviation
-                                                        } ${ingredient.name}`}
+                                                        {(+(
+                                                            (ingredient.value /
+                                                                recipe.serves) *
+                                                            serves
+                                                        ).toFixed(1) /
+                                                            10) *
+                                                            10}
+                                                        <span
+                                                            title={
+                                                                ingredient.unit
+                                                                    .name
+                                                            }
+                                                        >
+                                                            {' '}
+                                                            {
+                                                                ingredient.unit
+                                                                    .abbreviation
+                                                            }{' '}
+                                                        </span>
+                                                        {ingredient.name}
                                                     </li>
                                                 );
                                             }
@@ -437,7 +454,7 @@ const RecipeView: React.FC = () => {
                                 <p>{section?.method}</p>
                             </section>
                         );
-                    })}
+                    })} */}
                 <section>
                     <Row xs={1} sm={2} lg={4} className='g-4'>
                         {recipe?.pictures.map((picture, idx) => (

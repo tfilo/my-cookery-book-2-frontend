@@ -111,7 +111,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 />
                                 {/* </Stack> */}
                                 <Ingredients
-                                    // <Ingredients
                                     ingredientsData={props.ingredientsData}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
