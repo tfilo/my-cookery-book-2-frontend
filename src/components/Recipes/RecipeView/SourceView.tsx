@@ -1,11 +1,11 @@
 import React from 'react';
 import { RecipesWithUrlInPictures } from './RecipeView';
 
-type RecipeSourceProps = {
+type SourceProps = {
     recipe: RecipesWithUrlInPictures | undefined;
 };
 
-const RecipeSourceView: React.FC<RecipeSourceProps> = (props) => {
+const SourceView: React.FC<SourceProps> = (props) => {
     const urlify = (text: string) => {
         if (text.includes('http://') || text.includes('https://')) {
             let start;
@@ -51,4 +51,4 @@ const RecipeSourceView: React.FC<RecipeSourceProps> = (props) => {
     );
 };
 
-export default RecipeSourceView;
+export default SourceView;

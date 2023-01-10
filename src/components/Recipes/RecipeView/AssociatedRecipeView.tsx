@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { RecipesWithUrlInPictures } from './RecipeView';
 
 type AssociatedRecipeProps = {
@@ -7,6 +7,7 @@ type AssociatedRecipeProps = {
 };
 
 const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
+
     return (
         <>
             {props.recipe &&
@@ -16,12 +17,12 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                         <h4>Súvisiace recepty</h4>
                         {props.recipe.associatedRecipes.map((recipe) => (
                             <div key={recipe.id}>
-                                <Link
+                                {/* <Link
                                     to={`/recipe/display/${recipe.id}`}
                                     className='mb-0'
-                                >
-                                    {recipe.name}
-                                </Link>
+                                > */}
+                                    {recipe.name} - {recipe.description}
+                                {/* </Link> */}
                             </div>
                         ))}
                     </section>

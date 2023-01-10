@@ -1,12 +1,12 @@
 import React from 'react';
 import { RecipesWithUrlInPictures } from './RecipeView';
 
-type RecipeSectionProps = {
+type SectionProps = {
     recipe: RecipesWithUrlInPictures | undefined;
     serves: number;
 };
 
-const RecipeSectionView: React.FC<RecipeSectionProps> = (props) => {
+const SectionView: React.FC<SectionProps> = (props) => {
     const showList = (
         ingredientId: number,
         ingredientValue: number | null,
@@ -78,4 +78,4 @@ const RecipeSectionView: React.FC<RecipeSectionProps> = (props) => {
     );
 };
 
-export default RecipeSectionView;
+export default SectionView;

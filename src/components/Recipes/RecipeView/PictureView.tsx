@@ -20,11 +20,11 @@ import { formatErrorMessage } from '../../../utils/errorMessages';
 //     pictures: PicturesWithUrl[];
 // }
 
-type RecipePictureProps = {
+type PictureProps = {
     recipe: RecipesWithUrlInPictures | undefined;
 };
 
-const RecipePictureView: React.FC<RecipePictureProps> = (props) => {
+const PictureView: React.FC<PictureProps> = (props) => {
     // const [error, setError] = useState<string>();
     const [show, setShow] = useState<{
         title: string;
@@ -234,4 +234,4 @@ const RecipePictureView: React.FC<RecipePictureProps> = (props) => {
     );
 };
 
-export default RecipePictureView;
+export default PictureView;

@@ -17,10 +17,13 @@ import {
 // import BootstrapModal from 'react-bootstrap/Modal';
 
 // import { Link } from 'react-router-dom';
-import RecipeSectionView from './RecipeSectionView';
-import RecipePictureView from './RecipePictureView';
-import RecipeSourceView from './RecipeSourceView';
 import AssociatedRecipeView from './AssociatedRecipeView';
+import SectionView from './SectionView';
+import PictureView from './PictureView';
+import SourceView from './SourceView';
+import InitialView from './InitialView';
+import ServeView from './ServeView';
+import AuthorView from './AuthorView';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
@@ -47,6 +50,8 @@ const RecipeView: React.FC = () => {
     //     index: number;
     // } | null>(null);
 
+    const [associatedRecipes, setAssociatedRecipes] = useState<RecipesWithUrlInPictures[]>()
+    
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -72,19 +77,31 @@ const RecipeView: React.FC = () => {
                     if (rec.serves) {
                         setServes(rec.serves);
                     }
+                    if (rec.associatedRecipes.length > 0) {
+                        const associatedRecipesId = rec.associatedRecipes.map((a) => a.id);
+                        const assRecipes = [];
+                        for (let id of associatedRecipesId) {
+                            const assRec: RecipesWithUrlInPictures =
+                            await recipeApi.getRecipe(id);
+                            assRecipes.push(assRec);
+                        }
+                        console.log(assRecipes);
+                        setAssociatedRecipes(assRecipes)
+                    }
                     setRecipe(rec);
                 }
+                
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             }
         })();
     }, [params.recipeId]);
 
-    const changeServesHandler = (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        setServes(+event.target.value);
-    };
+    // const changeServesHandler = (
+    //     event: React.ChangeEvent<HTMLInputElement>
+    // ) => {
+    //     setServes(+event.target.value);
+    // };
     console.log(recipe);
 
     // const urlify = (text: string) => {
@@ -210,24 +227,41 @@ const RecipeView: React.FC = () => {
             ></ReactToPrint>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
-                <h3>{recipe?.name}</h3>
+                <InitialView recipe={recipe} />
+                <div>
+                    {/* <h3>{recipe?.name}</h3>
                 {recipe?.description !== null && (
                     <section>
-                        <h4>Popis</h4>
-                        <p>{recipe?.description}</p>
+                    <h4>Popis</h4>
+                    <p>{recipe?.description}</p>
                     </section>
-                )}
-                {(recipe?.serves !== null ||
+                    )}
+                    
+                    {recipe?.method !== null && (
+                        <section>
+                        <h4>Postup prípravy</h4>
+                        <p>{recipe?.method}</p>
+                        </section>
+                    )} */}
+                </div>
+
+                <ServeView
+                    recipe={recipe}
+                    serves={serves}
+                    setServes={setServes}
+                ></ServeView>
+                <div>
+                    {/* {(recipe?.serves !== null ||
                     (recipe?.serves === null &&
                         recipe.recipeSections.length > 0)) && (
-                    <section>
-                        <h4>Počet porcií</h4>
-                        <input
+                            <section>
+                            <h4>Počet porcií</h4>
+                            <input
                             type='number'
                             defaultValue={
                                 recipe?.serves !== null
-                                    ? recipe?.serves
-                                    : serves
+                                ? recipe?.serves
+                                : serves
                             }
                             onChange={changeServesHandler}
                             style={{
@@ -235,17 +269,12 @@ const RecipeView: React.FC = () => {
                             }}
                             className='border-0'
                             min={1}
-                        ></input>
-                    </section>
-                )}
+                            ></input>
+                            </section>
+                        )} */}
+                </div>
 
-                {recipe?.method !== null && (
-                    <section>
-                        <h4>Postup prípravy</h4>
-                        <p>{recipe?.method}</p>
-                    </section>
-                )}
-                <RecipeSectionView recipe={recipe} serves={serves} />
+                <SectionView recipe={recipe} serves={serves} />
                 <div>
                     {/* {recipe?.serves === null &&
                     recipe.recipeSections.map((section) => {
@@ -461,7 +490,7 @@ const RecipeView: React.FC = () => {
                         );
                     })} */}
                 </div>
-                <RecipePictureView recipe={recipe} />
+                <PictureView recipe={recipe} />
                 <section>
                     {/* <Row xs={1} sm={2} lg={4} className='g-4'>
                         {recipe?.pictures.map((picture, idx) => (
@@ -503,7 +532,7 @@ const RecipeView: React.FC = () => {
                         ))}
                     </Row> */}
                 </section>
-                <RecipeSourceView recipe={recipe} />
+                <SourceView recipe={recipe} />
                 <div>
                     {/* {recipe &&
                         recipe.sources &&
@@ -518,7 +547,7 @@ const RecipeView: React.FC = () => {
                             </section>
                         )} */}
                 </div>
-                <AssociatedRecipeView recipe={recipe}/>
+                <AssociatedRecipeView recipe={recipe} />
                 <div>
                     {/* {recipe &&
                         recipe.associatedRecipes &&
@@ -539,31 +568,34 @@ const RecipeView: React.FC = () => {
                         )} */}
                 </div>
                 <hr />
-                <p className='mb-0'>
-                    {recipe &&
-                        recipe.creator &&
-                        `Pridal: ${
-                            recipe.creator.firstName
-                                ? recipe.creator.firstName +
-                                      ' ' +
-                                      recipe.creator.lastName ?? ''
-                                : recipe.creator.username
-                        } dňa: ${new Date(
-                            recipe.createdAt
-                        ).toLocaleDateString()}`.trim()}
-                </p>
-                <p className='mb-0'>
-                    {recipe &&
-                        `Upravil: ${
-                            recipe.modifier.firstName
-                                ? recipe.modifier.firstName +
-                                      ' ' +
-                                      recipe.modifier.lastName ?? ''
-                                : recipe.modifier.username
-                        } dňa: ${new Date(
-                            recipe.updatedAt
-                        ).toLocaleDateString()}`.trim()}
-                </p>
+                <AuthorView recipe={recipe} />
+                <div>
+                    {/* <p className='mb-0'>
+                        {recipe &&
+                            recipe.creator &&
+                            `Pridal: ${
+                                recipe.creator.firstName
+                                    ? recipe.creator.firstName +
+                                          ' ' +
+                                          recipe.creator.lastName ?? ''
+                                    : recipe.creator.username
+                            } dňa: ${new Date(
+                                recipe.createdAt
+                            ).toLocaleDateString()}`.trim()}
+                    </p>
+                    <p className='mb-0'>
+                        {recipe &&
+                            `Upravil: ${
+                                recipe.modifier.firstName
+                                    ? recipe.modifier.firstName +
+                                          ' ' +
+                                          recipe.modifier.lastName ?? ''
+                                    : recipe.modifier.username
+                            } dňa: ${new Date(
+                                recipe.updatedAt
+                            ).toLocaleDateString()}`.trim()}
+                    </p> */}
+                </div>
             </div>
             <div>
                 {/* <div>
