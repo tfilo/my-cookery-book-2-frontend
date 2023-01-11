@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import BootstrapModal from 'react-bootstrap/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,51 +9,18 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { pictureApi } from '../../../utils/apiWrapper';
 import { RecipesWithUrlInPictures } from './RecipeView';
-import { formatErrorMessage } from '../../../utils/errorMessages';
-
-// interface PicturesWithUrl extends Api.Recipe.Picture {
-//     url?: string;
-//     fullPic?: string;
-// }
-
-// interface RecipesWithUrlInPictures extends Omit<Api.Recipe, 'pictures'> {
-//     pictures: PicturesWithUrl[];
-// }
 
 type PictureProps = {
     recipe: RecipesWithUrlInPictures | undefined;
 };
 
 const PictureView: React.FC<PictureProps> = (props) => {
-    // const [error, setError] = useState<string>();
+
     const [show, setShow] = useState<{
         title: string;
         url: string;
         index: number;
     } | null>(null);
-
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             if (props.recipe?.pictures) {
-    //                 for (let picture of props.recipe?.pictures) {
-    //                     console.log(picture.id)
-    //                     const data = await pictureApi.getPictureThumbnail(
-    //                         picture.id
-    //                     );
-    //                     if (data instanceof Blob) {
-    //                         const url = URL.createObjectURL(data);
-    //                         picture.url = url;
-    //                         console.log(picture)
-    //                     }
-    //                 }
-    //             }
-    //         } catch (err) {
-    //             formatErrorMessage(err).then((message) => setError(message));
-    //         }
-    //     })();
-    //     console.log(props.recipe?.pictures)
-    // }, [props.recipe?.pictures]);
 
     const showPictureHandler = (id: number, title: string, idx: number) => {
         console.log(id);
