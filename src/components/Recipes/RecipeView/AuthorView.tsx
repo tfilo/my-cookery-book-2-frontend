@@ -21,7 +21,7 @@ const AuthorView: React.FC<AuthorProps> = (props) => {
                             props.recipe.createdAt
                         ).toLocaleDateString()}`.trim()}
                 </p>
-                <p className='mb-0'>
+                <p className='mb-3'>
                     {props.recipe &&
                         `Upravil: ${
                             props.recipe.modifier.firstName

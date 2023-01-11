@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Button /*Card, Col, Row*/ } from 'react-bootstrap';
 
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -50,8 +50,9 @@ const RecipeView: React.FC = () => {
     //     index: number;
     // } | null>(null);
 
-    const [associatedRecipes, setAssociatedRecipes] = useState<RecipesWithUrlInPictures[]>()
-    
+    const [associatedRecipes, setAssociatedRecipes] =
+        useState<RecipesWithUrlInPictures[]>();
+
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -78,25 +79,39 @@ const RecipeView: React.FC = () => {
                         setServes(rec.serves);
                     }
                     if (rec.associatedRecipes.length > 0) {
-                        const associatedRecipesId = rec.associatedRecipes.map((a) => a.id);
+                        const associatedRecipesId = rec.associatedRecipes.map(
+                            (a) => a.id
+                        );
                         const assRecipes = [];
                         for (let id of associatedRecipesId) {
                             const assRec: RecipesWithUrlInPictures =
-                            await recipeApi.getRecipe(id);
+                                await recipeApi.getRecipe(id);
                             assRecipes.push(assRec);
                         }
                         console.log(assRecipes);
-                        setAssociatedRecipes(assRecipes)
+                        for (let assRecipe of assRecipes) {
+                            for (let picture of assRecipe.pictures) {
+                                const data = await pictureApi.getPictureThumbnail(
+                                    picture.id
+                                );
+                                if (data instanceof Blob) {
+                                    const url = URL.createObjectURL(data);
+                                    picture.url = url;
+                                }
+                            }
+                        }
+
+                        setAssociatedRecipes(assRecipes);
                     }
                     setRecipe(rec);
                 }
-                
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             }
         })();
     }, [params.recipeId]);
-
+    
+    console.warn(associatedRecipes);
     // const changeServesHandler = (
     //     event: React.ChangeEvent<HTMLInputElement>
     // ) => {
@@ -658,6 +673,22 @@ const RecipeView: React.FC = () => {
                     </BootstrapModal>
                 </div> */}
             </div>
+            {associatedRecipes &&
+                associatedRecipes?.length > 1 &&
+                associatedRecipes.map((rec) => {
+                    return (
+                        <Fragment key={rec.id}>
+                            <hr style={{borderWidth: '5px'}}/>
+                            <InitialView recipe={rec} />
+                            <SectionView recipe={rec} serves={serves} />
+                            <PictureView recipe={rec} />
+                            <SourceView recipe={rec} />
+                            <AssociatedRecipeView recipe={rec} />
+                            <hr />
+                            <AuthorView recipe={rec} />
+                        </Fragment>
+                    );
+                })}
             <Modal
                 show={!!error}
                 message={error}
