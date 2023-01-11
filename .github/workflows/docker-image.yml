@@ -19,6 +19,7 @@ jobs:
         cache-dependency-path: './package-lock.json'
     - run: npm ci
 #    - run: npm run lint
+    - run: npm run generate-openapi
     - run: npm run build
 
   docker:
