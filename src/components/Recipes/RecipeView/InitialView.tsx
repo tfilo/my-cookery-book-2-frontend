@@ -8,7 +8,7 @@ type InitialProps = {
 const InitialView: React.FC<InitialProps> = (props) => {
     return (
         <>
-            <h3>{props.recipe?.name}</h3>
+            <h3 className='sm'>{props.recipe?.name}</h3>
             {props.recipe?.description !== null && (
                 <section>
                     <h4>Popis</h4>

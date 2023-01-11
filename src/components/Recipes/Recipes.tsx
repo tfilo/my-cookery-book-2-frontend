@@ -185,7 +185,16 @@ const Recipes: React.FC = () => {
     }, [criteria]);
 
     const createRecipeHandler = () => {
-        navigate('/recipe/create');
+        navigate('/recipe/create', {
+            state: {
+                searchingText: searchingText,
+                searchingTags: multiSelections,
+                searchingCategory: categoryId,
+                currentPage: currentPage,
+                order: order,
+                orderBy: orderBy,
+            },
+        });
     };
 
     const editRecipeHandler = (

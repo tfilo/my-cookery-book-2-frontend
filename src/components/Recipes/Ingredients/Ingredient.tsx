@@ -3,25 +3,30 @@ import {
     faGripVertical,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState } from 'react';
+import { get } from 'lodash';
+import React, { useId, useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import {
+    UseFieldArrayMove,
+    UseFieldArrayRemove,
+    useFormContext,
+} from 'react-hook-form';
 import { SelectGroupOptions } from '../../UI/Select';
 
-type SingleIngredientProps = {
-    ingredientName: string;
-    ingredientIndex: number;
-    ingredientsData: SelectGroupOptions[];
+type IngredientProps = {
+    name: string;
+    index: number;
+    units: SelectGroupOptions[];
+    move: UseFieldArrayMove;
+    remove: UseFieldArrayRemove;
 };
 
-const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
-    const { register } = useFormContext();
-    // console.log(props.ingredientName)
-    // console.log(props.ingredientsData);
-
-    const { remove, move } = useFieldArray({
-        name: props.ingredientName,
-    });
+const Ingredient: React.FC<IngredientProps> = (props) => {
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext();
+    const id = useId();
 
     const [dragableGroup, setDragableGroup] = useState<number>();
 
@@ -52,18 +57,24 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
         const data1 = +e.dataTransfer.getData('pos1_position');
         const data2 = +e.dataTransfer.getData('pos2_position');
         console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
-        move(data1, position);
+        props.move(data1, position);
     };
+
+    const nameErrorMessage = get(errors, `${props.name}.name`)?.message;
+    const valueErrorMessage = get(errors, `${props.name}.value`)?.message;
+    const unitErrorMessage = get(errors, `${props.name}.unitId`)?.message;
+
+    // console.log(nameErrorMessage, valueErrorMessage, unitErrorMessage);
 
     return (
         <section>
-            <input {...register(`${props.ingredientName}.id`)} type='hidden' />
+            <input {...register(`${props.name}.id`)} type='hidden' />
             <InputGroup
                 className='mb-2 '
-                onDragStart={(e) => dragStart(e, props.ingredientIndex)}
-                onDragOver={(e) => dragOver(e, props.ingredientIndex)}
-                onDrop={(e) => drop(e, props.ingredientIndex)}
-                draggable={dragableGroup === props.ingredientIndex}
+                onDragStart={(e) => dragStart(e, props.index)}
+                onDragOver={(e) => dragOver(e, props.index)}
+                onDrop={(e) => drop(e, props.index)}
+                draggable={dragableGroup === props.index}
             >
                 <Button
                     variant='outline-secondary'
@@ -75,42 +86,46 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
                         borderBottomColor: 'rgba(0, 0, 0, 0.175)',
                         borderRightColor: 'rgba(0, 0, 0, 0)',
                     }}
-                    onMouseOver={() => setDragableGroup(props.ingredientIndex)}
+                    onMouseOver={() => setDragableGroup(props.index)}
                     onMouseOut={() => setDragableGroup(undefined)}
-                    onTouchStart={() => setDragableGroup(props.ingredientIndex)}
+                    onTouchStart={() => setDragableGroup(props.index)}
                     onTouchEnd={() => setDragableGroup(undefined)}
                 >
                     <FontAwesomeIcon icon={faGripVertical} />
                 </Button>
                 <Form.Control
-                    {...register(`${props.ingredientName}.name`)}
+                    {...register(`${props.name}.name`)}
                     aria-label='Názov suroviny'
                     placeholder='Názov'
                     type='text'
                     style={{ flex: 10 }}
                     //style={{ width: '28%' }}
-                    // isInvalid={true}
+                    isInvalid={!!nameErrorMessage}
+                    id={`${id}_name`}
                 ></Form.Control>
 
                 <Form.Control
-                    {...register(`${props.ingredientName}.value`)}
+                    {...register(`${props.name}.value`)}
                     aria-label='Množstvo suroviny'
                     placeholder='Množstvo'
                     type='number'
                     style={{ flex: 3.5 }}
                     //style={{ width: '12%' }}
-                    // isInvalid={false}
+                    isInvalid={!!valueErrorMessage}
+                    id={`${id}_value`}
+                    min={0}
                 ></Form.Control>
                 <Form.Select
-                    {...register(`${props.ingredientName}.unitId`)}
+                    {...register(`${props.name}.unitId`)}
                     aria-label='Jednotka'
-                    name={`${props.ingredientName}.unitId`}
+                    name={`${props.name}.unitId`}
                     style={{ flex: 5 }}
                     //style={{ width: '23%' }}
-                    // isInvalid={false}
+                    isInvalid={!!unitErrorMessage}
+                    id={`${id}_unitId`}
                 >
-                    <option disabled>Vyberte Jednotku</option>
-                    {props.ingredientsData.map((option) => {
+                    <option disabled value='-1'>Vyberte Jednotku</option>
+                    {props.units.map((option) => {
                         return (
                             <optgroup
                                 key={option.optGroupId}
@@ -129,7 +144,7 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
                     variant='outline-danger'
                     aria-label='vymazať ingredienciu'
                     type='button'
-                    onClick={() => remove(props.ingredientIndex)}
+                    onClick={() => props.remove(props.index)}
                     style={{
                         borderRightColor: 'rgba(0, 0, 0, 0.175)',
                         borderTopColor: 'rgba(0, 0, 0, 0.175)',
@@ -140,8 +155,33 @@ const SingleIngredient: React.FC<SingleIngredientProps> = (props) => {
                     <FontAwesomeIcon icon={faCircleMinus} />
                 </Button>
             </InputGroup>
+            {(nameErrorMessage || valueErrorMessage || unitErrorMessage) && (
+                <ul>
+                    {nameErrorMessage && (
+                        <li className='text-danger'>
+                            <label htmlFor={`${id}_name`}>
+                                {nameErrorMessage?.toString()}
+                            </label>
+                        </li>
+                    )}
+                    {valueErrorMessage && (
+                        <li className='text-danger'>
+                            <label htmlFor={`${id}_value`}>
+                                {valueErrorMessage?.toString()}
+                            </label>
+                        </li>
+                    )}
+                    {unitErrorMessage && (
+                        <li className='text-danger'>
+                            <label htmlFor={`${id}_unitId`}>
+                                {unitErrorMessage?.toString()}
+                            </label>
+                        </li>
+                    )}
+                </ul>
+            )}
         </section>
     );
 };
 
-export default SingleIngredient;
+export default Ingredient;

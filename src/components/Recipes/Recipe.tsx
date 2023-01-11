@@ -225,9 +225,7 @@ const Recipe: React.FC = () => {
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [ingredientsData, setIngredientsData] = useState<
-        SelectGroupOptions[]
-    >([]);
+    const [units, setUnits] = useState<SelectGroupOptions[]>([]);
 
     const [requiredUnits, setRequiredUnits] = useState<
         { id: number; required: boolean }[]
@@ -256,7 +254,7 @@ const Recipe: React.FC = () => {
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
 
-                const data: SelectGroupOptions[] = [];
+                const units: SelectGroupOptions[] = [];
                 const requiredUnit: { id: number; required: boolean }[] = [];
                 for (let category of unitCategories) {
                     const unitByCategoryId =
@@ -272,19 +270,19 @@ const Recipe: React.FC = () => {
                     const updatedUnits = unitByCategoryId.map((unit) => {
                         return { value: unit.id, label: unit.name };
                     });
-                    data.push({
+                    units.push({
                         optGroupId: category.id,
                         optGroupName: category.name,
                         options: updatedUnits,
                     });
                 }
                 setRequiredUnits(requiredUnit);
-                setIngredientsData(data);
+                setUnits(units);
 
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
-                    console.log(data)
+                    console.log(data);
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -325,7 +323,9 @@ const Recipe: React.FC = () => {
     }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
-        navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
+        navigate(`/recipes/${location.state.searchingCategory}`, {
+            state: location.state,
+        });
     };
 
     const submitHandler: SubmitHandler<RecipeForm> = async (
@@ -390,7 +390,9 @@ const Recipe: React.FC = () => {
                 URL.revokeObjectURL(pic.url);
             }
 
-            navigate(`/recipes/${location.state.searchingCategory}`, { state: location.state });
+            navigate(`/recipes/${location.state.searchingCategory}`, {
+                state: location.state,
+            });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -406,12 +408,15 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     try {
                         await recipeApi.deleteRecipe(+params.recipeId);
-                        navigate(`/recipes/${location.state.searchingCategory}`, {
-                            state: {
-                                ...location.state,
-                                currentPage: 1,
-                            },
-                        });
+                        navigate(
+                            `/recipes/${location.state.searchingCategory}`,
+                            {
+                                state: {
+                                    ...location.state,
+                                    currentPage: 1,
+                                },
+                            }
+                        );
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
@@ -450,7 +455,7 @@ const Recipe: React.FC = () => {
                             name='method'
                             rows={10}
                         />
-                        <RecipeSections ingredientsData={ingredientsData} />
+                        <RecipeSections units={units} />
                         <Select
                             name='categoryId'
                             label='Kategória receptu'
@@ -474,9 +479,7 @@ const Recipe: React.FC = () => {
                             <Controller
                                 control={control}
                                 name='tags'
-                                render={({
-                                    field: { onChange, value },
-                                }) => (
+                                render={({ field: { onChange, value } }) => (
                                     <Typeahead
                                         id='tags'
                                         labelKey='name'

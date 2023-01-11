@@ -14,7 +14,7 @@ import { SelectGroupOptions } from '../UI/Select';
 import Ingredients from './Ingredients/Ingredients';
 
 type RecipeSectionsProps = {
-    ingredientsData: SelectGroupOptions[];
+    units: SelectGroupOptions[];
 };
 
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
@@ -111,7 +111,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 />
                                 {/* </Stack> */}
                                 <Ingredients
-                                    ingredientsData={props.ingredientsData}
+                                    units={props.units}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
                                 <Textarea
