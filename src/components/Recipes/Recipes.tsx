@@ -32,6 +32,7 @@ import {
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { debounce } from 'lodash';
+import Spinner from '../UI/Spinner';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
     url?: string;
@@ -67,7 +68,7 @@ const Recipes: React.FC = () => {
     const [orderBy, setOrderBy] = useState(
         state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name
     );
-
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
 
@@ -76,8 +77,6 @@ const Recipes: React.FC = () => {
             setShowFilter(true);
         }
     }, [categoryId, multiSelections]);
-
-    // console.log(searchingText, multiSelections, currentPage)
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
         const searchingTags = multiSelections.map((t) => t.id);
@@ -128,6 +127,7 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const categories = await categoryApi.getCategories();
                 setListOfCategories(categories);
                 const tags = await tagApi.getTags();
@@ -136,6 +136,8 @@ const Recipes: React.FC = () => {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
                 });
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -143,11 +145,10 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                // console.log(criteria);
+                setIsLoading(true);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
-                // console.log(recipes);
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
@@ -180,6 +181,8 @@ const Recipes: React.FC = () => {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
                 });
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, [criteria]);
@@ -261,7 +264,6 @@ const Recipes: React.FC = () => {
                     Pridať recept
                 </Button>
             </div>
-
             <div className='input-group mb-3'>
                 <span className='input-group-text'>
                     <FontAwesomeIcon icon={faMagnifyingGlass} />
@@ -359,7 +361,6 @@ const Recipes: React.FC = () => {
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
-
             <Collapse in={showFilter}>
                 <div>
                     <Card className='mb-3' id='collapse'>
@@ -429,7 +430,6 @@ const Recipes: React.FC = () => {
                     </Card>
                 </div>
             </Collapse>
-
             <Row xs={1} sm={2} lg={4} className='g-4'>
                 {recipes?.rows.map((row) => {
                     return (
@@ -488,7 +488,6 @@ const Recipes: React.FC = () => {
                     );
                 })}
             </Row>
-
             {recipes && recipes?.rows.length < 1 && (
                 <p className='mt-3'>Neboli nájdené žiadne výsledky.</p>
             )}
@@ -532,6 +531,7 @@ const Recipes: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {isLoading && <Spinner />}
         </Fragment>
     );
 };

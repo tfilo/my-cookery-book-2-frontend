@@ -1,26 +1,31 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import Spinner from '../UI/Spinner';
 
 const Users: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);
     const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [user, setUser] = useState<Api.SimpleUser>();
     const navigate = useNavigate();
 
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const users = await userApi.getUsers();
                 setListOfUsers(users);
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -30,12 +35,10 @@ const Users: React.FC = () => {
     };
 
     const editUserHandler = (id: number) => {
-        console.log(id);
         navigate(`/user/${id}`);
     };
 
     const deleteUserHandler = (user: Api.SimpleUser) => {
-        console.log(user.id);
         setUser(user);
     };
 
@@ -44,6 +47,7 @@ const Users: React.FC = () => {
             if (status === true) {
                 if (user) {
                     try {
+                        setIsLoading(true);
                         await userApi.deleteUser(user.id);
                         setListOfUsers((prev) => {
                             return prev.filter((_user) => _user.id !== user.id);
@@ -52,6 +56,8 @@ const Users: React.FC = () => {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
                         });
+                    } finally {
+                        setIsLoading(false);
                     }
                 } else {
                     setError('Neplatné používateľské ID!');
@@ -62,7 +68,7 @@ const Users: React.FC = () => {
     };
 
     return (
-        <Fragment>
+        <>
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Používatelia</h2>
                 <Button variant='primary' onClick={createUserHandler}>
@@ -105,7 +111,11 @@ const Users: React.FC = () => {
                                     .join(', ')}
                             </td>
                             <td className='align-middle '>
-                            <Stack direction='horizontal' gap={2} className='justify-content-end'>
+                                <Stack
+                                    direction='horizontal'
+                                    gap={2}
+                                    className='justify-content-end'
+                                >
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
@@ -114,7 +124,7 @@ const Users: React.FC = () => {
                                             null,
                                             user.id
                                         )}
-                                        style={{border: 'none'}}
+                                        style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faPencil} />
                                     </Button>
@@ -126,7 +136,7 @@ const Users: React.FC = () => {
                                             null,
                                             user
                                         )}
-                                        style={{border: 'none'}}
+                                        style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </Button>
@@ -150,7 +160,8 @@ const Users: React.FC = () => {
                     setError(undefined);
                 }}
             />
-        </Fragment>
+            {isLoading && <Spinner />}
+        </>
     );
 };
 

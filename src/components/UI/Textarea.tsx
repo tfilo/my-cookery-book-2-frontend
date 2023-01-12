@@ -7,8 +7,7 @@ type TextareaProps = {
     name: string;
     disabled?: boolean;
     className?: string;
-    // style?: React.CSSProperties
-    rows?: any
+    rows?: any;
 };
 
 const Textarea: React.FC<TextareaProps> = (props) => {
@@ -21,7 +20,10 @@ const Textarea: React.FC<TextareaProps> = (props) => {
     const errorMessage = errors[props.name]?.message;
 
     return (
-        <Form.Group className={`mb-3 ${props.className ?? ''}`} controlId={`${id}_${props.name}`}>
+        <Form.Group
+            className={`mb-3 ${props.className ?? ''}`}
+            controlId={`${id}_${props.name}`}
+        >
             <Form.Label>{props.label}</Form.Label>
             <Form.Control
                 {...register(props.name)}
@@ -29,8 +31,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
                 name={props.name}
                 disabled={props.disabled}
                 isInvalid={!!errorMessage}
-                // style={props.style}
-                rows= {props.rows}
+                rows={props.rows}
             />
             <Form.Control.Feedback type='invalid'>
                 {errorMessage?.toString()}

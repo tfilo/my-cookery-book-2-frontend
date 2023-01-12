@@ -9,13 +9,17 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { pictureApi } from '../../../utils/apiWrapper';
 import { RecipesWithUrlInPictures } from './RecipeView';
+import { formatErrorMessage } from '../../../utils/errorMessages';
+import Modal from '../../UI/Modal';
+import Spinner from '../../UI/Spinner';
 
 type PictureProps = {
     recipe: RecipesWithUrlInPictures | undefined;
 };
 
 const PictureView: React.FC<PictureProps> = (props) => {
-
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>();
     const [show, setShow] = useState<{
         title: string;
         url: string;
@@ -26,6 +30,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
         console.log(id);
         (async () => {
             try {
+                setIsLoading(true);
                 const data = await pictureApi.getPictureData(id);
                 if (data instanceof Blob) {
                     const fullPic = URL.createObjectURL(data);
@@ -43,7 +48,9 @@ const PictureView: React.FC<PictureProps> = (props) => {
                 }
                 console.log(props.recipe);
             } catch (err) {
-                // formatErrorMessage(err).then((message) => setError(message));
+                formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
     };
@@ -197,6 +204,15 @@ const PictureView: React.FC<PictureProps> = (props) => {
                     />
                 </BootstrapModal.Body>
             </BootstrapModal>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            {isLoading && <Spinner />}
         </>
     );
 };

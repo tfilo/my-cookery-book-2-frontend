@@ -31,15 +31,10 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
     const [dragableGroup, setDragableGroup] = useState<number>();
 
     const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
-        console.log(e.target);
         if (dragableGroup) {
             console.log(`position1: ${position}`);
-            // e.preventDefault();
             e.dataTransfer.setData('pos1_position', position.toString());
             e.dataTransfer.dropEffect = 'move';
-            // setButtonOnClick(false);
-        } else {
-            console.log('nie som button');
         }
     };
 
@@ -52,8 +47,6 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
 
     const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
         console.log(`position3: ${position}`);
-        console.log('ahoj');
-        // e.preventDefault();
         const data1 = +e.dataTransfer.getData('pos1_position');
         const data2 = +e.dataTransfer.getData('pos2_position');
         console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
@@ -63,8 +56,6 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
     const nameErrorMessage = get(errors, `${props.name}.name`)?.message;
     const valueErrorMessage = get(errors, `${props.name}.value`)?.message;
     const unitErrorMessage = get(errors, `${props.name}.unitId`)?.message;
-
-    // console.log(nameErrorMessage, valueErrorMessage, unitErrorMessage);
 
     return (
         <section>
@@ -99,7 +90,6 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                     placeholder='Názov'
                     type='text'
                     style={{ flex: 10 }}
-                    //style={{ width: '28%' }}
                     isInvalid={!!nameErrorMessage}
                     id={`${id}_name`}
                 ></Form.Control>
@@ -110,7 +100,6 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                     placeholder='Množstvo'
                     type='number'
                     style={{ flex: 3.5 }}
-                    //style={{ width: '12%' }}
                     isInvalid={!!valueErrorMessage}
                     id={`${id}_value`}
                     min={0}
@@ -120,11 +109,12 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                     aria-label='Jednotka'
                     name={`${props.name}.unitId`}
                     style={{ flex: 5 }}
-                    //style={{ width: '23%' }}
                     isInvalid={!!unitErrorMessage}
                     id={`${id}_unitId`}
                 >
-                    <option disabled value='-1'>Vyberte Jednotku</option>
+                    <option disabled value='-1'>
+                        Vyberte Jednotku
+                    </option>
                     {props.units.map((option) => {
                         return (
                             <optgroup

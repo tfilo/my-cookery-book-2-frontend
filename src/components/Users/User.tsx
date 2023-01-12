@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
-
 import { userApi } from '../../utils/apiWrapper';
 import { Api } from '../../openapi';
 import Input from '../UI/Input';
@@ -89,6 +88,7 @@ const schema = yup.object({
 
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
 
@@ -108,30 +108,38 @@ const User: React.FC = () => {
         if (params.id) {
             const paramsNumber = params?.id;
             (async () => {
-                const data = await userApi.getUser(parseInt(paramsNumber));
-                const receivedRoles = [];
-                for (let r of data.roles) {
-                    if (r === Api.User.RolesEnum.ADMIN) {
-                        receivedRoles.push({
-                            value: Api.User.RolesEnum.ADMIN,
-                            name: 'Administrátor',
-                        });
+                try {
+                    setIsLoading(true);
+                    const data = await userApi.getUser(parseInt(paramsNumber));
+                    const receivedRoles = [];
+                    for (let r of data.roles) {
+                        if (r === Api.User.RolesEnum.ADMIN) {
+                            receivedRoles.push({
+                                value: Api.User.RolesEnum.ADMIN,
+                                name: 'Administrátor',
+                            });
+                        }
+                        if (r === Api.User.RolesEnum.CREATOR) {
+                            receivedRoles.push({
+                                value: Api.User.RolesEnum.CREATOR,
+                                name: 'Tvorca obsahu',
+                            });
+                        }
                     }
-                    if (r === Api.User.RolesEnum.CREATOR) {
-                        receivedRoles.push({
-                            value: Api.User.RolesEnum.CREATOR,
-                            name: 'Tvorca obsahu',
-                        });
-                    }
+                    const formattedData: UserForm = {
+                        ...data,
+                        password: '',
+                        confirmPassword: '',
+                        roles: receivedRoles,
+                    };
+                    methods.reset(formattedData);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
-
-                const formattedData: UserForm = {
-                    ...data,
-                    password: '',
-                    confirmPassword: '',
-                    roles: receivedRoles,
-                };
-                methods.reset(formattedData);
             })();
         }
     }, [params.id, methods]);
@@ -141,12 +149,10 @@ const User: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
-        // console.log(data);
         const sendData = {
             ...data,
             roles: data.roles.map((role) => role.value),
         };
-        // console.log(sendData);
         try {
             if (params.id) {
                 await userApi.updateUser(parseInt(params.id), sendData);
@@ -177,7 +183,6 @@ const User: React.FC = () => {
                             name='confirmPassword'
                             label='Potvrdenie hesla'
                         />
-
                         <Form.Group className='mb-3'>
                             <Form.Label htmlFor='tagsMultiselection'>
                                 Používateľské role
@@ -212,7 +217,6 @@ const User: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -224,6 +228,7 @@ const User: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

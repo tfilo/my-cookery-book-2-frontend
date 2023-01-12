@@ -4,13 +4,14 @@ import {
     faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
 import { unitCategoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import Spinner from '../UI/Spinner';
 import Units from './Units';
 
 const UnitCategories: React.FC = () => {
@@ -19,16 +20,20 @@ const UnitCategories: React.FC = () => {
     >([]);
     const [error, setError] = useState<string>();
     const [unitCategory, setUnitCategory] = useState<Api.SimpleUnitCategory>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
                 setListOfUnitCategories(unitCategories);
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -38,12 +43,10 @@ const UnitCategories: React.FC = () => {
     };
 
     const createUnitHandler = (unitCategoryId: number) => {
-        console.log(unitCategoryId);
         navigate(`/unit/${unitCategoryId}`);
     };
 
     const editUnitCategoryHandler = (id: number) => {
-        console.log(id);
         navigate(`/unitCategory/${id}`);
     };
 
@@ -59,6 +62,7 @@ const UnitCategories: React.FC = () => {
             if (status === true) {
                 if (unitCategory) {
                     try {
+                        setIsLoading(true);
                         await unitCategoryApi.deleteUnitCategory(
                             unitCategory.id
                         );
@@ -72,6 +76,8 @@ const UnitCategories: React.FC = () => {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
                         });
+                    } finally {
+                        setIsLoading(false);
                     }
                 } else {
                     setError('Neplatné používateľské ID!');
@@ -82,7 +88,7 @@ const UnitCategories: React.FC = () => {
     };
 
     return (
-        <Fragment>
+        <>
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Jednotky</h2>
                 <Button variant='primary' onClick={createUnitCategoryHandler}>
@@ -145,7 +151,6 @@ const UnitCategories: React.FC = () => {
                     </Table>
                 ))}
             </div>
-
             <Modal
                 show={!!unitCategory}
                 type='question'
@@ -160,7 +165,8 @@ const UnitCategories: React.FC = () => {
                     setError(undefined);
                 }}
             />
-        </Fragment>
+            {isLoading && <Spinner />}
+        </>
     );
 };
 

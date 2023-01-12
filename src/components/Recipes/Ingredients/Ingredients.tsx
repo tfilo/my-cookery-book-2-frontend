@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import { useFieldArray } from 'react-hook-form';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { SelectGroupOptions } from '../../UI/Select';
@@ -40,7 +39,6 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
             </Stack>
 
             {fields.map((field, index) => {
-                // console.log(field);
                 return (
                     <Ingredient
                         key={field.id}

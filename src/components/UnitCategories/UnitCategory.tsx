@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
-
 import { unitCategoryApi } from '../../utils/apiWrapper';
 import { Api } from '../../openapi';
 import Input from '../UI/Input';
@@ -25,6 +24,7 @@ const schema = yup.object({
 
 const UnitCategory: React.FC = () => {
     const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
 
@@ -41,11 +41,19 @@ const UnitCategory: React.FC = () => {
             console.log(params.id);
             const paramsNumber = params?.id;
             (async () => {
-                const data = await unitCategoryApi.getUnitCategory(
-                    parseInt(paramsNumber)
-                );
-                console.log(data);
-                methods.reset(data);
+                try {
+                    setIsLoading(true);
+                    const data = await unitCategoryApi.getUnitCategory(
+                        parseInt(paramsNumber)
+                    );
+                    methods.reset(data);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
+                }
             })();
         }
     }, [params.id, methods]);
@@ -97,7 +105,6 @@ const UnitCategory: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -109,6 +116,7 @@ const UnitCategory: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

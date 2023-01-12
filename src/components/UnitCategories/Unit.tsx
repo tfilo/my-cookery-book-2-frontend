@@ -34,6 +34,7 @@ const Unit: React.FC = () => {
     const navigate = useNavigate();
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : null;
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UnitForm>({
         resolver: yupResolver(schema),
@@ -47,9 +48,18 @@ const Unit: React.FC = () => {
         if (params.unitId) {
             const unitId = parseInt(params.unitId);
             (async () => {
-                const data = await unitApi.getUnit(unitId);
-                console.log(data);
-                methods.reset(data);
+                try {
+                    setIsLoading(true);
+                    const data = await unitApi.getUnit(unitId);
+                    console.log(data);
+                    methods.reset(data);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
+                }
             })();
         }
     }, [params.unitId, methods]);
@@ -108,7 +118,6 @@ const Unit: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -120,6 +129,7 @@ const Unit: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

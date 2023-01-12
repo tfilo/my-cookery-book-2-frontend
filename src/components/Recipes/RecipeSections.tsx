@@ -99,7 +99,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                         <FontAwesomeIcon icon={faCircleMinus} />
                                     </Button>
                                 </div>
-                                {/* <Stack direction='horizontal' gap={1}> */}
                                 <input
                                     {...register(`recipeSections.${index}.id`)}
                                     type='hidden'
@@ -109,7 +108,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     label='Názov sekcie'
                                     className='col-12'
                                 />
-                                {/* </Stack> */}
                                 <Ingredients
                                     units={props.units}
                                     recipeSectionName={`recipeSections.${index}`}

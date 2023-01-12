@@ -3,11 +3,11 @@ import { Form } from 'react-bootstrap';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { Api } from '../../openapi';
 import { recipeApi } from '../../utils/apiWrapper';
-
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RecipeForm } from './Recipe';
 import { get } from 'lodash';
+import Spinner from '../UI/Spinner';
 
 const AssociatedRecipes: React.FC = () => {
     const id = useId();
@@ -45,8 +45,6 @@ const AssociatedRecipes: React.FC = () => {
         })();
     };
 
-    // console.log('associatedRecipes', errors);
-
     const errorMessage = get(errors, 'associatedRecipes')?.message;
     const filterBy = () => true;
 
@@ -82,6 +80,7 @@ const AssociatedRecipes: React.FC = () => {
                     {errorMessage?.toString()}
                 </Form.Control.Feedback>
             </Form.Group>
+            {isLoading && <Spinner />}
         </>
     );
 };

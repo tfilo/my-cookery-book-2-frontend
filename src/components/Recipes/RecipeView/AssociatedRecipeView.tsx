@@ -82,17 +82,24 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                         recipe
                                                                     ) => {
                                                                         return (
-                                                                            <section key={recipe.id} className='mt-3'>
-                                                                                <h4 >
+                                                                            <section
+                                                                                key={
+                                                                                    recipe.id
+                                                                                }
+                                                                                className='mt-3'
+                                                                            >
+                                                                                <h4>
                                                                                     Súvisiace
                                                                                     recepty
                                                                                 </h4>
                                                                                 <div>
-                                                                                {recipe.name}{' '}
-                                                    {recipe.description !==
-                                                    null
-                                                        ? `- ${recipe.description}`
-                                                        : ''}
+                                                                                    {
+                                                                                        recipe.name
+                                                                                    }{' '}
+                                                                                    {recipe.description !==
+                                                                                    null
+                                                                                        ? `- ${recipe.description}`
+                                                                                        : ''}
                                                                                 </div>
                                                                             </section>
                                                                         );

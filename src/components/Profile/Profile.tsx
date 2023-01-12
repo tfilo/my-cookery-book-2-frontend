@@ -37,6 +37,7 @@ const Profile: React.FC = () => {
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UpdatePasswordForm>({
         resolver: yupResolver(schema),
@@ -50,10 +51,15 @@ const Profile: React.FC = () => {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoading(true);
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
             })();
         }
@@ -105,18 +111,20 @@ const Profile: React.FC = () => {
                         />
                     </Form.Group>
                 </Form>
-
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <Input name='password' label='Heslo' type='password'/>
-                        <Input name='newPassword' label='Nové heslo' type='password'/>
+                        <Input name='password' label='Heslo' type='password' />
+                        <Input
+                            name='newPassword'
+                            label='Nové heslo'
+                            type='password'
+                        />
                         <Button variant='primary' type='submit'>
                             Zmeniť heslo
                         </Button>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -136,6 +144,7 @@ const Profile: React.FC = () => {
                     setShowModal(false);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

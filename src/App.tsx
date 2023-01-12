@@ -1,8 +1,7 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
 import './App.css';
 import { AuthContext } from './store/auth-context';
 import SignInPage from './pages/SignInPage';
@@ -31,12 +30,17 @@ import {
     faUsers,
     faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
+import { formatErrorMessage } from './utils/errorMessages';
+import Spinner from './components/UI/Spinner';
+import Modal from './components/UI/Modal';
 
 function App() {
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>();
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
@@ -45,10 +49,15 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoading(true);
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
             })();
         }
@@ -58,10 +67,15 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoading(true);
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
             })();
         }
@@ -87,7 +101,7 @@ function App() {
     };
 
     return (
-        <Fragment>
+        <>
             {isLoggedIn && (
                 <Navbar
                     bg='primary'
@@ -101,10 +115,11 @@ function App() {
                             Kuchárska kniha
                         </Navbar.Brand>
                         <Button onClick={logoutHandler}>Odhlásiť sa</Button>
-                        <Navbar.Offcanvas placement='start' onHide={closeOffcanvas}>
-                            <Offcanvas.Header
-                                closeButton
-                            >
+                        <Navbar.Offcanvas
+                            placement='start'
+                            onHide={closeOffcanvas}
+                        >
+                            <Offcanvas.Header closeButton>
                                 <Offcanvas.Title>{username}</Offcanvas.Title>
                             </Offcanvas.Header>
                             <Offcanvas.Body>
@@ -151,6 +166,17 @@ function App() {
                                     </Nav.Link>
                                     <Nav.Link
                                         to='/recipe/create'
+                                        state={{
+                                            searchingText: '',
+                                            searchingTags: [],
+                                            searchingCategory: -1,
+                                            currentPage: 1,
+                                            order: Api.RecipeSearchCriteria
+                                                .OrderEnum.ASC,
+                                            orderBy:
+                                                Api.RecipeSearchCriteria
+                                                    .OrderByEnum.Name,
+                                        }}
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
@@ -256,7 +282,16 @@ function App() {
                     />
                 </Routes>
             </Container>
-        </Fragment>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            {isLoading && <Spinner />}
+        </>
     );
 }
 

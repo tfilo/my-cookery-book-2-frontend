@@ -7,6 +7,7 @@ import { Api } from '../../openapi';
 import { categoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import Spinner from '../UI/Spinner';
 
 const Categories: React.FC = () => {
     const [listOfCategories, setListOfCategories] = useState<
@@ -14,15 +15,19 @@ const Categories: React.FC = () => {
     >([]);
     const [error, setError] = useState<string>();
     const [category, setCategory] = useState<Api.SimpleCategory>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const categories = await categoryApi.getCategories();
                 setListOfCategories(categories);
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -32,7 +37,6 @@ const Categories: React.FC = () => {
     };
 
     const editCategoryHandler = (id: number) => {
-        console.log(id);
         navigate(`/category/${id}`);
     };
 
@@ -45,6 +49,7 @@ const Categories: React.FC = () => {
             if (status === true) {
                 if (category) {
                     try {
+                        setIsLoading(true);
                         await categoryApi.deleteCategory(category.id);
                         setListOfCategories((prev) => {
                             return prev.filter((cat) => cat.id !== category.id);
@@ -53,6 +58,8 @@ const Categories: React.FC = () => {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
                         });
+                    } finally {
+                        setIsLoading(false);
                     }
                 } else {
                     setError('Neplatné používateľské ID!');
@@ -82,8 +89,11 @@ const Categories: React.FC = () => {
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
-                                {/* <div className='d-flex flex-column flex-md-row gap-2 justify-content-end'> */}
-                                <Stack direction='horizontal' gap={2} className='justify-content-end'>
+                                <Stack
+                                    direction='horizontal'
+                                    gap={2}
+                                    className='justify-content-end'
+                                >
                                     <Button
                                         title='Upraviť'
                                         aria-label='Upraviť'
@@ -110,12 +120,12 @@ const Categories: React.FC = () => {
                                         <FontAwesomeIcon icon={faTrash} />
                                     </Button>
                                 </Stack>
-                                {/* </div> */}
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
+            {isLoading && <Spinner />}
             <Modal
                 show={!!category}
                 type='question'

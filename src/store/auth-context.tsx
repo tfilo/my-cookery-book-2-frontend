@@ -1,13 +1,16 @@
 import React, { useState, useEffect, PropsWithChildren } from 'react';
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
+import { formatErrorMessage } from '../utils/errorMessages';
+import Modal from '../components/UI/Modal';
+import Spinner from '../components/UI/Spinner';
 
 type AuthContextObj = {
     userId: number | null;
     isLoggedIn: boolean;
     login: (token: string, refreshToken: string) => void;
     logout: () => void;
-}
+};
 
 type CustomToken = {
     userId: number;
@@ -38,12 +41,18 @@ const storedToken = localStorage.getItem('token');
 const storedRefreshToken = localStorage.getItem('refreshToken');
 
 const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
-    const [token, setToken] = useState(tokenValidity(storedToken) > 0 ? storedToken : null);
-    const [refreshToken, setRefreshToken] = useState(tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null);
-    const [userId, setUserId] = useState(() => { 
+    const [token, setToken] = useState(
+        tokenValidity(storedToken) > 0 ? storedToken : null
+    );
+    const [refreshToken, setRefreshToken] = useState(
+        tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null
+    );
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>();
+    const [userId, setUserId] = useState(() => {
         if (token) {
-            const decodedToken = jwt_decode<CustomToken>(token); 
-            return decodedToken.userId; 
+            const decodedToken = jwt_decode<CustomToken>(token);
+            return decodedToken.userId;
         } else {
             return null;
         }
@@ -55,16 +64,26 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         const tokenIsValid = tokenValidity(token) > 0;
         const refreshTokenIsValid = tokenValidity(refreshToken) > 0;
         if (tokenIsValid && refreshTokenIsValid) {
-            // console.log('setting timeout');
             const interval = setTimeout(() => {
                 (async () => {
                     if (refreshToken) {
-                        const data = await authApi.refreshToken({ refreshToken });
-                        if (data) {
-                            loginHandler(data.token, data.refreshToken);
-                        }
-                        if (!data) {
-                            logoutHandler();
+                        try {
+                            setIsLoading(true);
+                            const data = await authApi.refreshToken({
+                                refreshToken,
+                            });
+                            if (data) {
+                                loginHandler(data.token, data.refreshToken);
+                            }
+                            if (!data) {
+                                logoutHandler();
+                            }
+                        } catch (err) {
+                            formatErrorMessage(err).then((message) =>
+                                setError(message)
+                            );
+                        } finally {
+                            setIsLoading(false);
                         }
                     }
                 })();
@@ -73,20 +92,29 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 clearInterval(interval);
             };
         } else if (refreshTokenIsValid) {
-            console.log('instant refresh');
             (async () => {
                 if (refreshToken) {
-                    const data = await authApi.refreshToken({refreshToken});
-                    if (data) {
-                        loginHandler(data.token, data.refreshToken);
-                    }
-                    if (!data) {
-                        logoutHandler();
+                    try {
+                        setIsLoading(true);
+                        const data = await authApi.refreshToken({
+                            refreshToken,
+                        });
+                        if (data) {
+                            loginHandler(data.token, data.refreshToken);
+                        }
+                        if (!data) {
+                            logoutHandler();
+                        }
+                    } catch (err) {
+                        formatErrorMessage(err).then((message) =>
+                            setError(message)
+                        );
+                    } finally {
+                        setIsLoading(false);
                     }
                 }
             })();
         } else {
-            console.log('logout');
             logoutHandler();
         }
     }, [token, refreshToken, userId]);
@@ -112,12 +140,25 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         userId: userId,
         isLoggedIn: userIsLoggedIn,
         login: loginHandler,
-        logout: logoutHandler, 
-    }
+        logout: logoutHandler,
+    };
 
-    return <AuthContext.Provider value={contextValue}>
-        {props.children}
-    </AuthContext.Provider>
+    return (
+        <>
+            <AuthContext.Provider value={contextValue}>
+                {props.children}
+            </AuthContext.Provider>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            {isLoading && <Spinner />}
+        </>
+    );
 };
 
 export default AuthContextProvider;

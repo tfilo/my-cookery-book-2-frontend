@@ -26,7 +26,6 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     } = useFormContext();
     const id = useId();
 
-    //const errorMessage = errors[props.name]?.message;
     const errorMessage = get(errors, props.name)?.message;
 
     return (

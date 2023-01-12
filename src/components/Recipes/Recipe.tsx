@@ -226,19 +226,14 @@ const Recipe: React.FC = () => {
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [units, setUnits] = useState<SelectGroupOptions[]>([]);
-
     const [requiredUnits, setRequiredUnits] = useState<
         { id: number; required: boolean }[]
     >([]);
-
     const [nameOfRecipe, setNameOfRecipe] = useState<string>();
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
-
     const navigate = useNavigate();
     const params = useParams();
-
     const [isLoading, setIsLoading] = useState<boolean>(true);
-
     const location = useLocation();
 
     useEffect(() => {
@@ -253,7 +248,6 @@ const Recipe: React.FC = () => {
 
                 const unitCategories =
                     await unitCategoryApi.getUnitCategories();
-
                 const units: SelectGroupOptions[] = [];
                 const requiredUnit: { id: number; required: boolean }[] = [];
                 for (let category of unitCategories) {
@@ -282,7 +276,6 @@ const Recipe: React.FC = () => {
                 if (params.recipeId) {
                     const paramsNumber = parseInt(params?.recipeId);
                     const data = await recipeApi.getRecipe(paramsNumber);
-                    console.log(data);
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -309,7 +302,6 @@ const Recipe: React.FC = () => {
                     }
 
                     methods.reset(formattedData);
-
                     setNameOfRecipe(formattedData.name);
                 } else {
                     methods.reset(defaultValues);
@@ -331,7 +323,6 @@ const Recipe: React.FC = () => {
     const submitHandler: SubmitHandler<RecipeForm> = async (
         data: RecipeForm
     ) => {
-        // console.log(data);
         const sendData = {
             ...data,
             tags: data.tags.map((tag) => tag.id),
@@ -376,9 +367,8 @@ const Recipe: React.FC = () => {
             }),
         };
 
-        // console.warn(sendData);
-
         try {
+            setIsLoading(true);
             if (params.recipeId) {
                 await recipeApi.updateRecipe(+params.recipeId, sendData);
             } else {
@@ -395,6 +385,8 @@ const Recipe: React.FC = () => {
             });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -407,6 +399,7 @@ const Recipe: React.FC = () => {
             if (status === true) {
                 if (params.recipeId) {
                     try {
+                        setIsLoading(true);
                         await recipeApi.deleteRecipe(+params.recipeId);
                         navigate(
                             `/recipes/${location.state.searchingCategory}`,
@@ -421,6 +414,8 @@ const Recipe: React.FC = () => {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
                         });
+                    } finally {
+                        setIsLoading(false);
                     }
                 } else {
                     setError('Neplatné používateľské ID!');
@@ -499,21 +494,6 @@ const Recipe: React.FC = () => {
                                 </p>
                             )}
                         </Form.Group>
-                        {/* <Select
-                            name='tags'
-                            label='Pridať značky'
-                            options={listOfTags?.map((tag) => ({
-                                value: tag.id,
-                                label: tag.name,
-                            }))}
-                            multiple={true}
-                        />
-                        {listOfTags.length < 1 && (
-                            <p className='text-danger'>
-                                Nie je možné vybrať žiadnu značku, nakoľko
-                                žiadna nie je zadefinovaná.
-                            </p>
-                        )} */}
                         <Sources />
                         <Pictures />
                         <Stack gap={2} className='flex-md-row'>
