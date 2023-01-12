@@ -60,7 +60,6 @@ const Tag: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<TagForm> = async (data: TagForm) => {
-        console.log(data);
         try {
             if (params.id) {
                 await tagApi.updatetag(parseInt(params.id), data);

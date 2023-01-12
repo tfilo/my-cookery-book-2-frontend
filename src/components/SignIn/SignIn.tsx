@@ -51,7 +51,6 @@ const SignIn: React.FC = () => {
     const submitHandler: SubmitHandler<SignInForm> = async (
         data: SignInForm
     ) => {
-        console.log('form data is', data);
         const sendData = {
             username: data.username,
             password: data.password,

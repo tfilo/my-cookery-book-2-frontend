@@ -372,7 +372,6 @@ const Recipe: React.FC = () => {
             if (params.recipeId) {
                 await recipeApi.updateRecipe(+params.recipeId, sendData);
             } else {
-                console.log(sendData);
                 await recipeApi.createRecipe(sendData);
             }
 

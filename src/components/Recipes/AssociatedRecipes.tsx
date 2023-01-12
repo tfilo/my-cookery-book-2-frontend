@@ -8,10 +8,13 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { RecipeForm } from './Recipe';
 import { get } from 'lodash';
 import Spinner from '../UI/Spinner';
+import { formatErrorMessage } from '../../utils/errorMessages';
+import Modal from '../UI/Modal';
 
 const AssociatedRecipes: React.FC = () => {
     const id = useId();
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string>();
     const [list, setList] = useState<{}[]>([]);
 
     const {
@@ -20,9 +23,9 @@ const AssociatedRecipes: React.FC = () => {
     } = useFormContext<RecipeForm>();
 
     const handleSearch = (query: string) => {
-        setIsLoading(true);
         (async () => {
             try {
+                setIsLoading(true);
                 const data = {
                     search: query,
                     categoryId: null,
@@ -38,7 +41,7 @@ const AssociatedRecipes: React.FC = () => {
                 });
                 setList(recipeList);
             } catch (err) {
-                console.error(err); // TODO information for user ?
+                formatErrorMessage(err).then((message) => setError(message)); // TODO information for user ?
             } finally {
                 setIsLoading(false);
             }
@@ -80,6 +83,14 @@ const AssociatedRecipes: React.FC = () => {
                     {errorMessage?.toString()}
                 </Form.Control.Feedback>
             </Form.Group>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
             {isLoading && <Spinner />}
         </>
     );

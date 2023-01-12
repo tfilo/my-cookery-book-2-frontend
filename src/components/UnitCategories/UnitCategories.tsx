@@ -53,7 +53,6 @@ const UnitCategories: React.FC = () => {
     const deleteUnitCategoryHandler = (
         unitCategory: Api.SimpleUnitCategory
     ) => {
-        console.log(unitCategory.id);
         setUnitCategory(unitCategory);
     };
 

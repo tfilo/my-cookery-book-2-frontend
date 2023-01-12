@@ -38,7 +38,6 @@ const UnitCategory: React.FC = () => {
 
     useEffect(() => {
         if (params.id) {
-            console.log(params.id);
             const paramsNumber = params?.id;
             (async () => {
                 try {

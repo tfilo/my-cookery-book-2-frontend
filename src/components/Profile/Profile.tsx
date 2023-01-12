@@ -72,7 +72,6 @@ const Profile: React.FC = () => {
             await authApi.updatePassword(data);
             setShowModal(true);
         } catch (err) {
-            console.log(err);
             if (err instanceof Response && err.statusText === 'Unauthorized') {
                 setError('Zadané heslo nebolo platné');
             } else {

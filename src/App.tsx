@@ -51,6 +51,7 @@ function App() {
                 try {
                     setIsLoading(true);
                     const user = await authApi.user();
+                    console.log(user);
                     setUserInfo(user);
                 } catch (err) {
                     formatErrorMessage(err).then((message) =>
@@ -131,14 +132,19 @@ function App() {
                                     >
                                         <FontAwesomeIcon icon={faUser} /> Profil
                                     </Nav.Link>
-                                    <Nav.Link
-                                        to='/users'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon icon={faUsers} />{' '}
-                                        Používatelia
-                                    </Nav.Link>
+                                    {/* {authCtx.userRoles.find(
+                                        (role) =>
+                                            role === Api.User.RolesEnum.ADMIN
+                                    ) && ( */}
+                                        <Nav.Link
+                                            to='/users'
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                        >
+                                            <FontAwesomeIcon icon={faUsers} />{' '}
+                                            Používatelia
+                                        </Nav.Link>
+                                    {/* )} */}
                                     <Nav.Link
                                         to='/categories'
                                         as={Link}

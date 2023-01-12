@@ -27,7 +27,6 @@ const PictureView: React.FC<PictureProps> = (props) => {
     } | null>(null);
 
     const showPictureHandler = (id: number, title: string, idx: number) => {
-        console.log(id);
         (async () => {
             try {
                 setIsLoading(true);
@@ -44,9 +43,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                             index: idx,
                         };
                     });
-                    console.log(props.recipe);
                 }
-                console.log(props.recipe);
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             } finally {
