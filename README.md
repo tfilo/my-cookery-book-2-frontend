@@ -1,46 +1,44 @@
-# Getting Started with Create React App
+# My cookery book 2 - frontend (PROJECT UNDER DEVELOPMENT!!!)
+Frontend application providing GUI build in React.js. Whole frontend is writen in Typescript.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Technologies required for development
+* Node.js (>=18)
+* Docker (>=20.10.14)
+* Docker compose (>=2.10.2)
 
-## Available Scripts
+## Development
+While development it is required to have Postgres database and Backend running. It can be runned by prepared `docker-compose.yaml` file. This development environment can be started by command:
+* `docker compose up -d` 
 
-In the project directory, you can run:
+It will run pgAdmin on port 8081 and database on port 5432 and backend on port 8080.
 
-### `npm start`
+After database and backend is running, you can start development server by commands:
+* `npm install` (only if you didn't run it before or you modifed package.json file)
+* `npm run generate-openapi` (only if you didn't run it before or backend api was modified)
+* `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+React App will start in development mode on port 3000.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Usefull links when docker-compose is running and React App started
 
-### `npm test`
+| Name | URL | Description |
+|---|---|---|
+| Backend | http://localhost:8080/api | API |
+| Backend Health check | http://localhost:8080/api/health | Health check |
+| Backend Swagger Api | http://localhost:8080/api/api-docs | OpenApi 3 documentation |
+| pgAdmin | http://localhost:8081 | Database administration. <br />Username: *user@domain.com* <br />Password: *cookery2123* |
+| Frontend | http://localhost:3000 | React GUI. <br />Username: *Test* <br />Password: *Test1234* |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Building docker image
+There is provided Dockerfile and sh script build-image.sh. You can use this script to build docker image.
 
-### `npm run build`
+## License
+Project is licensed under [MIT](./LICENSE) License. There are 3rd party libraries which can be part of builded docker images. List of this libraries can be found in [LIBRARIES](./LIBRARIES). Other than that this project use development libraries too. Please look at [package.json](./package.json) if you are interested in complete list of direct dependencies of this project.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## How to update list of used libraries
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+If added new dependencies, list of used libraries can be updated using this script
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+./generateLibrariesNotice.sh
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+WHILE RUNNING IT WILL INSTANLL GLOBALLY license-report LIBRARY
