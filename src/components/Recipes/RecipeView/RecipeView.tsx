@@ -16,6 +16,7 @@ import InitialView from './InitialView';
 import ServeView from './ServeView';
 import AuthorView from './AuthorView';
 import Spinner from '../../UI/Spinner';
+import { recipesUrlWithCategory } from '../Recipes';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
@@ -40,7 +41,7 @@ const RecipeView: React.FC = () => {
         useState<RecipesWithUrlInPictures[]>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
-    const location = useLocation();
+    const { state } = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -126,10 +127,12 @@ const RecipeView: React.FC = () => {
                 aria-label='späť'
                 type='button'
                 onClick={() => {
-                    console.log(location.state);
-                    navigate(`/recipes/${location.state.searchingCategory}`, {
-                        state: location.state,
-                    });
+                    navigate(
+                        recipesUrlWithCategory(state?.searchingCategory),
+                        {
+                            state,
+                        }
+                    );
                 }}
                 className='border-0'
             >

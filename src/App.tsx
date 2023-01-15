@@ -34,7 +34,8 @@ import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
 
-function App() { // TODO da sa ale dalo by sa aj optimalnejsie
+function App() {
+    // TODO da sa ale dalo by sa aj optimalnejsie
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
@@ -49,7 +50,7 @@ function App() { // TODO da sa ale dalo by sa aj optimalnejsie
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true);// TODO - trosku zle
+                    setIsLoading(true); // TODO - trosku zle
                     const user = await authApi.user();
                     console.log(user);
                     setUserInfo(user);
@@ -68,7 +69,7 @@ function App() { // TODO da sa ale dalo by sa aj optimalnejsie
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true);// TODO - trosku zle
+                    setIsLoading(true); // TODO - trosku zle
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
@@ -136,14 +137,14 @@ function App() { // TODO da sa ale dalo by sa aj optimalnejsie
                                         (role) =>
                                             role === Api.User.RolesEnum.ADMIN
                                     ) && ( */}
-                                        <Nav.Link
-                                            to='/users'
-                                            as={Link}
-                                            onClick={closeOffcanvas}
-                                        >
-                                            <FontAwesomeIcon icon={faUsers} />{' '}
-                                            Používatelia
-                                        </Nav.Link>
+                                    <Nav.Link
+                                        to='/users'
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                    >
+                                        <FontAwesomeIcon icon={faUsers} />{' '}
+                                        Používatelia
+                                    </Nav.Link>
                                     {/* )} */}
                                     <Nav.Link
                                         to='/categories'
@@ -189,6 +190,7 @@ function App() { // TODO da sa ale dalo by sa aj optimalnejsie
                                     </Nav.Link>
                                     <hr />
                                     {listOfCategories.map((category) => (
+                                        // TODO preklik z menu nepremaze kriteria !!!
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
                                             as={Link}

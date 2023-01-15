@@ -29,6 +29,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 import { Typeahead } from 'react-bootstrap-typeahead';
+import { recipesUrlWithCategory } from './Recipes';
 
 export interface RecipeForm
     extends Omit<
@@ -243,7 +244,7 @@ const Recipe: React.FC = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const location = useLocation();
+    const { state } = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -323,8 +324,8 @@ const Recipe: React.FC = () => {
     }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
-        navigate(`/recipes/${location.state?.searchingCategory ?? ''}`, {
-            state: location.state,
+        navigate(recipesUrlWithCategory(state?.searchingCategory), {
+            state,
         });
     };
 
@@ -387,8 +388,8 @@ const Recipe: React.FC = () => {
                 URL.revokeObjectURL(pic.url);
             }
 
-            navigate(`/recipes/${location.state?.searchingCategory ?? ''}`, {
-                state: location.state,
+            navigate(recipesUrlWithCategory(state?.searchingCategory), {
+                state,
             });
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
@@ -409,10 +410,10 @@ const Recipe: React.FC = () => {
                         setIsLoading(true);
                         await recipeApi.deleteRecipe(+params.recipeId);
                         navigate(
-                            `/recipes/${location.state.searchingCategory}`,
+                            recipesUrlWithCategory(state?.searchingCategory),
                             {
                                 state: {
-                                    ...location.state,
+                                    ...state,
                                     currentPage: 1,
                                 },
                             }

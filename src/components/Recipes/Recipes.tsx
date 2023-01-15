@@ -46,6 +46,13 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
 const pagesToShow = 5;
 const pageSize = 12;
 
+export const recipesUrlWithCategory = (categoryId?: string | number) => {
+    if (!categoryId || categoryId.toString() === '-1') {
+        return '/recipes';
+    }
+    return '/recipes/' + categoryId;
+};
+
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
@@ -349,12 +356,7 @@ const Recipes: React.FC = () => {
                                             : ''
                                     }
                                     onChange={(e) => {
-                                        // TODO je to dost dlhe co tak spravit handler ?
-                                        e.target.value === '-1'
-                                            ? navigate('/recipes')
-                                            : navigate(
-                                                  `/recipes/${e.target.value}`
-                                              );
+                                        navigate(recipesUrlWithCategory(e.target.value));
                                         setCurrentPage(1);
                                     }}
                                     value={`${categoryId}`}
