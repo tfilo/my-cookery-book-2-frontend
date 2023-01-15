@@ -6,8 +6,36 @@ type SectionProps = {
     serves: number;
 };
 
+const countServes = (
+    ingredientValue: number | null,
+    definedServes: number,
+    serves: number
+) => {
+    if (ingredientValue === null) {
+        return;
+    }
+    let decimalPoints;
+    let decPlacesWONull;
+    if ((ingredientValue / definedServes) * serves < 10) {
+        decimalPoints = 3;
+        decPlacesWONull = 1000;
+    } else if ((ingredientValue / definedServes) * serves < 100) {
+        decimalPoints = 2;
+        decPlacesWONull = 100;
+    } else {
+        decimalPoints = 1;
+        decPlacesWONull = 10;
+    }
+
+    return (
+        (+((ingredientValue / definedServes) * serves).toFixed(decimalPoints) /
+            decPlacesWONull) *
+        decPlacesWONull
+    );
+};
+
 const SectionView: React.FC<SectionProps> = (props) => {
-    const showList = (
+    const showIngredients = (
         ingredientId: number,
         ingredientValue: number | null,
         serves: number,
@@ -16,38 +44,13 @@ const SectionView: React.FC<SectionProps> = (props) => {
         ingredientName: string
     ) => {
         const definedServes = props.recipe?.serves ?? 1;
-        if (ingredientValue !== null) {
-            let decimalPoints;
-            let decPlacesWONull;
-            if ((ingredientValue / definedServes) * serves < 10) {
-                decimalPoints = 3;
-                decPlacesWONull = 1000;
-            } else if ((ingredientValue / definedServes) * serves < 100) {
-                decimalPoints = 2;
-                decPlacesWONull = 100;
-            } else {
-                decimalPoints = 1;
-                decPlacesWONull = 10;
-            }
-            return (
-                <li key={ingredientId}>
-                    {(+((ingredientValue / definedServes) * serves).toFixed(
-                        decimalPoints
-                    ) /
-                        decPlacesWONull) *
-                        decPlacesWONull}
-                    <span title={unitName}> {unitAbbreviation} </span>
-                    {ingredientName}
-                </li>
-            );
-        } else {
-            return (
-                <li key={ingredientId}>
-                    <span title={unitName}> {unitAbbreviation} </span>
-                    {ingredientName}
-                </li>
-            );
-        }
+        return (
+            <li key={ingredientId}>
+                {countServes(ingredientValue, definedServes, serves)}
+                <span title={unitName}> {unitAbbreviation} </span>
+                {ingredientName}
+            </li>
+        );
     };
 
     return (
@@ -59,7 +62,7 @@ const SectionView: React.FC<SectionProps> = (props) => {
                         <h6>Suroviny</h6>
                         <ul>
                             {section.ingredients.map((ingredient) =>
-                                showList(
+                                showIngredients(
                                     ingredient.id,
                                     ingredient.value,
                                     props.serves,

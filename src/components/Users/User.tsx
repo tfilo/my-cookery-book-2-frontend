@@ -16,6 +16,7 @@ import {
 } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Typeahead } from 'react-bootstrap-typeahead';
+import { roleLabels } from '../../translate/roleLabel';
 
 type Roles = { value: Api.User.RolesEnum; name: string }[];
 
@@ -111,21 +112,29 @@ const User: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await userApi.getUser(parseInt(paramsNumber));
-                    const receivedRoles = [];
-                    for (let r of data.roles) {
-                        if (r === Api.User.RolesEnum.ADMIN) {
-                            receivedRoles.push({
-                                value: Api.User.RolesEnum.ADMIN,
-                                name: 'Administrátor',
-                            });
+                    
+                    const receivedRoles = data.roles.map((role)=>{
+                        return {
+                            value: role,
+                            name: roleLabels[role]
                         }
-                        if (r === Api.User.RolesEnum.CREATOR) {
-                            receivedRoles.push({
-                                value: Api.User.RolesEnum.CREATOR,
-                                name: 'Tvorca obsahu',
-                            });
-                        }
-                    }
+                    })
+ 
+                    // const receivedRoles = [];
+                    // for (let r of data.roles) {
+                    //     if (r === Api.User.RolesEnum.ADMIN) {
+                    //         receivedRoles.push({
+                    //             value: Api.User.RolesEnum.ADMIN,
+                    //             name: 'Administrátor',
+                    //         });
+                    //     }
+                    //     if (r === Api.User.RolesEnum.CREATOR) {
+                    //         receivedRoles.push({
+                    //             value: Api.User.RolesEnum.CREATOR,
+                    //             name: 'Tvorca obsahu',
+                    //         });
+                    //     }
+                    // }
                     const formattedData: UserForm = {
                         ...data,
                         password: '',
@@ -154,7 +163,7 @@ const User: React.FC = () => {
             roles: data.roles.map((role) => role.value),
         };
         try {
-            if (params.id) {
+            if (params.id) { // TODO duplicity
                 await userApi.updateUser(parseInt(params.id), sendData);
                 navigate('/users');
             } else {

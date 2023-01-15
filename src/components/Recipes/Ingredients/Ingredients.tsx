@@ -30,7 +30,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                             name: '',
                             sortNumber: null,
                             value: null,
-                            unitId: undefined,
+                            unitId: -1
                         })
                     }
                 >

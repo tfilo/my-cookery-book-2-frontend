@@ -34,7 +34,7 @@ import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
 
-function App() {
+function App() { // TODO da sa ale dalo by sa aj optimalnejsie
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
@@ -49,7 +49,7 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true);
+                    setIsLoading(true);// TODO - trosku zle
                     const user = await authApi.user();
                     console.log(user);
                     setUserInfo(user);
@@ -68,7 +68,7 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true);
+                    setIsLoading(true);// TODO - trosku zle
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
@@ -172,17 +172,6 @@ function App() {
                                     </Nav.Link>
                                     <Nav.Link
                                         to='/recipe/create'
-                                        state={{
-                                            searchingText: '',
-                                            searchingTags: [],
-                                            searchingCategory: -1,
-                                            currentPage: 1,
-                                            order: Api.RecipeSearchCriteria
-                                                .OrderEnum.ASC,
-                                            orderBy:
-                                                Api.RecipeSearchCriteria
-                                                    .OrderByEnum.Name,
-                                        }}
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >

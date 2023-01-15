@@ -33,6 +33,7 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { debounce } from 'lodash';
 import Spinner from '../UI/Spinner';
+import { orderByLabels } from '../../translate/orderByLabels';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
     url?: string;
@@ -58,7 +59,7 @@ const Recipes: React.FC = () => {
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>(
+    const [selectedTags, setSelectedTags] = useState<Api.SimpleTag[]>(
         state?.searchingTags ?? []
     );
     const [showFilter, setShowFilter] = useState(false);
@@ -69,17 +70,18 @@ const Recipes: React.FC = () => {
         state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name
     );
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingRecipes, setIsLoadingRecipes] = useState<boolean>(false);
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
 
     useEffect(() => {
-        if (categoryId > 0 || multiSelections.length > 0) {
+        if (categoryId > 0 || selectedTags.length > 0) {
             setShowFilter(true);
         }
-    }, [categoryId, multiSelections]);
+    }, [categoryId, selectedTags]);
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
-        const searchingTags = multiSelections.map((t) => t.id);
+        const searchingTags = selectedTags.map((t) => t.id);
         return {
             search: searchingText,
             categoryId: categoryId === -1 ? null : categoryId,
@@ -89,14 +91,7 @@ const Recipes: React.FC = () => {
             orderBy: orderBy,
             order: order,
         };
-    }, [
-        currentPage,
-        searchingText,
-        multiSelections,
-        categoryId,
-        order,
-        orderBy,
-    ]);
+    }, [currentPage, searchingText, selectedTags, categoryId, order, orderBy]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -145,7 +140,7 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                setIsLoading(true);
+                setIsLoadingRecipes(true);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
@@ -182,7 +177,7 @@ const Recipes: React.FC = () => {
                     setError(message);
                 });
             } finally {
-                setIsLoading(false);
+                setIsLoadingRecipes(false);
             }
         })();
     }, [criteria]);
@@ -191,7 +186,7 @@ const Recipes: React.FC = () => {
         navigate('/recipe/create', {
             state: {
                 searchingText: searchingText,
-                searchingTags: multiSelections,
+                searchingTags: selectedTags,
                 searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
@@ -208,7 +203,7 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/${id}`, {
             state: {
                 searchingText: searchingText,
-                searchingTags: multiSelections,
+                searchingTags: selectedTags,
                 searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
@@ -221,7 +216,7 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/display/${id}`, {
             state: {
                 searchingText: searchingText,
-                searchingTags: multiSelections,
+                searchingTags: selectedTags,
                 searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
@@ -250,6 +245,13 @@ const Recipes: React.FC = () => {
                 ? Api.RecipeSearchCriteria.OrderEnum.DESC
                 : Api.RecipeSearchCriteria.OrderEnum.ASC
         );
+    };
+
+    const orderByDropdownItems = (
+        orderBy: Api.RecipeSearchCriteria.OrderByEnum
+    ) => {
+        setOrderBy(orderBy);
+        setCurrentPage(1);
     };
 
     return (
@@ -314,50 +316,19 @@ const Recipes: React.FC = () => {
                         <FontAwesomeIcon icon={faGripVertical} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum.Name
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.Name
-                            }
-                        >
-                            Názov
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum
-                                        .CreatedAt
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.CreatedAt
-                            }
-                        >
-                            Dátum vytvorenia
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum
-                                        .UpdatedAt
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt
-                            }
-                        >
-                            Dátum úpravy
-                        </Dropdown.Item>
+                        {Object.values(
+                            Api.RecipeSearchCriteria.OrderByEnum
+                        ).map((value) => (
+                            <Dropdown.Item
+                                key={value}
+                                onClick={() => {
+                                    orderByDropdownItems(value);
+                                }}
+                                active={orderBy === value}
+                            >
+                                {orderByLabels[value]}
+                            </Dropdown.Item>
+                        ))}
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
@@ -378,6 +349,7 @@ const Recipes: React.FC = () => {
                                             : ''
                                     }
                                     onChange={(e) => {
+                                        // TODO je to dost dlhe co tak spravit handler ?
                                         e.target.value === '-1'
                                             ? navigate('/recipes')
                                             : navigate(
@@ -409,14 +381,15 @@ const Recipes: React.FC = () => {
                                     id='tagsMultiselection'
                                     labelKey='name'
                                     onChange={(selected) => {
-                                        setMultiSelections(
+                                        // TODO toto tiez moze byt ako handler ale nemusi :)
+                                        setSelectedTags(
                                             selected as Api.SimpleTag[]
                                         );
                                         setCurrentPage(1);
                                     }}
                                     options={listOfTags}
                                     placeholder='Vyberte ľubovoľný počet značiek'
-                                    selected={multiSelections}
+                                    selected={selectedTags}
                                     multiple
                                 />
                                 {listOfTags.length < 1 && (
@@ -531,7 +504,7 @@ const Recipes: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            {(isLoading || isLoadingRecipes) && <Spinner />}
         </Fragment>
     );
 };

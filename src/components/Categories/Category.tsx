@@ -67,11 +67,10 @@ const Category: React.FC = () => {
         try {
             if (params.id) {
                 await categoryApi.updateCategory(parseInt(params.id), data);
-                navigate('/categories');
             } else {
                 await categoryApi.createCategory(data);
-                navigate('/categories');
             }
+            navigate('/categories');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }

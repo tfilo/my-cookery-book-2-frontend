@@ -41,7 +41,7 @@ const AssociatedRecipes: React.FC = () => {
                 });
                 setList(recipeList);
             } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message)); // TODO information for user ?
+                formatErrorMessage(err).then((message) => setError(message));
             } finally {
                 setIsLoading(false);
             }

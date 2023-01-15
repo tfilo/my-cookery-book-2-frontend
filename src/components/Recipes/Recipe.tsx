@@ -53,146 +53,155 @@ export interface RecipeForm
     }[];
 }
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .min(1, 'Povinná položka')
-        .max(80, 'Musí byť maximálne 80 znakov')
-        .required(),
-    description: yup
-        .string()
-        .defined()
-        .trim()
-        .transform((val) => (val === '' ? null : val))
-        // .min(1, 'Musí byť minimálne 1 znak')
-        .max(160, 'Musí byť maximálne 160 znakov')
-        .default(null)
-        .nullable(),
-    serves: yup
-        .number()
-        .transform((val) =>
-            /\b([1-9]|[1-9][0-9]|100)\b/.test(val) ? val : null
-        )
-        .integer()
-        .defined()
-        .min(1, 'Musí byť minimálne 1 porcia alebo porciu nedefinovať')
-        .max(100, 'Musí byť maximálne 100')
-        .default(null)
-        .nullable(),
-    method: yup
-        .string()
-        .defined()
-        .trim()
-        .transform((val) => (val === '' ? null : val))
-        // .min(1, 'Musí byť minimálne 1 znak')
-        .default(null)
-        .nullable(),
-    sources: yup
-        .array()
-        .of(
-            yup.object({
-                value: yup
-                    .string()
-                    .trim()
-                    // .min(1, 'Musí byť minimálne 1 znak')
-                    .max(1000, 'Musí byť maximálne 1000 znakov')
-                    .required(),
-            })
-        )
-        .required(),
-    categoryId: yup
-        .number()
-        .integer()
-        .min(1, 'Prosím vyberte možnosť')
-        .required(),
-    recipeSections: yup
-        .array()
-        .of(
-            yup.object({
-                name: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .transform((val) => (val === '' ? null : val))
-                    // .min(1, 'Musí byť minimálne 1 znak')
-                    .max(80, 'Musí byť maximálne 80 znakov')
-                    .default(null)
-                    .nullable(),
-                method: yup
-                    .string()
-                    .defined()
-                    .trim()
-                    .transform((val) => (val === '' ? null : val))
-                    // .min(1, 'Musí byť minimálne 1 znak')
-                    .default(null)
-                    .nullable(),
-                ingredients: yup
-                    .array()
-                    .of(
-                        yup.object({
-                            name: yup
-                                .string()
-                                .trim()
-                                // .min(1, 'Musí byť minimálne 1 znak')
-                                .max(80, 'Musí byť maximálne 80 znakov')
-                                .required('Povinná položka'),
-                            value: yup
-                                .number()
-                                .defined()
-                                .min(0, 'Hodnota musí byť minimálne 0')
-                                .default(null)
-                                .nullable()
-                                .transform((val) => (isNaN(val) ? null : val)),
-                            unitId: yup
-                                .number()
-                                .integer()
-                                .min(1, 'Povinná položka')
-                                .required(),
-                        })
-                    )
-                    .required(),
-            })
-        )
-        .required(),
-    associatedRecipes: yup
-        .array()
-        .defined()
-        .transform((val) => (val === null ? [] : val))
-        .of(
-            yup.object({
-                id: yup.number().integer().min(1).required(),
-                name: yup
-                    .string()
-                    .trim()
-                    .min(1, 'Povinná položka')
-                    .max(80, 'Musí byť maximálne 80 znakov')
-                    .required(),
-            })
-        )
-        .nullable(),
-    tags: yup.array().of(
-        yup.object({
-            id: yup.number().integer().min(1).required().required(),
-            name: yup.string(),
-        })
-    ),
-    pictures: yup
-        .array()
-        .of(
-            yup.object({
-                id: yup.number().integer().min(1).required(),
-                name: yup
-                    .string()
-                    .trim()
-                    .min(1, 'Povinná položka')
-                    .max(80, 'Musí byť maximálne 80 znakov')
-                    .required(),
-            })
-        )
-        .transform((val) => (val === '' ? [] : val))
-        .required(),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .min(1, 'Povinná položka')
+            .max(80, 'Musí byť maximálne 80 znakov')
+            .required(),
+        description: yup
+            .string()
+            .defined()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            // .min(1, 'Musí byť minimálne 1 znak')
+            .max(160, 'Musí byť maximálne 160 znakov')
+            .default(null)
+            .nullable(),
+        serves: yup
+            .number()
+            .transform((val) =>
+                /\b([1-9]|[1-9][0-9]|100)\b/.test(val) ? val : null
+            )
+            .integer()
+            .defined()
+            .min(1, 'Musí byť minimálne 1 porcia alebo porciu nedefinovať')
+            .max(100, 'Musí byť maximálne 100')
+            .default(null)
+            .nullable(),
+        method: yup
+            .string()
+            .defined()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            // .min(1, 'Musí byť minimálne 1 znak')
+            .default(null)
+            .nullable(),
+        sources: yup
+            .array()
+            .of(
+                yup.object({
+                    value: yup
+                        .string()
+                        .trim()
+                        // .min(1, 'Musí byť minimálne 1 znak')
+                        .max(1000, 'Musí byť maximálne 1000 znakov')
+                        .required(),
+                })
+            )
+            .required(),
+        categoryId: yup
+            .number()
+            .integer()
+            .min(1, 'Prosím vyberte možnosť')
+            .required(),
+        recipeSections: yup
+            .array()
+            .of(
+                yup.object({
+                    name: yup
+                        .string()
+                        .defined()
+                        .trim()
+                        .transform((val) => (val === '' ? null : val))
+                        // .min(1, 'Musí byť minimálne 1 znak')
+                        .max(80, 'Musí byť maximálne 80 znakov')
+                        .default(null)
+                        .nullable(),
+                    method: yup
+                        .string()
+                        .defined()
+                        .trim()
+                        .transform((val) => (val === '' ? null : val))
+                        // .min(1, 'Musí byť minimálne 1 znak')
+                        .default(null)
+                        .nullable(),
+                    ingredients: yup
+                        .array()
+                        .of(
+                            yup.object({
+                                name: yup
+                                    .string()
+                                    .trim()
+                                    // .min(1, 'Musí byť minimálne 1 znak')
+                                    .max(80, 'Musí byť maximálne 80 znakov')
+                                    .required('Povinná položka'),
+                                value: yup
+                                    .number()
+                                    .defined()
+                                    .min(0, 'Hodnota musí byť minimálne 0')
+                                    .default(null)
+                                    .nullable()
+                                    .transform((val) =>
+                                        isNaN(val) ? null : val
+                                    ),
+                                unitId: yup
+                                    .number()
+                                    .integer()
+                                    .min(1, 'Povinná položka')
+                                    .required(),
+                            })
+                        )
+                        .required(),
+                })
+            )
+            .required(),
+        associatedRecipes: yup
+            .array()
+            .defined()
+            .transform((val) => (val === null ? [] : val))
+            .of(
+                yup.object({
+                    id: yup.number().integer().min(1).required(),
+                    name: yup
+                        .string()
+                        .trim()
+                        .min(1, 'Povinná položka')
+                        .max(80, 'Musí byť maximálne 80 znakov')
+                        .required(),
+                })
+            )
+            .required(),
+        tags: yup
+            .array()
+            .of(
+                yup
+                    .object({
+                        id: yup.number().integer().min(1).required(),
+                        name: yup.string(),
+                    })
+                    .required()
+            )
+            .required(),
+        pictures: yup
+            .array()
+            .of(
+                yup.object({
+                    id: yup.number().integer().min(1).required(),
+                    name: yup
+                        .string()
+                        .trim()
+                        .min(1, 'Povinná položka')
+                        .max(80, 'Musí byť maximálne 80 znakov')
+                        .required(),
+                })
+            )
+            .transform((val) => (val === '' ? [] : val))
+            .required(),
+    })
+    .required();
 
 const Recipe: React.FC = () => {
     const defaultValues = useMemo(() => {
@@ -274,8 +283,7 @@ const Recipe: React.FC = () => {
                 setUnits(units);
 
                 if (params.recipeId) {
-                    const paramsNumber = parseInt(params?.recipeId);
-                    const data = await recipeApi.getRecipe(paramsNumber);
+                    const data = await recipeApi.getRecipe(+params?.recipeId);
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -315,7 +323,7 @@ const Recipe: React.FC = () => {
     }, [params.recipeId, methods, defaultValues]);
 
     const cancelHandler = () => {
-        navigate(`/recipes/${location.state.searchingCategory}`, {
+        navigate(`/recipes/${location.state?.searchingCategory ?? ''}`, {
             state: location.state,
         });
     };
@@ -342,7 +350,7 @@ const Recipe: React.FC = () => {
                                 methods.setError(
                                     `recipeSections.${rsIndex}.ingredients.${iIndex}.value`,
                                     {
-                                        type: 'manual',
+                                        type: 'required',
                                         message:
                                             'Pri danej jednotke musí byť zadané množstvo.',
                                     }
@@ -379,7 +387,7 @@ const Recipe: React.FC = () => {
                 URL.revokeObjectURL(pic.url);
             }
 
-            navigate(`/recipes/${location.state.searchingCategory}`, {
+            navigate(`/recipes/${location.state?.searchingCategory ?? ''}`, {
                 state: location.state,
             });
         } catch (err) {

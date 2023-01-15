@@ -8,6 +8,7 @@ import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
+import { roleLabels } from '../../translate/roleLabel';
 
 const Users: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);
@@ -94,19 +95,7 @@ const Users: React.FC = () => {
                             <td className='align-middle'>
                                 {user.roles
                                     .map((role) => {
-                                        if (
-                                            role ===
-                                            Api.SimpleUser.RolesEnum.ADMIN
-                                        ) {
-                                            return 'Administrátor';
-                                        }
-                                        if (
-                                            role ===
-                                            Api.SimpleUser.RolesEnum.CREATOR
-                                        ) {
-                                            return 'Tvorca obsahu';
-                                        }
-                                        return '';
+                                        return roleLabels[role];
                                     })
                                     .join(', ')}
                             </td>

@@ -9,12 +9,6 @@ const InitialView: React.FC<InitialProps> = (props) => {
     return (
         <>
             <h3 className='sm'>{props.recipe?.name}</h3>
-            {props.recipe?.description !== null && (
-                <section>
-                    <h4>Popis</h4>
-                    <p>{props.recipe?.description}</p>
-                </section>
-            )}
             {props.recipe?.method !== null && (
                 <section>
                     <h4>Postup prípravy</h4>

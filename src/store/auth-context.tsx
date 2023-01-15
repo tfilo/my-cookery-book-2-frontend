@@ -1,6 +1,6 @@
-import React, { useState, useEffect, PropsWithChildren } from 'react';
+import React, { useState, useEffect, PropsWithChildren, useMemo } from 'react';
 import jwt_decode, { JwtPayload } from 'jwt-decode';
-import { authApi, userApi } from '../utils/apiWrapper';
+import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Modal from '../components/UI/Modal';
 import Spinner from '../components/UI/Spinner';
@@ -8,7 +8,7 @@ import { Api } from '../openapi';
 
 type AuthContextObj = {
     userId: number | null;
-    // userRoles: Api.User.RolesEnum[];
+    userRoles: Api.User.RolesEnum[];
     isLoggedIn: boolean;
     login: (token: string, refreshToken: string) => void;
     logout: () => void;
@@ -22,7 +22,7 @@ type CustomToken = {
 
 export const AuthContext = React.createContext<AuthContextObj>({
     userId: null,
-    // userRoles: [],
+    userRoles: [],
     isLoggedIn: false,
     login: () => {},
     logout: () => {},
@@ -60,9 +60,17 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             return null;
         }
     });
-    // const [userRoles, setUserRoles] = useState<Api.User.RolesEnum[]>([]);
-
     const userIsLoggedIn = !!token;
+    const userRoles = useMemo(() => {
+        if (token) {
+            return (
+                jwt_decode<CustomToken>(token).roles?.map(
+                    (r) => r as Api.User.RolesEnum
+                ) ?? []
+            );
+        }
+        return [];
+    }, [token]);
 
     useEffect(() => {
         const tokenIsValid = tokenValidity(token) > 0;
@@ -123,25 +131,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         }
     }, [token, refreshToken, userId]);
 
-    // useEffect(() => {
-    //     console.log('som tu');
-    //     (async () => {
-    //         if (userId) {
-    //             console.log('som tu2', userId);
-    //             const data = await userApi.getUser(userId);
-    //             console.log(data)
-    //             setUserRoles(data.roles)
-    //         }
-    //         try {
-    //             setIsLoading(true);
-    //         } catch (err) {
-    //             formatErrorMessage(err).then((message) => setError(message));
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     })();
-    // }, [userId]);
-
     const loginHandler = (token: string, refreshToken: string) => {
         setToken(token);
         setRefreshToken(refreshToken);
@@ -161,7 +150,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
 
     const contextValue: AuthContextObj = {
         userId: userId,
-        // userRoles: userRoles,
+        userRoles,
         isLoggedIn: userIsLoggedIn,
         login: loginHandler,
         logout: logoutHandler,

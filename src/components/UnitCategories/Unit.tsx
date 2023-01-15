@@ -76,14 +76,13 @@ const Unit: React.FC = () => {
                         ...data,
                         unitCategoryId: categoryId,
                     });
-                    navigate('/units');
                 } else {
                     await unitApi.createUnit({
                         ...data,
                         unitCategoryId: categoryId,
                     });
-                    navigate('/units');
                 }
+                navigate('/units');
             } else {
                 console.error('Missing unitCategoryId in route parameters!');
             }

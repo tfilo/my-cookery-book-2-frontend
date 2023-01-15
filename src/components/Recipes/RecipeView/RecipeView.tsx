@@ -68,7 +68,7 @@ const RecipeView: React.FC = () => {
                         const associatedRecipesId = rec.associatedRecipes.map(
                             (a) => a.id
                         );
-                        const assRecipes = [];
+                        const assRecipes: RecipesWithUrlInPictures[] = [];
                         for (let id of associatedRecipesId) {
                             const assRec: RecipesWithUrlInPictures =
                                 await recipeApi.getRecipe(id);
@@ -86,9 +86,30 @@ const RecipeView: React.FC = () => {
                                 }
                             }
                         }
-                        setAssociatedRecipes(assRecipes);
+                        setAssociatedRecipes((prev) => {
+                            if (prev) {
+                                prev.forEach((assRecipe) => {
+                                    assRecipe.pictures.forEach(
+                                        (assRecipePicture) => {
+                                            assRecipePicture.url &&
+                                                URL.revokeObjectURL(
+                                                    assRecipePicture.url
+                                                );
+                                        }
+                                    );
+                                });
+                            }
+                            return assRecipes;
+                        });
                     }
-                    setRecipe(rec);
+                    setRecipe((prev) => {
+                        if (prev) {
+                            prev.pictures.forEach((p) => {
+                                p.url && URL.revokeObjectURL(p.url);
+                            });
+                        }
+                        return rec;
+                    });
                 }
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));

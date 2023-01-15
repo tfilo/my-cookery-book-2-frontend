@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { AuthContext } from '../../store/auth-context';
@@ -42,11 +41,6 @@ const SignIn: React.FC = () => {
 
     const authCtx = useContext(AuthContext);
     const [error, setError] = useState<string>();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        authCtx.isLoggedIn && navigate('/home');
-    }, [authCtx.isLoggedIn, navigate]);
 
     const submitHandler: SubmitHandler<SignInForm> = async (
         data: SignInForm

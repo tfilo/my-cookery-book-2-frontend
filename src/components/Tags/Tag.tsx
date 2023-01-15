@@ -63,11 +63,10 @@ const Tag: React.FC = () => {
         try {
             if (params.id) {
                 await tagApi.updatetag(parseInt(params.id), data);
-                navigate('/tags');
             } else {
                 await tagApi.createTag(data);
-                navigate('/tags');
             }
+            navigate('/tags');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }

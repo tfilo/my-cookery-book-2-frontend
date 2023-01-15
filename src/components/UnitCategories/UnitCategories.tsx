@@ -21,6 +21,7 @@ const UnitCategories: React.FC = () => {
     const [error, setError] = useState<string>();
     const [unitCategory, setUnitCategory] = useState<Api.SimpleUnitCategory>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isUnitsLoading, setIsUnitsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -79,7 +80,7 @@ const UnitCategories: React.FC = () => {
                         setIsLoading(false);
                     }
                 } else {
-                    setError('Neplatné používateľské ID!');
+                    setError('Neplatná kategória!');
                 }
             }
             setUnitCategory(undefined);
@@ -99,54 +100,59 @@ const UnitCategories: React.FC = () => {
                     <Table striped responsive key={unitCategory.id}>
                         <thead>
                             <tr>
-                                <th style={{ border: 'none' }} colSpan={3}>
-                                    <Stack direction='horizontal' gap={2}>
-                                        {unitCategory.name}
-                                        <Button
-                                            title={`Pridať kategóriu jednotky ${unitCategory.name}`}
-                                            aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
-                                            variant='outline-success'
-                                            type='button'
-                                            onClick={createUnitHandler.bind(
-                                                null,
-                                                unitCategory.id
-                                            )}
-                                        >
-                                            <FontAwesomeIcon
-                                                icon={faCirclePlus}
-                                            />
-                                        </Button>
-                                        <Button
-                                            title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
-                                            aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
-                                            variant='outline-secondary'
-                                            onClick={editUnitCategoryHandler.bind(
-                                                null,
-                                                unitCategory.id
-                                            )}
-                                        >
-                                            <FontAwesomeIcon icon={faPencil} />
-                                        </Button>
-                                        <Button
-                                            title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
-                                            aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
-                                            variant='outline-danger'
-                                            onClick={deleteUnitCategoryHandler.bind(
-                                                null,
-                                                unitCategory
-                                            )}
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </Button>
-                                    </Stack>
-                                </th>
+                                <Stack
+                                    as={'th'}
+                                    style={{ border: 'none' }}
+                                    colSpan={3}
+                                    direction='horizontal'
+                                    gap={2}
+                                >
+                                    {unitCategory.name}
+                                    <Button
+                                        title={`Pridať kategóriu jednotky ${unitCategory.name}`}
+                                        aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
+                                        variant='outline-success'
+                                        type='button'
+                                        onClick={createUnitHandler.bind(
+                                            null,
+                                            unitCategory.id
+                                        )}
+                                    >
+                                        <FontAwesomeIcon icon={faCirclePlus} />
+                                    </Button>
+                                    <Button
+                                        title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
+                                        aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
+                                        variant='outline-secondary'
+                                        onClick={editUnitCategoryHandler.bind(
+                                            null,
+                                            unitCategory.id
+                                        )}
+                                    >
+                                        <FontAwesomeIcon icon={faPencil} />
+                                    </Button>
+                                    <Button
+                                        title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
+                                        aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
+                                        variant='outline-danger'
+                                        onClick={deleteUnitCategoryHandler.bind(
+                                            null,
+                                            unitCategory
+                                        )}
+                                    >
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </Button>
+                                </Stack>
                             </tr>
                             <tr>
                                 <th>Názov jednotky</th>
                                 <th colSpan={2}>Skratka jednotky</th>
                             </tr>
                         </thead>
-                        <Units unitCategoryId={unitCategory.id} />
+                        <Units
+                            unitCategoryId={unitCategory.id}
+                            setIsLoading={setIsUnitsLoading}
+                        />
                     </Table>
                 ))}
             </div>
@@ -164,7 +170,7 @@ const UnitCategories: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            {(isLoading || isUnitsLoading) && <Spinner />}
         </>
     );
 };

@@ -7,19 +7,17 @@ import { Api } from '../../openapi';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
-import Spinner from '../UI/Spinner';
 
-const Units: React.FC<{ unitCategoryId: number }> = (props) => {
+const Units: React.FC<{ unitCategoryId: number, setIsLoading: (loading: boolean) => void }> = (props) => {
     const [listOfUnits, setListOfUnits] = useState<Api.SimpleUnit[]>([]);
     const [error, setError] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [unit, setUnit] = useState<Api.SimpleUnit>();
     const navigate = useNavigate();
 
     useEffect(() => {
         (async () => {
             try {
-                setIsLoading(true);
+                props.setIsLoading(true);
                 const units = await unitApi.getUnitsByUnitCategory(
                     props.unitCategoryId
                 );
@@ -27,10 +25,10 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
             } finally {
-                setIsLoading(false);
+                props.setIsLoading(false);
             }
         })();
-    }, [props.unitCategoryId]);
+    }, [props.unitCategoryId, props.setIsLoading, props]);
 
     const editUnitHandler = (id: number) => {
         navigate(`/unit/${props.unitCategoryId}/${id}`);
@@ -45,7 +43,7 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
             if (status === true) {
                 if (unit) {
                     try {
-                        setIsLoading(true);
+                        props.setIsLoading(true);
                         await unitApi.deleteUnit(unit.id);
                         setListOfUnits((prev) => {
                             return prev.filter((_unit) => _unit.id !== unit.id);
@@ -55,10 +53,10 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                             setError(message);
                         });
                     } finally {
-                        setIsLoading(false);
+                        props.setIsLoading(false);
                     }
                 } else {
-                    setError('Neplatné používateľské ID!');
+                    setError('Neplatná jednotka!');
                 }
             }
             setUnit(undefined);
@@ -72,35 +70,31 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                     <tr key={unit.id}>
                         <td className='align-middle'>{unit.name}</td>
                         <td className='align-middle'>{unit.abbreviation}</td>
-                        <td>
-                            <Stack
-                                direction='horizontal'
-                                gap={2}
-                                className='justify-content-end'
+                        <Stack
+                            as={'td'}
+                            direction='horizontal'
+                            gap={2}
+                            className='justify-content-end'
+                        >
+                            <Button
+                                title='Upraviť'
+                                aria-label='Upraviť'
+                                variant='outline-secondary'
+                                onClick={editUnitHandler.bind(null, unit.id)}
+                                style={{ border: 'none' }}
                             >
-                                <Button
-                                    title='Upraviť'
-                                    aria-label='Upraviť'
-                                    variant='outline-secondary'
-                                    onClick={editUnitHandler.bind(
-                                        null,
-                                        unit.id
-                                    )}
-                                    style={{ border: 'none' }}
-                                >
-                                    <FontAwesomeIcon icon={faPencil} />
-                                </Button>
-                                <Button
-                                    title='Vymazať'
-                                    aria-label='Vymazať'
-                                    variant='outline-danger'
-                                    onClick={deleteUnitHandler.bind(null, unit)}
-                                    style={{ border: 'none' }}
-                                >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </Button>
-                            </Stack>
-                        </td>
+                                <FontAwesomeIcon icon={faPencil} />
+                            </Button>
+                            <Button
+                                title='Vymazať'
+                                aria-label='Vymazať'
+                                variant='outline-danger'
+                                onClick={deleteUnitHandler.bind(null, unit)}
+                                style={{ border: 'none' }}
+                            >
+                                <FontAwesomeIcon icon={faTrash} />
+                            </Button>
+                        </Stack>
                     </tr>
                 ))}
             </tbody>
@@ -118,7 +112,6 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
         </>
     );
 };

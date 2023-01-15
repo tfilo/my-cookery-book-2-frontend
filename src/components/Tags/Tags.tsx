@@ -60,7 +60,7 @@ const Tags: React.FC = () => {
                         setIsLoading(false);
                     }
                 } else {
-                    setError('Neplatné používateľské ID!');
+                    setError('Neplatná značka!');
                 }
             }
             setTag(undefined);
