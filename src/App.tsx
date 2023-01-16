@@ -41,6 +41,8 @@ function App() {
     const [expanded, setExpanded] = useState(false);
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingCategories, setIsLoadingCategories] =
+        useState<boolean>(false);
     const [error, setError] = useState<string>();
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
@@ -69,7 +71,7 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true); // TODO - trosku zle
+                    setIsLoadingCategories(true); // TODO - trosku zle- zmenila som nazov statu kedze je to asynca obe v useEffect
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
@@ -77,7 +79,7 @@ function App() {
                         setError(message)
                     );
                 } finally {
-                    setIsLoading(false);
+                    setIsLoadingCategories(false);
                 }
             })();
         }
@@ -131,27 +133,37 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        <FontAwesomeIcon icon={faUser} /> Profil
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faUser}
+                                        />{' '}
+                                        Profil
                                     </Nav.Link>
-                                    {/* {authCtx.userRoles.find(
+                                    {authCtx.userRoles.find(
                                         (role) =>
                                             role === Api.User.RolesEnum.ADMIN
-                                    ) && ( */}
-                                    <Nav.Link
-                                        to='/users'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon icon={faUsers} />{' '}
-                                        Používatelia
-                                    </Nav.Link>
-                                    {/* )} */}
+                                    ) && (
+                                        <Nav.Link
+                                            to='/users'
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ width: 20 }}
+                                                icon={faUsers}
+                                            />{' '}
+                                            Používatelia
+                                        </Nav.Link>
+                                    )}
                                     <Nav.Link
                                         to='/categories'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        <FontAwesomeIcon icon={faList} />{' '}
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faList}
+                                        />{' '}
                                         Kategórie
                                     </Nav.Link>
                                     <Nav.Link
@@ -160,6 +172,7 @@ function App() {
                                         onClick={closeOffcanvas}
                                     >
                                         <FontAwesomeIcon
+                                            style={{ width: 20 }}
                                             icon={faScaleBalanced}
                                         />{' '}
                                         Jednotky
@@ -169,23 +182,40 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        <FontAwesomeIcon icon={faTags} /> Značky
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faTags}
+                                        />{' '}
+                                        Značky
                                     </Nav.Link>
-                                    <Nav.Link
-                                        to='/recipe/create'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon icon={faPizzaSlice} />{' '}
-                                        Pridať recept
-                                    </Nav.Link>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role ===
+                                            (Api.User.RolesEnum.ADMIN ||
+                                                Api.User.RolesEnum.CREATOR)
+                                    ) && (
+                                        <Nav.Link
+                                            to='/recipe/create'
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ width: 20 }}
+                                                icon={faPizzaSlice}
+                                            />{' '}
+                                            Pridať recept
+                                        </Nav.Link>
+                                    )}
                                     <hr />
                                     <Nav.Link
                                         to='/recipes'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
-                                        <FontAwesomeIcon icon={faUtensils} />{' '}
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faUtensils}
+                                        />{' '}
                                         Všetky recepty
                                     </Nav.Link>
                                     <hr />
@@ -193,6 +223,16 @@ function App() {
                                         // TODO preklik z menu nepremaze kriteria !!!
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
+                                            // state={{
+                                            //     searchingText: '',
+                                            //     searchingCategory: category.id,
+                                            //     searchingTags: [],
+                                            //     currentPage: 1,
+                                            //     order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+                                            //     orderBy:
+                                            //         Api.RecipeSearchCriteria
+                                            //             .OrderByEnum.Name,
+                                            // }}
                                             as={Link}
                                             onClick={closeOffcanvas}
                                             key={category.id}
@@ -287,7 +327,7 @@ function App() {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            {(isLoading || isLoadingCategories) && <Spinner />}
         </>
     );
 }

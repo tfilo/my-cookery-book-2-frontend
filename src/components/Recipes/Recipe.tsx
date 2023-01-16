@@ -67,7 +67,6 @@ const schema = yup
             .defined()
             .trim()
             .transform((val) => (val === '' ? null : val))
-            // .min(1, 'Musí byť minimálne 1 znak')
             .max(160, 'Musí byť maximálne 160 znakov')
             .default(null)
             .nullable(),
@@ -87,7 +86,6 @@ const schema = yup
             .defined()
             .trim()
             .transform((val) => (val === '' ? null : val))
-            // .min(1, 'Musí byť minimálne 1 znak')
             .default(null)
             .nullable(),
         sources: yup
@@ -97,7 +95,6 @@ const schema = yup
                     value: yup
                         .string()
                         .trim()
-                        // .min(1, 'Musí byť minimálne 1 znak')
                         .max(1000, 'Musí byť maximálne 1000 znakov')
                         .required(),
                 })
@@ -117,7 +114,6 @@ const schema = yup
                         .defined()
                         .trim()
                         .transform((val) => (val === '' ? null : val))
-                        // .min(1, 'Musí byť minimálne 1 znak')
                         .max(80, 'Musí byť maximálne 80 znakov')
                         .default(null)
                         .nullable(),
@@ -126,7 +122,6 @@ const schema = yup
                         .defined()
                         .trim()
                         .transform((val) => (val === '' ? null : val))
-                        // .min(1, 'Musí byť minimálne 1 znak')
                         .default(null)
                         .nullable(),
                     ingredients: yup
@@ -136,7 +131,6 @@ const schema = yup
                                 name: yup
                                     .string()
                                     .trim()
-                                    // .min(1, 'Musí byť minimálne 1 znak')
                                     .max(80, 'Musí byť maximálne 80 znakov')
                                     .required('Povinná položka'),
                                 value: yup
@@ -181,7 +175,12 @@ const schema = yup
                 yup
                     .object({
                         id: yup.number().integer().min(1).required(),
-                        name: yup.string(),
+                        name: yup
+                            .string()
+                            .trim()
+                            .min(1, 'Povinná položka')
+                            .max(80, 'Musí byť maximálne 80 znakov')
+                            .required(),
                     })
                     .required()
             )
@@ -475,7 +474,7 @@ const Recipe: React.FC = () => {
                             </p>
                         )}
                         <AssociatedRecipes></AssociatedRecipes>
-                        <Form.Group>
+                        <Form.Group className='mb-3'>
                             <Form.Label htmlFor='tagsMultiselection'>
                                 Značky
                             </Form.Label>

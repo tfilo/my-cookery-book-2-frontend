@@ -29,7 +29,7 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     const errorMessage = get(errors, props.name)?.message;
 
     return (
-        <InputGroup className='mb-2 rounded-right'>
+        <InputGroup className='mt-1 mb-1'>
             <Form.Control
                 {...register(props.name)}
                 id={`${id}_${props.name}`}
@@ -46,6 +46,7 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
                 title={props.button.label}
                 aria-label={props.button.label}
                 style={props.button.style}
+                
             >
                 {props.button.children}
             </Button>

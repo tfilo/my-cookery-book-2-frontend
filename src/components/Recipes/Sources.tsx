@@ -59,8 +59,10 @@ const Sources: React.FC = () => {
                                                     'rgba(0, 0, 0, 0.175)',
                                                 borderLeftColor:
                                                     'rgba(0, 0, 0, 0)',
-                                                borderTopRightRadius: '0.25rem !important',
-                                                borderBottomRightRadius: '0.25rem !important',
+                                                borderTopRightRadius:
+                                                    '0.375rem',
+                                                borderBottomRightRadius:
+                                                    '0.375rem',
                                             },
                                         }}
                                         onClick={() => sourcesRemove(index)}

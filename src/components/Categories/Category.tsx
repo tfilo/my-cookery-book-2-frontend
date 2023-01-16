@@ -13,14 +13,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 type CategoryForm = Api.CreateCategory | Api.UpdateCategory;
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .min(1, 'Musí byť minimálne 1 znak')
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Category: React.FC = () => {
     const [error, setError] = useState<string>();

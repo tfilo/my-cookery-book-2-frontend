@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Stack } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
 import { Api } from '../../../openapi';
@@ -7,7 +7,7 @@ import { pictureApi, recipeApi } from '../../../utils/apiWrapper';
 import { formatErrorMessage } from '../../../utils/errorMessages';
 import Modal from '../../UI/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faCircleArrowLeft, faPrint } from '@fortawesome/free-solid-svg-icons';
 import AssociatedRecipeView from './AssociatedRecipeView';
 import SectionView from './SectionView';
 import PictureView from './PictureView';
@@ -122,26 +122,38 @@ const RecipeView: React.FC = () => {
 
     return (
         <div>
-            <Button
-                variant='light'
-                aria-label='späť'
-                type='button'
-                onClick={() => {
-                    navigate(
-                        recipesUrlWithCategory(state?.searchingCategory),
-                        {
-                            state,
-                        }
-                    );
-                }}
-                className='border-0'
-            >
-                <FontAwesomeIcon icon={faCircleArrowLeft} />
-            </Button>
-            <ReactToPrint
-                trigger={() => <Button variant='light'>Vytlačiť</Button>}
-                content={() => componentRef.current}
-            ></ReactToPrint>
+            <Stack direction='horizontal'>
+            <div className='w-100'>
+                <Button
+                    variant='light'
+                    aria-label='späť'
+                    type='button'
+                    style={{ position: 'absolute', left: 10, top: 60 }}
+                    onClick={() => {
+                        navigate(
+                            recipesUrlWithCategory(state?.searchingCategory),
+                            {
+                                state,
+                            }
+                        );
+                    }}
+                >
+                    <FontAwesomeIcon icon={faCircleArrowLeft} />
+                </Button>
+                <ReactToPrint
+                    trigger={() => (
+                        <Button
+                            variant='light'
+                            // className='justify-content-end'
+                            style={{ position: 'absolute', right: 10, top: 60 }}
+                        >
+                            <FontAwesomeIcon icon={faPrint} />
+                        </Button>
+                    )}
+                    content={() => componentRef.current}
+                ></ReactToPrint>
+            </div>
+            </Stack>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
                 <InitialView recipe={recipe} />

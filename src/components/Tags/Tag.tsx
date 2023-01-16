@@ -13,14 +13,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 type TagForm = Api.CreateTag | Api.UpdateTag;
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
-        .max(80, 'Musí byť maximálne 80 znakov')
-        .required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .min(1, 'Musí byť minimálne 1 znak')
+            .max(80, 'Musí byť maximálne 80 znakov')
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Tag: React.FC = () => {
     const [error, setError] = useState<string>();

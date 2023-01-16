@@ -1,4 +1,10 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, {
+    Fragment,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import {
     Button,
     Card,
@@ -34,6 +40,7 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { debounce } from 'lodash';
 import Spinner from '../UI/Spinner';
 import { orderByLabels } from '../../translate/orderByLabels';
+import { AuthContext } from '../../store/auth-context';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
     url?: string;
@@ -80,6 +87,7 @@ const Recipes: React.FC = () => {
     const [isLoadingRecipes, setIsLoadingRecipes] = useState<boolean>(false);
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
+    const authCtx = useContext(AuthContext);
 
     useEffect(() => {
         if (categoryId > 0 || selectedTags.length > 0) {
@@ -265,13 +273,19 @@ const Recipes: React.FC = () => {
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Recepty</h2>
-                <Button
-                    variant='primary'
-                    onClick={createRecipeHandler}
-                    className='mb-3'
-                >
-                    Pridať recept
-                </Button>
+                {authCtx.userRoles.find(
+                    (role) =>
+                        role ===
+                        (Api.User.RolesEnum.ADMIN || Api.User.RolesEnum.CREATOR)
+                ) && (
+                    <Button
+                        variant='primary'
+                        onClick={createRecipeHandler}
+                        className='mb-3'
+                    >
+                        Pridať recept
+                    </Button>
+                )}
             </div>
             <div className='input-group mb-3'>
                 <span className='input-group-text'>
@@ -356,7 +370,11 @@ const Recipes: React.FC = () => {
                                             : ''
                                     }
                                     onChange={(e) => {
-                                        navigate(recipesUrlWithCategory(e.target.value));
+                                        navigate(
+                                            recipesUrlWithCategory(
+                                                e.target.value
+                                            )
+                                        );
                                         setCurrentPage(1);
                                     }}
                                     value={`${categoryId}`}
@@ -410,7 +428,7 @@ const Recipes: React.FC = () => {
                     return (
                         <Col key={row.id}>
                             <Card
-                                className='mb-3 overflow-hidden'
+                                className='overflow-hidden'
                                 role='button'
                                 onClick={showRecipeHandler.bind(null, row.id)}
                             >
@@ -445,18 +463,25 @@ const Recipes: React.FC = () => {
                                             {row.name}
                                         </span>
                                     </Card.Title>
-                                    <Button
-                                        title='Upraviť'
-                                        variant='outline-secondary'
-                                        type='button'
-                                        onClick={(e) =>
-                                            editRecipeHandler(e, row.id)
-                                        }
-                                        className='position-absolute border-0'
-                                        style={{ top: 0, right: 0 }}
-                                    >
-                                        <FontAwesomeIcon icon={faPencil} />
-                                    </Button>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role ===
+                                            (Api.User.RolesEnum.ADMIN ||
+                                                Api.User.RolesEnum.CREATOR)
+                                    ) && (
+                                        <Button
+                                            title='Upraviť'
+                                            variant='outline-secondary'
+                                            type='button'
+                                            onClick={(e) =>
+                                                editRecipeHandler(e, row.id)
+                                            }
+                                            className='position-absolute border-0'
+                                            style={{ top: 0, right: 0 }}
+                                        >
+                                            <FontAwesomeIcon icon={faPencil} />
+                                        </Button>
+                                    )}
                                 </Card.ImgOverlay>
                             </Card>
                         </Col>
@@ -468,7 +493,7 @@ const Recipes: React.FC = () => {
             )}
 
             {!!numOfPages && numOfPages > 1 && (
-                <Pagination className='justify-content-center'>
+                <Pagination className='mt-3 justify-content-center'>
                     <Pagination.First
                         onClick={() => changePageHandler(1)}
                         disabled={currentPage === 1}

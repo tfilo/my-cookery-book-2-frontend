@@ -13,23 +13,25 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 
 type UpdatePasswordForm = Api.UpdatePasswordRequest;
 
-const schema = yup.object({
-    password: yup
-        .string()
-        .trim()
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .required(),
-    newPassword: yup
-        .string()
-        .trim()
-        .min(8, 'Musí byť minimálne 8 znakov')
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-            'Musí obsahovať aspoň jedno malé písmeno, jedno veľke písmeno a jedno číslo'
-        )
-        .required(),
-});
+const schema = yup
+    .object({
+        password: yup
+            .string()
+            .trim()
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .required('Povinná položka'),
+        newPassword: yup
+            .string()
+            .trim()
+            .min(8, 'Musí byť minimálne 8 znakov')
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .matches(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                'Musí obsahovať aspoň jedno malé písmeno, jedno veľke písmeno a jedno číslo'
+            )
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Profile: React.FC = () => {
     const [error, setError] = useState<string>();

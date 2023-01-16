@@ -34,58 +34,60 @@ const roleOptions = [
     },
 ];
 
-const schema = yup.object({
-    username: yup
-        .string()
-        .trim()
-        .min(4, 'Musia byť minimálne 4 znaky')
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .matches(/^[a-z0-9]+/, 'Musí obsahovať iba malé písmená a čísla')
-        .required('Povinná položka'),
-    firstName: yup
-        .string()
-        .defined()
-        .trim()
-        .transform((val) => (val === '' ? null : val))
-        .min(3, 'Musia byť minimálne 3 znaky')
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .default(null)
-        .nullable(),
-    lastName: yup
-        .string()
-        .defined()
-        .trim()
-        .transform((val) => (val === '' ? null : val))
-        .min(3, 'Musia byť minimálne 3 znaky')
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .default(null)
-        .nullable(),
-    password: yup
-        .string()
-        .trim()
-        .min(8, 'Musí byť minimálne 8 znakov')
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-            'Musí obsahovať aspoň jedno malé písmeno, jedno veľké písmeno a jedno číslo'
-        )
-        .required(),
-    confirmPassword: yup
-        .string()
-        .trim()
-        .transform((val) => (val === '' ? null : val))
-        .equals([yup.ref('password')], 'Zadané heslá sa nezhodujú')
-        .required(),
-    roles: yup
-        .array()
-        .of(
-            yup.object({
-                value: yup.string().oneOf(['ADMIN', 'CREATOR']).required(),
-                name: yup.string(),
-            })
-        )
-        .required(),
-});
+const schema = yup
+    .object({
+        username: yup
+            .string()
+            .trim()
+            .min(4, 'Musia byť minimálne 4 znaky')
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .matches(/^[a-z0-9]+/, 'Musí obsahovať iba malé písmená a čísla')
+            .required('Povinná položka'),
+        firstName: yup
+            .string()
+            .defined()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            .min(3, 'Musia byť minimálne 3 znaky')
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .default(null)
+            .nullable(),
+        lastName: yup
+            .string()
+            .defined()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            .min(3, 'Musia byť minimálne 3 znaky')
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .default(null)
+            .nullable(),
+        password: yup
+            .string()
+            .trim()
+            .min(8, 'Musí byť minimálne 8 znakov')
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .matches(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                'Musí obsahovať aspoň jedno malé písmeno, jedno veľké písmeno a jedno číslo'
+            )
+            .required('Povinná položka'),
+        confirmPassword: yup
+            .string()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            .equals([yup.ref('password')], 'Zadané heslá sa nezhodujú')
+            .required('Povinná položka'),
+        roles: yup
+            .array()
+            .of(
+                yup.object({
+                    value: yup.string().oneOf(['ADMIN', 'CREATOR']).required('Povinná položka'), //nefunguje
+                    name: yup.string(),
+                })
+            )
+            .required(),
+    })
+    .required();
 
 const User: React.FC = () => {
     const [error, setError] = useState<string>();
@@ -112,14 +114,15 @@ const User: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await userApi.getUser(parseInt(paramsNumber));
-                    
-                    const receivedRoles = data.roles.map((role)=>{
+                    console.log(data);
+
+                    const receivedRoles = data.roles.map((role) => {
                         return {
                             value: role,
-                            name: roleLabels[role]
-                        }
-                    })
- 
+                            name: roleLabels[role],
+                        };
+                    });
+
                     // const receivedRoles = [];
                     // for (let r of data.roles) {
                     //     if (r === Api.User.RolesEnum.ADMIN) {
@@ -135,6 +138,7 @@ const User: React.FC = () => {
                     //         });
                     //     }
                     // }
+
                     const formattedData: UserForm = {
                         ...data,
                         password: '',
@@ -163,13 +167,12 @@ const User: React.FC = () => {
             roles: data.roles.map((role) => role.value),
         };
         try {
-            if (params.id) { // TODO duplicity
+            if (params.id) {
                 await userApi.updateUser(parseInt(params.id), sendData);
-                navigate('/users');
             } else {
                 await userApi.createUser(sendData as Api.CreateUser);
-                navigate('/users');
             }
+            navigate('/users');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }

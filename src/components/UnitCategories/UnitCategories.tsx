@@ -4,10 +4,11 @@ import {
     faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
+import { AuthContext } from '../../store/auth-context';
 import { unitCategoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
@@ -23,6 +24,7 @@ const UnitCategories: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUnitsLoading, setIsUnitsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const authCtx = useContext(AuthContext);
 
     useEffect(() => {
         (async () => {
@@ -91,9 +93,16 @@ const UnitCategories: React.FC = () => {
         <>
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Jednotky</h2>
-                <Button variant='primary' onClick={createUnitCategoryHandler}>
-                    Pridať kategóriu jednotky
-                </Button>
+                {authCtx.userRoles.find(
+                    (role) => role === Api.User.RolesEnum.ADMIN
+                ) && (
+                    <Button
+                        variant='primary'
+                        onClick={createUnitCategoryHandler}
+                    >
+                        Pridať kategóriu jednotky
+                    </Button>
+                )}
             </div>
             <div>
                 {listOfUnitCategories.map((unitCategory) => (
@@ -108,40 +117,57 @@ const UnitCategories: React.FC = () => {
                                     gap={2}
                                 >
                                     {unitCategory.name}
-                                    <Button
-                                        title={`Pridať kategóriu jednotky ${unitCategory.name}`}
-                                        aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
-                                        variant='outline-success'
-                                        type='button'
-                                        onClick={createUnitHandler.bind(
-                                            null,
-                                            unitCategory.id
-                                        )}
-                                    >
-                                        <FontAwesomeIcon icon={faCirclePlus} />
-                                    </Button>
-                                    <Button
-                                        title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
-                                        aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
-                                        variant='outline-secondary'
-                                        onClick={editUnitCategoryHandler.bind(
-                                            null,
-                                            unitCategory.id
-                                        )}
-                                    >
-                                        <FontAwesomeIcon icon={faPencil} />
-                                    </Button>
-                                    <Button
-                                        title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
-                                        aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
-                                        variant='outline-danger'
-                                        onClick={deleteUnitCategoryHandler.bind(
-                                            null,
-                                            unitCategory
-                                        )}
-                                    >
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </Button>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role === Api.User.RolesEnum.ADMIN
+                                    ) && (
+                                        <Stack
+                                            style={{ border: 'none' }}
+                                            direction='horizontal'
+                                            gap={2}
+                                        >
+                                            <Button
+                                                title={`Pridať kategóriu jednotky ${unitCategory.name}`}
+                                                aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
+                                                variant='outline-success'
+                                                type='button'
+                                                onClick={createUnitHandler.bind(
+                                                    null,
+                                                    unitCategory.id
+                                                )}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faCirclePlus}
+                                                />
+                                            </Button>
+                                            <Button
+                                                title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
+                                                aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
+                                                variant='outline-secondary'
+                                                onClick={editUnitCategoryHandler.bind(
+                                                    null,
+                                                    unitCategory.id
+                                                )}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faPencil}
+                                                />
+                                            </Button>
+                                            <Button
+                                                title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
+                                                aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
+                                                variant='outline-danger'
+                                                onClick={deleteUnitCategoryHandler.bind(
+                                                    null,
+                                                    unitCategory
+                                                )}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                />
+                                            </Button>
+                                        </Stack>
+                                    )}
                                 </Stack>
                             </tr>
                             <tr>

@@ -54,7 +54,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
             {fields.map((field, index, array) => {
                 return (
                     <Card key={field?.id} className='mb-3'>
-                        <Card.Body>
+                        <Card.Body className='pb-0'>
                             <section>
                                 <div
                                     className='position-absolute'
