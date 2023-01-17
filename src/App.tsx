@@ -48,6 +48,22 @@ function App() {
         Api.SimpleCategory[]
     >([]);
 
+    const [resetValues, setResetValues] = useState<{searchingText: string,
+        searchingCategory: number | undefined,
+        searchingTags: [],
+        currentPage: number,
+        order: Api.RecipeSearchCriteria.OrderEnum,
+        orderBy:
+            Api.RecipeSearchCriteria
+                .OrderByEnum}>({searchingText: '',
+                    searchingCategory: undefined,
+                    searchingTags: [],
+                    currentPage: 1,
+                    order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+                    orderBy:
+                        Api.RecipeSearchCriteria
+                            .OrderByEnum.Name})
+
     useEffect(() => {
         if (isLoggedIn) {
             (async () => {
@@ -99,10 +115,17 @@ function App() {
         setExpanded(false);
     };
 
+    
     const logoutHandler = () => {
         authCtx.logout();
     };
-
+    
+    const setStateHandler = (categoryId: number) => {
+        setResetValues((prev) => {return {...prev, searchingCategory: categoryId}});
+        // window.location.reload();
+        closeOffcanvas();
+    };
+console.log(resetValues)
     return (
         <>
             {isLoggedIn && (
@@ -222,18 +245,9 @@ function App() {
                                         // TODO preklik z menu nepremaze kriteria !!!
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
-                                            // state={{
-                                            //     searchingText: '',
-                                            //     searchingCategory: category.id,
-                                            //     searchingTags: [],
-                                            //     currentPage: 1,
-                                            //     order: Api.RecipeSearchCriteria.OrderEnum.ASC,
-                                            //     orderBy:
-                                            //         Api.RecipeSearchCriteria
-                                            //             .OrderByEnum.Name,
-                                            // }}
+                                            state={resetValues}
                                             as={Link}
-                                            onClick={closeOffcanvas}
+                                            onClick={()=> setStateHandler(category.id)}
                                             key={category.id}
                                         >
                                             {category.name}
