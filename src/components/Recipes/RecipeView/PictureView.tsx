@@ -103,7 +103,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
 
     return (
         <>
-            <section>
+            {/* <section> */}
                 <Row xs={1} sm={2} lg={4} className='g-4'>
                     {props.recipe?.pictures.map((picture, idx) => (
                         <Col key={picture.id}>
@@ -142,7 +142,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                         </Col>
                     ))}
                 </Row>
-            </section>
+            {/* </section> */}
 
             <BootstrapModal
                 show={!!show}

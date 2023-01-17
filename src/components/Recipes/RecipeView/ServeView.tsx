@@ -20,7 +20,7 @@ const ServeView: React.FC<ServeProps> = (props) => {
             {(props.recipe?.serves !== null ||
                 (props.recipe?.serves === null &&
                     props.recipe.recipeSections.length > 0)) && (
-                <section>
+                // <section>
                     <Stack direction='horizontal' gap={3}>
                         <h4>Počet porcií:</h4>
                         <input
@@ -39,7 +39,7 @@ const ServeView: React.FC<ServeProps> = (props) => {
                             min={1}
                         ></input>
                     </Stack>
-                </section>
+                // </section>
             )}
         </>
     );

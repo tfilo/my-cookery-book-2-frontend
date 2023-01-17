@@ -54,7 +54,6 @@ function App() {
                 try {
                     setIsLoading(true); // TODO - trosku zle
                     const user = await authApi.user();
-                    console.log(user);
                     setUserInfo(user);
                 } catch (err) {
                     formatErrorMessage(err).then((message) =>

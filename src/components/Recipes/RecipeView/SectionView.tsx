@@ -15,22 +15,16 @@ const countServes = (
         return;
     }
     let decimalPoints;
-    let decPlacesWONull;
     if ((ingredientValue / definedServes) * serves < 10) {
         decimalPoints = 3;
-        decPlacesWONull = 1000;
     } else if ((ingredientValue / definedServes) * serves < 100) {
         decimalPoints = 2;
-        decPlacesWONull = 100;
     } else {
         decimalPoints = 1;
-        decPlacesWONull = 10;
     }
 
-    return (
-        (+((ingredientValue / definedServes) * serves).toFixed(decimalPoints) /
-            decPlacesWONull) *
-        decPlacesWONull
+    return parseFloat(
+        ((ingredientValue / definedServes) * serves).toFixed(decimalPoints)
     );
 };
 

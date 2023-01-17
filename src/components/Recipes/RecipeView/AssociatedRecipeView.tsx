@@ -1,7 +1,6 @@
 import React from 'react';
 import { Accordion } from 'react-bootstrap';
 import AuthorView from './AuthorView';
-import InitialView from './InitialView';
 import PictureView from './PictureView';
 import { RecipesWithUrlInPictures } from './RecipeView';
 import SectionView from './SectionView';
@@ -30,24 +29,32 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                 eventKey={assRecipe.name}
                                             >
                                                 <Accordion.Header>
-                                                    {assRecipe.name}{' '}
-                                                    {assRecipe.description !==
-                                                    null
-                                                        ? `- ${assRecipe.description}`
-                                                        : ''}
+                                                    {assRecipe.name}
                                                 </Accordion.Header>
                                                 <Accordion.Body>
                                                     <div>
                                                         {props.associatedRecipes && (
                                                             <>
-                                                                <InitialView
-                                                                    recipe={
-                                                                        props
-                                                                            .associatedRecipes[
-                                                                            index
-                                                                        ]
-                                                                    }
-                                                                />
+                                                                {props
+                                                                    .associatedRecipes[
+                                                                    index
+                                                                ]?.method && (
+                                                                    <section>
+                                                                        <h4>
+                                                                            Postup
+                                                                            prípravy
+                                                                        </h4>
+                                                                        <p>
+                                                                            {
+                                                                                props
+                                                                                    .associatedRecipes[
+                                                                                    index
+                                                                                ]
+                                                                                    ?.method
+                                                                            }
+                                                                        </p>
+                                                                    </section>
+                                                                )}
                                                                 <SectionView
                                                                     recipe={
                                                                         props
@@ -95,11 +102,7 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                                 <div>
                                                                                     {
                                                                                         recipe.name
-                                                                                    }{' '}
-                                                                                    {recipe.description !==
-                                                                                    null
-                                                                                        ? `- ${recipe.description}`
-                                                                                        : ''}
+                                                                                    }
                                                                                 </div>
                                                                             </section>
                                                                         );

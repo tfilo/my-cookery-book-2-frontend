@@ -121,38 +121,36 @@ const RecipeView: React.FC = () => {
     }, [params.recipeId]);
 
     return (
-        <div>
+        <>
             <Stack direction='horizontal'>
-            <div className='w-100'>
-                <Button
-                    variant='light'
-                    aria-label='späť'
-                    type='button'
-                    style={{ position: 'absolute', left: 10, top: 60 }}
-                    onClick={() => {
-                        navigate(
-                            recipesUrlWithCategory(state?.searchingCategory),
-                            {
-                                state,
-                            }
-                        );
-                    }}
-                >
-                    <FontAwesomeIcon icon={faCircleArrowLeft} />
-                </Button>
-                <ReactToPrint
-                    trigger={() => (
-                        <Button
-                            variant='light'
-                            // className='justify-content-end'
-                            style={{ position: 'absolute', right: 10, top: 60 }}
-                        >
-                            <FontAwesomeIcon icon={faPrint} />
-                        </Button>
-                    )}
-                    content={() => componentRef.current}
-                ></ReactToPrint>
-            </div>
+                    <Button
+                        variant='light'
+                        aria-label='späť'
+                        type='button'
+                        onClick={() => {
+                            navigate(
+                                recipesUrlWithCategory(
+                                    state?.searchingCategory
+                                ),
+                                {
+                                    state,
+                                }
+                            );
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faCircleArrowLeft} />
+                    </Button>
+                    <div className='flex-grow-1 d-sm-block'></div>
+                    <ReactToPrint
+                        trigger={() => (
+                            <Button
+                                variant='light'
+                            >
+                                <FontAwesomeIcon icon={faPrint} />
+                            </Button>
+                        )}
+                        content={() => componentRef.current}
+                    ></ReactToPrint>
             </Stack>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
@@ -182,7 +180,7 @@ const RecipeView: React.FC = () => {
                 }}
             />
             {isLoading && <Spinner />}
-        </div>
+        </>
     );
 };
 
