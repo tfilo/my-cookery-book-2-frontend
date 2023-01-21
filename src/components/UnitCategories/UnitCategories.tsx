@@ -92,7 +92,7 @@ const UnitCategories: React.FC = () => {
     return (
         <>
             <div className='d-flex flex-column flex-md-row'>
-                <h2 className='flex-grow-1'>Jednotky</h2>
+                <h1 className='flex-grow-1'>Jednotky</h1>
                 {authCtx.userRoles.find(
                     (role) => role === Api.User.RolesEnum.ADMIN
                 ) && (

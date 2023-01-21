@@ -53,7 +53,7 @@ const Unit: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await unitApi.getUnit(unitId);
-                    console.log(data);
+                    // console.log(data);
                     methods.reset(data);
                 } catch (err) {
                     formatErrorMessage(err).then((message) =>

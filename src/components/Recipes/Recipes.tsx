@@ -272,7 +272,7 @@ const Recipes: React.FC = () => {
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
-                <h2 className='flex-grow-1'>Recepty</h2>
+                <h1 className='flex-grow-1'>Recepty</h1>
                 {authCtx.userRoles.find(
                     (role) =>
                         role ===
@@ -412,12 +412,6 @@ const Recipes: React.FC = () => {
                                     selected={selectedTags}
                                     multiple
                                 />
-                                {listOfTags.length < 1 && (
-                                    <p className='text-danger'>
-                                        Nie je možné vybrať žiadnu značku,
-                                        nakoľko žiadna nie je zadefinovaná.
-                                    </p>
-                                )}
                             </Form.Group>
                         </div>
                     </Card>

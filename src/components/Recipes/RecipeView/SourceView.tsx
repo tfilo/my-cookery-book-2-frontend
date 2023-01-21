@@ -39,7 +39,7 @@ const SourceView: React.FC<SourceProps> = (props) => {
                 props.recipe.sources &&
                 props.recipe?.sources.length >= 1 && (
                     <section className='mt-3'>
-                        <h4>Zdroje</h4>
+                        <h3>Zdroje</h3>
                         {props.recipe.sources.map((source) => (
                             <p className='mb-0' key={source}>
                                 {urlify(source)}

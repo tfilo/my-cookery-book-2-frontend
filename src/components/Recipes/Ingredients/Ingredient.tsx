@@ -32,7 +32,7 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
 
     const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
         if (dragableGroup) {
-            console.log(`position1: ${position}`);
+            // console.log(`position1: ${position}`);
             e.dataTransfer.setData('pos1_position', position.toString());
             e.dataTransfer.dropEffect = 'move';
         }
@@ -40,16 +40,16 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
 
     const dragOver = (e: React.DragEvent<HTMLElement>, position: number) => {
         e.preventDefault();
-        console.log(`position2: ${position}`);
+        // console.log(`position2: ${position}`);
         e.dataTransfer.setData('pos2_position', position.toString());
         e.dataTransfer.dropEffect = 'move';
     };
 
     const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
-        console.log(`position3: ${position}`);
+        // console.log(`position3: ${position}`);
         const data1 = +e.dataTransfer.getData('pos1_position');
         const data2 = +e.dataTransfer.getData('pos2_position');
-        console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
+        // console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
         props.move(data1, position);
     };
 

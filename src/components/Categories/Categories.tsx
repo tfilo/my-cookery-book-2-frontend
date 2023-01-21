@@ -74,7 +74,7 @@ const Categories: React.FC = () => {
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
-                <h2 className='flex-grow-1'>Kategórie</h2>
+                <h1 className='flex-grow-1'>Kategórie</h1>
                 {authCtx.userRoles.find(
                     (role) => role === Api.User.RolesEnum.ADMIN
                 ) && (

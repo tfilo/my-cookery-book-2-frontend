@@ -72,7 +72,7 @@ const Tags: React.FC = () => {
     return (
         <>
             <div className='d-flex flex-column flex-md-row'>
-                <h2 className='flex-grow-1'>Značky</h2>
+                <h1 className='flex-grow-1'>Značky</h1>
                 {authCtx.userRoles.find(
                     (role) => role === Api.User.RolesEnum.ADMIN
                 ) && (

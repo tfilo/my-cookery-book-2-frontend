@@ -123,34 +123,30 @@ const RecipeView: React.FC = () => {
     return (
         <>
             <Stack direction='horizontal'>
-                    <Button
-                        variant='light'
-                        aria-label='späť'
-                        type='button'
-                        onClick={() => {
-                            navigate(
-                                recipesUrlWithCategory(
-                                    state?.searchingCategory
-                                ),
-                                {
-                                    state,
-                                }
-                            );
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCircleArrowLeft} />
-                    </Button>
-                    <div className='flex-grow-1 d-sm-block'></div>
-                    <ReactToPrint
-                        trigger={() => (
-                            <Button
-                                variant='light'
-                            >
-                                <FontAwesomeIcon icon={faPrint} />
-                            </Button>
-                        )}
-                        content={() => componentRef.current}
-                    ></ReactToPrint>
+                <Button
+                    variant='light'
+                    aria-label='späť'
+                    type='button'
+                    onClick={() => {
+                        navigate(
+                            recipesUrlWithCategory(state?.searchingCategory),
+                            {
+                                state,
+                            }
+                        );
+                    }}
+                >
+                    <FontAwesomeIcon icon={faCircleArrowLeft} />
+                </Button>
+                <div className='flex-grow-1 d-sm-block'></div>
+                <ReactToPrint
+                    trigger={() => (
+                        <Button variant='light'>
+                            <FontAwesomeIcon icon={faPrint} />
+                        </Button>
+                    )}
+                    content={() => componentRef.current}
+                ></ReactToPrint>
             </Stack>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
@@ -168,7 +164,10 @@ const RecipeView: React.FC = () => {
                     associatedRecipes={associatedRecipes}
                     serves={serves}
                 />
-                <hr />
+                <div style={{ border: '1px solid transparent' }}>
+                    {/* Fix for correct <hr /> on safari */}
+                    <hr />
+                </div>
                 <AuthorView recipe={recipe} />
             </div>
             <Modal

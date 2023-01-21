@@ -114,7 +114,7 @@ const User: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await userApi.getUser(parseInt(paramsNumber));
-                    console.log(data);
+                    // console.log(data);
 
                     const receivedRoles = data.roles.map((role) => {
                         return {

@@ -71,7 +71,7 @@ const Users: React.FC = () => {
     return (
         <>
             <div className='d-flex flex-column flex-md-row'>
-                <h2 className='flex-grow-1'>Používatelia</h2>
+                <h1 className='flex-grow-1'>Používatelia</h1>
                 <Button variant='primary' onClick={createUserHandler}>
                     Pridať používateľa
                 </Button>

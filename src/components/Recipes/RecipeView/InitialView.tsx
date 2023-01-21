@@ -8,10 +8,10 @@ type InitialProps = {
 const InitialView: React.FC<InitialProps> = (props) => {
     return (
         <>
-            <h3 className='sm mt-3'>{props.recipe?.name}</h3>
+            <h2 className='sm mt-3'>{props.recipe?.name}</h2>
             {props.recipe?.method && (
                 <section>
-                    <h4>Postup prípravy</h4>
+                    <h3>Postup prípravy</h3>
                     <p>{props.recipe?.method}</p>
                 </section>
             )}

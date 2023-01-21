@@ -19,7 +19,7 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                 props.recipe.associatedRecipes &&
                 props.recipe?.associatedRecipes.length >= 1 && (
                     <section className='mt-3'>
-                        <h4>Súvisiace recepty</h4>
+                        <h3>Súvisiace recepty</h3>
                         <div>
                             {props.recipe.associatedRecipes.map(
                                 (assRecipe, index) => {
@@ -40,10 +40,10 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                     index
                                                                 ]?.method && (
                                                                     <section>
-                                                                        <h4>
+                                                                        <h3>
                                                                             Postup
                                                                             prípravy
-                                                                        </h4>
+                                                                        </h3>
                                                                         <p>
                                                                             {
                                                                                 props
@@ -95,10 +95,10 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                                 }
                                                                                 className='mt-3'
                                                                             >
-                                                                                <h4>
+                                                                                <h3>
                                                                                     Súvisiace
                                                                                     recepty
-                                                                                </h4>
+                                                                                </h3>
                                                                                 <div>
                                                                                     {
                                                                                         recipe.name
@@ -109,7 +109,14 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                     }
                                                                 )}
 
-                                                                <hr />
+                                                                <div
+                                                                    style={{
+                                                                        border: '1px solid transparent',
+                                                                    }}
+                                                                >
+                                                                    {/* Fix for correct <hr /> on safari */}
+                                                                    <hr />
+                                                                </div>
                                                                 <AuthorView
                                                                     recipe={
                                                                         props

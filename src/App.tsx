@@ -2,7 +2,7 @@ import { Fragment, useContext, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './App.css';
+import './App.scss';
 import { AuthContext } from './store/auth-context';
 import SignInPage from './pages/SignInPage';
 import UsersPage from './pages/UsersPage';
