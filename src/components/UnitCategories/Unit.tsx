@@ -15,25 +15,28 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 type UnitForm = Api.CreateUnit | Api.UpdateUnit;
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .max(80, 'Musí byť maximálne 80 znakov')
-        .required('Povinná položka'),
-    abbreviation: yup
-        .string()
-        .trim()
-        .max(20, 'Musí byť maximálne 20 znakov')
-        .required('Povinná položka'),
-    required: yup.boolean().required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .max(80, 'Musí byť maximálne 80 znakov')
+            .required('Povinná položka'),
+        abbreviation: yup
+            .string()
+            .trim()
+            .max(20, 'Musí byť maximálne 20 znakov')
+            .required('Povinná položka'),
+        required: yup.boolean().required('Povinná položka'),
+    })
+    .required();
 
 const Unit: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : null;
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UnitForm>({
         resolver: yupResolver(schema),
@@ -47,9 +50,18 @@ const Unit: React.FC = () => {
         if (params.unitId) {
             const unitId = parseInt(params.unitId);
             (async () => {
-                const data = await unitApi.getUnit(unitId);
-                console.log(data);
-                methods.reset(data);
+                try {
+                    setIsLoading(true);
+                    const data = await unitApi.getUnit(unitId);
+                    console.log(data);
+                    methods.reset(data);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
+                }
             })();
         }
     }, [params.unitId, methods]);
@@ -66,14 +78,13 @@ const Unit: React.FC = () => {
                         ...data,
                         unitCategoryId: categoryId,
                     });
-                    navigate('/units');
                 } else {
                     await unitApi.createUnit({
                         ...data,
                         unitCategoryId: categoryId,
                     });
-                    navigate('/units');
                 }
+                navigate('/units');
             } else {
                 console.error('Missing unitCategoryId in route parameters!');
             }
@@ -108,7 +119,6 @@ const Unit: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -120,6 +130,7 @@ const Unit: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

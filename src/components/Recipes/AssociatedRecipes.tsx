@@ -3,15 +3,18 @@ import { Form } from 'react-bootstrap';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import { Api } from '../../openapi';
 import { recipeApi } from '../../utils/apiWrapper';
-
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RecipeForm } from './Recipe';
 import { get } from 'lodash';
+import Spinner from '../UI/Spinner';
+import { formatErrorMessage } from '../../utils/errorMessages';
+import Modal from '../UI/Modal';
 
 const AssociatedRecipes: React.FC = () => {
     const id = useId();
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string>();
     const [list, setList] = useState<{}[]>([]);
 
     const {
@@ -20,9 +23,9 @@ const AssociatedRecipes: React.FC = () => {
     } = useFormContext<RecipeForm>();
 
     const handleSearch = (query: string) => {
-        setIsLoading(true);
         (async () => {
             try {
+                setIsLoading(true);
                 const data = {
                     search: query,
                     categoryId: null,
@@ -38,14 +41,12 @@ const AssociatedRecipes: React.FC = () => {
                 });
                 setList(recipeList);
             } catch (err) {
-                console.error(err); // TODO information for user ?
+                formatErrorMessage(err).then((message) => setError(message));
             } finally {
                 setIsLoading(false);
             }
         })();
     };
-
-    // console.log('associatedRecipes', errors);
 
     const errorMessage = get(errors, 'associatedRecipes')?.message;
     const filterBy = () => true;
@@ -82,6 +83,15 @@ const AssociatedRecipes: React.FC = () => {
                     {errorMessage?.toString()}
                 </Form.Control.Feedback>
             </Form.Group>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            {isLoading && <Spinner />}
         </>
     );
 };

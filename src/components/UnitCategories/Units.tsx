@@ -1,39 +1,46 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
+import { AuthContext } from '../../store/auth-context';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 
-const Units: React.FC<{ unitCategoryId: number }> = (props) => {
+const Units: React.FC<{
+    unitCategoryId: number;
+    setIsLoading: (loading: boolean) => void;
+}> = (props) => {
     const [listOfUnits, setListOfUnits] = useState<Api.SimpleUnit[]>([]);
     const [error, setError] = useState<string>();
     const [unit, setUnit] = useState<Api.SimpleUnit>();
     const navigate = useNavigate();
+    const { unitCategoryId, setIsLoading } = props;
+    const authCtx = useContext(AuthContext);
 
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const units = await unitApi.getUnitsByUnitCategory(
-                    props.unitCategoryId
+                    unitCategoryId
                 );
                 setListOfUnits(units);
             } catch (err) {
-                console.error(err);
+                formatErrorMessage(err).then((message) => setError(message));
+            } finally {
+                setIsLoading(false);
             }
         })();
-    }, [props.unitCategoryId]);
+    }, [unitCategoryId, setIsLoading]);
 
     const editUnitHandler = (id: number) => {
-        console.log(id);
-        navigate(`/unit/${props.unitCategoryId}/${id}`);
+        navigate(`/unit/${unitCategoryId}/${id}`);
     };
 
     const deleteUnitHandler = (unit: Api.SimpleUnit) => {
-        console.log(unit.id);
         setUnit(unit);
     };
 
@@ -42,6 +49,7 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
             if (status === true) {
                 if (unit) {
                     try {
+                        setIsLoading(true);
                         await unitApi.deleteUnit(unit.id);
                         setListOfUnits((prev) => {
                             return prev.filter((_unit) => _unit.id !== unit.id);
@@ -50,9 +58,11 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                         formatErrorMessage(err).then((message) => {
                             setError(message);
                         });
+                    } finally {
+                        setIsLoading(false);
                     }
                 } else {
-                    setError('Neplatné používateľské ID!');
+                    setError('Neplatná jednotka!');
                 }
             }
             setUnit(undefined);
@@ -60,14 +70,21 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
     };
 
     return (
-        <Fragment>
+        <>
             <tbody>
                 {listOfUnits.map((unit) => (
                     <tr key={unit.id}>
                         <td className='align-middle'>{unit.name}</td>
                         <td className='align-middle'>{unit.abbreviation}</td>
-                        <td>
-                            <Stack direction='horizontal' gap={2} className='justify-content-end'>
+                        {authCtx.userRoles.find(
+                            (role) => role === Api.User.RolesEnum.ADMIN
+                        ) && (
+                            <Stack
+                                as={'td'}
+                                direction='horizontal'
+                                gap={2}
+                                className='justify-content-end'
+                            >
                                 <Button
                                     title='Upraviť'
                                     aria-label='Upraviť'
@@ -90,11 +107,10 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                                     <FontAwesomeIcon icon={faTrash} />
                                 </Button>
                             </Stack>
-                        </td>
+                        )}
                     </tr>
                 ))}
             </tbody>
-
             <Modal
                 show={!!unit}
                 type='question'
@@ -109,7 +125,7 @@ const Units: React.FC<{ unitCategoryId: number }> = (props) => {
                     setError(undefined);
                 }}
             />
-        </Fragment>
+        </>
     );
 };
 

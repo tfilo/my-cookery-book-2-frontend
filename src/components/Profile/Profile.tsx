@@ -13,23 +13,25 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 
 type UpdatePasswordForm = Api.UpdatePasswordRequest;
 
-const schema = yup.object({
-    password: yup
-        .string()
-        .trim()
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .required(),
-    newPassword: yup
-        .string()
-        .trim()
-        .min(8, 'Musí byť minimálne 8 znakov')
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
-            'Musí obsahovať aspoň jedno malé písmeno, jedno veľke písmeno a jedno číslo'
-        )
-        .required(),
-});
+const schema = yup
+    .object({
+        password: yup
+            .string()
+            .trim()
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .required('Povinná položka'),
+        newPassword: yup
+            .string()
+            .trim()
+            .min(8, 'Musí byť minimálne 8 znakov')
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .matches(
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
+                'Musí obsahovať aspoň jedno malé písmeno, jedno veľke písmeno a jedno číslo'
+            )
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Profile: React.FC = () => {
     const [error, setError] = useState<string>();
@@ -37,6 +39,7 @@ const Profile: React.FC = () => {
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UpdatePasswordForm>({
         resolver: yupResolver(schema),
@@ -50,10 +53,15 @@ const Profile: React.FC = () => {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoading(true);
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
             })();
         }
@@ -66,7 +74,6 @@ const Profile: React.FC = () => {
             await authApi.updatePassword(data);
             setShowModal(true);
         } catch (err) {
-            console.log(err);
             if (err instanceof Response && err.statusText === 'Unauthorized') {
                 setError('Zadané heslo nebolo platné');
             } else {
@@ -105,18 +112,20 @@ const Profile: React.FC = () => {
                         />
                     </Form.Group>
                 </Form>
-
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <Input name='password' label='Heslo' type='password'/>
-                        <Input name='newPassword' label='Nové heslo' type='password'/>
+                        <Input name='password' label='Heslo' type='password' />
+                        <Input
+                            name='newPassword'
+                            label='Nové heslo'
+                            type='password'
+                        />
                         <Button variant='primary' type='submit'>
                             Zmeniť heslo
                         </Button>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -136,6 +145,7 @@ const Profile: React.FC = () => {
                     setShowModal(false);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

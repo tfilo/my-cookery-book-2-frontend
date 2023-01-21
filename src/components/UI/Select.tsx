@@ -32,7 +32,6 @@ const Select: React.FC<SelectProps> = (props) => {
     } = useFormContext();
 
     const errorMessage = get(errors, props.name)?.message;
-
     const value = getValues(props.name);
 
     useEffect(() => {

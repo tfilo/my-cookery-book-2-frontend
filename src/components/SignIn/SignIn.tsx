@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Form, /*Form*/ } from 'react-bootstrap';
+import React, { useContext, useState } from 'react';
+import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { AuthContext } from '../../store/auth-context';
 import { authApi } from '../../utils/apiWrapper';
@@ -17,19 +16,21 @@ type SignInForm = Api.LoginRequest & {
     login: boolean;
 };
 
-const schema = yup.object({
-    username: yup
-        .string()
-        .trim()
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .required('Povinná položka'),
-    password: yup
-        .string()
-        .trim()
-        .max(255, 'Musí byť maximálne 255 znakov')
-        .required('Povinná položka'),
-    login: yup.boolean().required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        username: yup
+            .string()
+            .trim()
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .required('Povinná položka'),
+        password: yup
+            .string()
+            .trim()
+            .max(255, 'Musí byť maximálne 255 znakov')
+            .required('Povinná položka'),
+        login: yup.boolean().required('Povinná položka'),
+    })
+    .required();
 
 const SignIn: React.FC = () => {
     const methods = useForm<SignInForm>({
@@ -42,16 +43,10 @@ const SignIn: React.FC = () => {
 
     const authCtx = useContext(AuthContext);
     const [error, setError] = useState<string>();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        authCtx.isLoggedIn && navigate('/home');
-    }, [authCtx.isLoggedIn, navigate]);
 
     const submitHandler: SubmitHandler<SignInForm> = async (
         data: SignInForm
     ) => {
-        console.log('form data is', data);
         const sendData = {
             username: data.username,
             password: data.password,
@@ -69,10 +64,13 @@ const SignIn: React.FC = () => {
             <div className='col-lg-6 pt-3'>
                 <h1>Prihlasovacia obrazovka</h1>
                 <FormProvider {...methods}>
-                    <Form onSubmit={methods.handleSubmit(submitHandler)} noValidate>
-                        <Input name='username' label='Prihlasovacie meno'/>
-                        <Input name='password' label='Heslo' type='password'/>
-                        <Checkbox name='login' label='Zapamätať prihlásenie'/>
+                    <Form
+                        onSubmit={methods.handleSubmit(submitHandler)}
+                        noValidate
+                    >
+                        <Input name='username' label='Prihlasovacie meno' />
+                        <Input name='password' label='Heslo' type='password' />
+                        <Checkbox name='login' label='Zapamätať prihlásenie' />
                         <Button variant='primary' type='submit'>
                             Prihlásiť sa
                         </Button>

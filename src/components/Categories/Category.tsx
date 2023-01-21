@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
-
 import { categoryApi } from '../../utils/apiWrapper';
 import { Api } from '../../openapi';
 import Input from '../UI/Input';
@@ -14,17 +13,20 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 type CategoryForm = Api.CreateCategory | Api.UpdateCategory;
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
-        .max(50, 'Musí byť maximálne 50 znakov')
-        .required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .min(1, 'Musí byť minimálne 1 znak')
+            .max(50, 'Musí byť maximálne 50 znakov')
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Category: React.FC = () => {
     const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
 
@@ -40,10 +42,19 @@ const Category: React.FC = () => {
         if (params.id) {
             const paramsNumber = params?.id;
             (async () => {
-                const data = await categoryApi.getCategory(
-                    parseInt(paramsNumber)
-                );
-                methods.reset(data);
+                try {
+                    setIsLoading(true);
+                    const data = await categoryApi.getCategory(
+                        parseInt(paramsNumber)
+                    );
+                    methods.reset(data);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
+                }
             })();
         }
     }, [params.id, methods]);
@@ -58,11 +69,10 @@ const Category: React.FC = () => {
         try {
             if (params.id) {
                 await categoryApi.updateCategory(parseInt(params.id), data);
-                navigate('/categories');
             } else {
                 await categoryApi.createCategory(data);
-                navigate('/categories');
             }
+            navigate('/categories');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -92,7 +102,6 @@ const Category: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -104,6 +113,7 @@ const Category: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };

@@ -11,10 +11,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
-import Ingredients from './Ingredients';
+import Ingredients from './Ingredients/Ingredients';
 
 type RecipeSectionsProps = {
-    ingredientsData: SelectGroupOptions[];
+    units: SelectGroupOptions[];
 };
 
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
@@ -54,7 +54,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
             {fields.map((field, index, array) => {
                 return (
                     <Card key={field?.id} className='mb-3'>
-                        <Card.Body>
+                        <Card.Body className='pb-0'>
                             <section>
                                 <div
                                     className='position-absolute'
@@ -99,7 +99,6 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                         <FontAwesomeIcon icon={faCircleMinus} />
                                     </Button>
                                 </div>
-                                {/* <Stack direction='horizontal' gap={1}> */}
                                 <input
                                     {...register(`recipeSections.${index}.id`)}
                                     type='hidden'
@@ -109,10 +108,8 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                     label='Názov sekcie'
                                     className='col-12'
                                 />
-                                {/* </Stack> */}
                                 <Ingredients
-                                    // <Ingredients
-                                    ingredientsData={props.ingredientsData}
+                                    units={props.units}
                                     recipeSectionName={`recipeSections.${index}`}
                                 />
                                 <Textarea

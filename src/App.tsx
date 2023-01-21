@@ -1,8 +1,7 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-
 import './App.css';
 import { AuthContext } from './store/auth-context';
 import SignInPage from './pages/SignInPage';
@@ -21,24 +20,63 @@ import UnitCategoryPage from './pages/UnitCategoryPage';
 import UnitPage from './pages/UnitPage';
 import RecipesPage from './pages/RecipesPage';
 import RecipeViewPage from './pages/RecipeViewPage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faList,
+    faPizzaSlice,
+    faScaleBalanced,
+    faTags,
+    faUser,
+    faUsers,
+    faUtensils,
+} from '@fortawesome/free-solid-svg-icons';
+import { formatErrorMessage } from './utils/errorMessages';
+import Spinner from './components/UI/Spinner';
+import Modal from './components/UI/Modal';
 
 function App() {
+    // TODO da sa ale dalo by sa aj optimalnejsie
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingCategories, setIsLoadingCategories] =
+        useState<boolean>(false);
+    const [error, setError] = useState<string>();
     const [listOfCategories, setListOfCategories] = useState<
         Api.SimpleCategory[]
     >([]);
 
+    const [resetValues, setResetValues] = useState<{searchingText: string,
+        searchingCategory: number | undefined,
+        searchingTags: [],
+        currentPage: number,
+        order: Api.RecipeSearchCriteria.OrderEnum,
+        orderBy:
+            Api.RecipeSearchCriteria
+                .OrderByEnum}>({searchingText: '',
+                    searchingCategory: undefined,
+                    searchingTags: [],
+                    currentPage: 1,
+                    order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+                    orderBy:
+                        Api.RecipeSearchCriteria
+                            .OrderByEnum.Name})
+
     useEffect(() => {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoading(true); // TODO - trosku zle
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
                 }
             })();
         }
@@ -48,17 +86,23 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
+                    setIsLoadingCategories(true); // TODO - trosku zle- zmenila som nazov statu kedze je to asynca obe v useEffect
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
-                    console.error(err);
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoadingCategories(false);
                 }
             })();
         }
     }, [isLoggedIn]);
 
-    
-    let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
+    let username = `${userInfo?.firstName ?? ''} ${
+        userInfo?.lastName ?? ''
+    }`.trim();
     if (!username) {
         username = userInfo?.username ?? '';
     }
@@ -71,12 +115,19 @@ function App() {
         setExpanded(false);
     };
 
+    
     const logoutHandler = () => {
         authCtx.logout();
     };
-
+    
+    const setStateHandler = (categoryId: number) => {
+        setResetValues((prev) => {return {...prev, searchingCategory: categoryId}});
+        // window.location.reload();
+        closeOffcanvas();
+    };
+console.log(resetValues)
     return (
-        <Fragment>
+        <>
             {isLoggedIn && (
                 <Navbar
                     bg='primary'
@@ -90,11 +141,11 @@ function App() {
                             Kuchárska kniha
                         </Navbar.Brand>
                         <Button onClick={logoutHandler}>Odhlásiť sa</Button>
-                        <Navbar.Offcanvas placement='start'>
-                            <Offcanvas.Header
-                                closeButton
-                                onHide={closeOffcanvas}
-                            >
+                        <Navbar.Offcanvas
+                            placement='start'
+                            onHide={closeOffcanvas}
+                        >
+                            <Offcanvas.Header closeButton>
                                 <Offcanvas.Title>{username}</Offcanvas.Title>
                             </Offcanvas.Header>
                             <Offcanvas.Body>
@@ -104,20 +155,37 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faUser}
+                                        />{' '}
                                         Profil
                                     </Nav.Link>
-                                    <Nav.Link
-                                        to='/users'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        Používatelia
-                                    </Nav.Link>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role === Api.User.RolesEnum.ADMIN
+                                    ) && (
+                                        <Nav.Link
+                                            to='/users'
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ width: 20 }}
+                                                icon={faUsers}
+                                            />{' '}
+                                            Používatelia
+                                        </Nav.Link>
+                                    )}
                                     <Nav.Link
                                         to='/categories'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faList}
+                                        />{' '}
                                         Kategórie
                                     </Nav.Link>
                                     <Nav.Link
@@ -125,6 +193,10 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faScaleBalanced}
+                                        />{' '}
                                         Jednotky
                                     </Nav.Link>
                                     <Nav.Link
@@ -132,29 +204,50 @@ function App() {
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faTags}
+                                        />{' '}
                                         Značky
                                     </Nav.Link>
-                                    <Nav.Link
-                                        to='/recipe/create'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        Pridať recept
-                                    </Nav.Link>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role ===
+                                            (Api.User.RolesEnum.ADMIN ||
+                                                Api.User.RolesEnum.CREATOR)
+                                    ) && (
+                                        <Nav.Link
+                                            to='/recipe/create'
+                                            as={Link}
+                                            onClick={closeOffcanvas}
+                                        >
+                                            <FontAwesomeIcon
+                                                style={{ width: 20 }}
+                                                icon={faPizzaSlice}
+                                            />{' '}
+                                            Pridať recept
+                                        </Nav.Link>
+                                    )}
                                     <hr />
                                     <Nav.Link
                                         to='/recipes'
                                         as={Link}
                                         onClick={closeOffcanvas}
                                     >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20 }}
+                                            icon={faUtensils}
+                                        />{' '}
                                         Všetky recepty
                                     </Nav.Link>
                                     <hr />
                                     {listOfCategories.map((category) => (
+                                        // TODO preklik z menu nepremaze kriteria !!!
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
+                                            state={resetValues}
                                             as={Link}
-                                            onClick={closeOffcanvas}
+                                            onClick={()=> setStateHandler(category.id)}
                                             key={category.id}
                                         >
                                             {category.name}
@@ -239,7 +332,16 @@ function App() {
                     />
                 </Routes>
             </Container>
-        </Fragment>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            {(isLoading || isLoadingCategories) && <Spinner />}
+        </>
     );
 }
 

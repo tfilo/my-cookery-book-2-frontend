@@ -1,4 +1,10 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, {
+    Fragment,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from 'react';
 import {
     Button,
     Card,
@@ -32,6 +38,9 @@ import {
 import { Typeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { debounce } from 'lodash';
+import Spinner from '../UI/Spinner';
+import { orderByLabels } from '../../translate/orderByLabels';
+import { AuthContext } from '../../store/auth-context';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
     url?: string;
@@ -43,6 +52,13 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
 
 const pagesToShow = 5;
 const pageSize = 12;
+
+export const recipesUrlWithCategory = (categoryId?: string | number) => {
+    if (!categoryId || categoryId.toString() === '-1') {
+        return '/recipes';
+    }
+    return '/recipes/' + categoryId;
+};
 
 const Recipes: React.FC = () => {
     const [error, setError] = useState<string>();
@@ -57,7 +73,7 @@ const Recipes: React.FC = () => {
         Api.SimpleCategory[]
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [multiSelections, setMultiSelections] = useState<Api.SimpleTag[]>(
+    const [selectedTags, setSelectedTags] = useState<Api.SimpleTag[]>(
         state?.searchingTags ?? []
     );
     const [showFilter, setShowFilter] = useState(false);
@@ -67,20 +83,20 @@ const Recipes: React.FC = () => {
     const [orderBy, setOrderBy] = useState(
         state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name
     );
-
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingRecipes, setIsLoadingRecipes] = useState<boolean>(false);
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
+    const authCtx = useContext(AuthContext);
 
     useEffect(() => {
-        if (categoryId > 0 || multiSelections.length > 0) {
+        if (categoryId > 0 || selectedTags.length > 0) {
             setShowFilter(true);
         }
-    }, [categoryId, multiSelections]);
-
-    // console.log(searchingText, multiSelections, currentPage)
+    }, [categoryId, selectedTags]);
 
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
-        const searchingTags = multiSelections.map((t) => t.id);
+        const searchingTags = selectedTags.map((t) => t.id);
         return {
             search: searchingText,
             categoryId: categoryId === -1 ? null : categoryId,
@@ -90,14 +106,7 @@ const Recipes: React.FC = () => {
             orderBy: orderBy,
             order: order,
         };
-    }, [
-        currentPage,
-        searchingText,
-        multiSelections,
-        categoryId,
-        order,
-        orderBy,
-    ]);
+    }, [currentPage, searchingText, selectedTags, categoryId, order, orderBy]);
 
     const numOfPages = recipes
         ? Math.ceil(recipes.count / recipes.pageSize)
@@ -128,6 +137,7 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
+                setIsLoading(true);
                 const categories = await categoryApi.getCategories();
                 setListOfCategories(categories);
                 const tags = await tagApi.getTags();
@@ -136,6 +146,8 @@ const Recipes: React.FC = () => {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
                 });
+            } finally {
+                setIsLoading(false);
             }
         })();
     }, []);
@@ -143,11 +155,10 @@ const Recipes: React.FC = () => {
     useEffect(() => {
         (async () => {
             try {
-                // console.log(criteria);
+                setIsLoadingRecipes(true);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
                     criteria
                 );
-                // console.log(recipes);
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
@@ -180,12 +191,23 @@ const Recipes: React.FC = () => {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
                 });
+            } finally {
+                setIsLoadingRecipes(false);
             }
         })();
     }, [criteria]);
 
     const createRecipeHandler = () => {
-        navigate('/recipe/create');
+        navigate('/recipe/create', {
+            state: {
+                searchingText: searchingText,
+                searchingTags: selectedTags,
+                searchingCategory: categoryId,
+                currentPage: currentPage,
+                order: order,
+                orderBy: orderBy,
+            },
+        });
     };
 
     const editRecipeHandler = (
@@ -196,7 +218,8 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/${id}`, {
             state: {
                 searchingText: searchingText,
-                searchingTags: multiSelections,
+                searchingTags: selectedTags,
+                searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
                 orderBy: orderBy,
@@ -208,7 +231,8 @@ const Recipes: React.FC = () => {
         navigate(`/recipe/display/${id}`, {
             state: {
                 searchingText: searchingText,
-                searchingTags: multiSelections,
+                searchingTags: selectedTags,
+                searchingCategory: categoryId,
                 currentPage: currentPage,
                 order: order,
                 orderBy: orderBy,
@@ -238,19 +262,31 @@ const Recipes: React.FC = () => {
         );
     };
 
+    const orderByDropdownItems = (
+        orderBy: Api.RecipeSearchCriteria.OrderByEnum
+    ) => {
+        setOrderBy(orderBy);
+        setCurrentPage(1);
+    };
+
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
                 <h2 className='flex-grow-1'>Recepty</h2>
-                <Button
-                    variant='primary'
-                    onClick={createRecipeHandler}
-                    className='mb-3'
-                >
-                    Pridať recept
-                </Button>
+                {authCtx.userRoles.find(
+                    (role) =>
+                        role ===
+                        (Api.User.RolesEnum.ADMIN || Api.User.RolesEnum.CREATOR)
+                ) && (
+                    <Button
+                        variant='primary'
+                        onClick={createRecipeHandler}
+                        className='mb-3'
+                    >
+                        Pridať recept
+                    </Button>
+                )}
             </div>
-
             <div className='input-group mb-3'>
                 <span className='input-group-text'>
                     <FontAwesomeIcon icon={faMagnifyingGlass} />
@@ -301,54 +337,22 @@ const Recipes: React.FC = () => {
                         <FontAwesomeIcon icon={faGripVertical} />
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum.Name
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.Name
-                            }
-                        >
-                            Názov
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum
-                                        .CreatedAt
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.CreatedAt
-                            }
-                        >
-                            Dátum vytvorenia
-                        </Dropdown.Item>
-                        <Dropdown.Item
-                            onClick={() => {
-                                setOrderBy(
-                                    Api.RecipeSearchCriteria.OrderByEnum
-                                        .UpdatedAt
-                                );
-                                setCurrentPage(1);
-                            }}
-                            active={
-                                orderBy ===
-                                Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt
-                            }
-                        >
-                            Dátum úpravy
-                        </Dropdown.Item>
+                        {Object.values(
+                            Api.RecipeSearchCriteria.OrderByEnum
+                        ).map((value) => (
+                            <Dropdown.Item
+                                key={value}
+                                onClick={() => {
+                                    orderByDropdownItems(value);
+                                }}
+                                active={orderBy === value}
+                            >
+                                {orderByLabels[value]}
+                            </Dropdown.Item>
+                        ))}
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
-
             <Collapse in={showFilter}>
                 <div>
                     <Card className='mb-3' id='collapse'>
@@ -366,11 +370,11 @@ const Recipes: React.FC = () => {
                                             : ''
                                     }
                                     onChange={(e) => {
-                                        e.target.value === '-1'
-                                            ? navigate('/recipes')
-                                            : navigate(
-                                                  `/recipes/${e.target.value}`
-                                              );
+                                        navigate(
+                                            recipesUrlWithCategory(
+                                                e.target.value
+                                            )
+                                        );
                                         setCurrentPage(1);
                                     }}
                                     value={`${categoryId}`}
@@ -397,14 +401,15 @@ const Recipes: React.FC = () => {
                                     id='tagsMultiselection'
                                     labelKey='name'
                                     onChange={(selected) => {
-                                        setMultiSelections(
+                                        // TODO toto tiez moze byt ako handler ale nemusi :)
+                                        setSelectedTags(
                                             selected as Api.SimpleTag[]
                                         );
                                         setCurrentPage(1);
                                     }}
                                     options={listOfTags}
                                     placeholder='Vyberte ľubovoľný počet značiek'
-                                    selected={multiSelections}
+                                    selected={selectedTags}
                                     multiple
                                 />
                                 {listOfTags.length < 1 && (
@@ -418,13 +423,12 @@ const Recipes: React.FC = () => {
                     </Card>
                 </div>
             </Collapse>
-
             <Row xs={1} sm={2} lg={4} className='g-4'>
                 {recipes?.rows.map((row) => {
                     return (
                         <Col key={row.id}>
                             <Card
-                                className='mb-3 overflow-hidden'
+                                className='overflow-hidden'
                                 role='button'
                                 onClick={showRecipeHandler.bind(null, row.id)}
                             >
@@ -459,31 +463,37 @@ const Recipes: React.FC = () => {
                                             {row.name}
                                         </span>
                                     </Card.Title>
-                                    <Button
-                                        title='Upraviť'
-                                        variant='outline-secondary'
-                                        type='button'
-                                        onClick={(e) =>
-                                            editRecipeHandler(e, row.id)
-                                        }
-                                        className='position-absolute border-0'
-                                        style={{ top: 0, right: 0 }}
-                                    >
-                                        <FontAwesomeIcon icon={faPencil} />
-                                    </Button>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role ===
+                                            (Api.User.RolesEnum.ADMIN ||
+                                                Api.User.RolesEnum.CREATOR)
+                                    ) && (
+                                        <Button
+                                            title='Upraviť'
+                                            variant='outline-secondary'
+                                            type='button'
+                                            onClick={(e) =>
+                                                editRecipeHandler(e, row.id)
+                                            }
+                                            className='position-absolute border-0'
+                                            style={{ top: 0, right: 0 }}
+                                        >
+                                            <FontAwesomeIcon icon={faPencil} />
+                                        </Button>
+                                    )}
                                 </Card.ImgOverlay>
                             </Card>
                         </Col>
                     );
                 })}
             </Row>
-
             {recipes && recipes?.rows.length < 1 && (
                 <p className='mt-3'>Neboli nájdené žiadne výsledky.</p>
             )}
 
             {!!numOfPages && numOfPages > 1 && (
-                <Pagination className='justify-content-center'>
+                <Pagination className='mt-3 justify-content-center'>
                     <Pagination.First
                         onClick={() => changePageHandler(1)}
                         disabled={currentPage === 1}
@@ -521,6 +531,7 @@ const Recipes: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isLoading || isLoadingRecipes) && <Spinner />}
         </Fragment>
     );
 };

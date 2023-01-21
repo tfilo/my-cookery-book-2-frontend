@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
-
 import { tagApi } from '../../utils/apiWrapper';
 import { Api } from '../../openapi';
 import Input from '../UI/Input';
@@ -14,17 +13,20 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 type TagForm = Api.CreateTag | Api.UpdateTag;
 
-const schema = yup.object({
-    name: yup
-        .string()
-        .trim()
-        .min(1, 'Musí byť minimálne 1 znak')
-        .max(80, 'Musí byť maximálne 80 znakov')
-        .required('Povinná položka'),
-});
+const schema = yup
+    .object({
+        name: yup
+            .string()
+            .trim()
+            .min(1, 'Musí byť minimálne 1 znak')
+            .max(80, 'Musí byť maximálne 80 znakov')
+            .required('Povinná položka'),
+    })
+    .required();
 
 const Tag: React.FC = () => {
     const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
 
@@ -40,8 +42,17 @@ const Tag: React.FC = () => {
         if (params.id) {
             const paramsNumber = params?.id;
             (async () => {
-                const data = await tagApi.getTag(parseInt(paramsNumber));
-                methods.reset(data);
+                try {
+                    setIsLoading(true);
+                    const data = await tagApi.getTag(parseInt(paramsNumber));
+                    methods.reset(data);
+                } catch (err) {
+                    formatErrorMessage(err).then((message) =>
+                        setError(message)
+                    );
+                } finally {
+                    setIsLoading(false);
+                }
             })();
         }
     }, [params.id, methods]);
@@ -51,15 +62,13 @@ const Tag: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<TagForm> = async (data: TagForm) => {
-        console.log(data);
         try {
             if (params.id) {
                 await tagApi.updatetag(parseInt(params.id), data);
-                navigate('/tags');
             } else {
                 await tagApi.createTag(data);
-                navigate('/tags');
             }
+            navigate('/tags');
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -89,7 +98,6 @@ const Tag: React.FC = () => {
                                 Zrušiť
                             </Button>
                         </Stack>
-                        {isSubmitting && <Spinner />}
                     </Form>
                 </FormProvider>
             </div>
@@ -101,6 +109,7 @@ const Tag: React.FC = () => {
                     setError(undefined);
                 }}
             />
+            {(isSubmitting || isLoading) && <Spinner />}
         </div>
     );
 };
