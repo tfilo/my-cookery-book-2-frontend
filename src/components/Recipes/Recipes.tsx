@@ -275,8 +275,8 @@ const Recipes: React.FC = () => {
                 <h1 className='flex-grow-1'>Recepty</h1>
                 {authCtx.userRoles.find(
                     (role) =>
-                        role ===
-                        (Api.User.RolesEnum.ADMIN || Api.User.RolesEnum.CREATOR)
+                        role === Api.User.RolesEnum.ADMIN ||
+                        role === Api.User.RolesEnum.CREATOR
                 ) && (
                     <Button
                         variant='primary'
@@ -421,63 +421,70 @@ const Recipes: React.FC = () => {
                 {recipes?.rows.map((row) => {
                     return (
                         <Col key={row.id}>
-                            <Card
-                                className='overflow-hidden'
-                                role='button'
-                                onClick={showRecipeHandler.bind(null, row.id)}
-                            >
-                                <Card.Img
-                                    variant='top'
-                                    src={row.url ?? defImg}
-                                    alt='obrázok'
-                                    style={{
-                                        aspectRatio: 1,
-                                        objectFit: 'cover',
-                                        opacity: row.url ? 1 : 0.3,
-                                    }}
-                                />
-                                <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                                    <Card.Text
-                                        className='m-0 p-2'
-                                        style={{
-                                            backgroundColor: 'rgba(0,0,0,0.5)',
-                                        }}
-                                    >
-                                        <span className='text-white'>
-                                            {row.description}
-                                        </span>
-                                    </Card.Text>
-                                    <Card.Title
-                                        className='m-0 p-2'
-                                        style={{
-                                            backgroundColor: 'rgba(0,0,0,0.5)',
-                                        }}
-                                    >
-                                        <span className='text-white'>
-                                            {row.name}
-                                        </span>
-                                    </Card.Title>
-                                    {authCtx.userRoles.find(
-                                        (role) =>
-                                            role ===
-                                            (Api.User.RolesEnum.ADMIN ||
-                                                Api.User.RolesEnum.CREATOR)
-                                    ) && (
-                                        <Button
-                                            title='Upraviť'
-                                            variant='outline-secondary'
-                                            type='button'
-                                            onClick={(e) =>
-                                                editRecipeHandler(e, row.id)
-                                            }
-                                            className='position-absolute border-0'
-                                            style={{ top: 0, right: 0 }}
-                                        >
-                                            <FontAwesomeIcon icon={faPencil} />
-                                        </Button>
+                                <Card
+                                    className='overflow-hidden'
+                                    role='button'
+                                    onClick={showRecipeHandler.bind(
+                                        null,
+                                        row.id
                                     )}
-                                </Card.ImgOverlay>
-                            </Card>
+                                >
+                                    <Card.Img
+                                        variant='top'
+                                        src={row.url ?? defImg}
+                                        alt='obrázok'
+                                        style={{
+                                            aspectRatio: 1,
+                                            objectFit: 'cover',
+                                            opacity: row.url ? 1 : 0.3,
+                                        }}
+                                    />
+                                    <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                        <Card.Text
+                                            className='m-0 p-2'
+                                            style={{
+                                                backgroundColor:
+                                                    'rgba(0,0,0,0.5)',
+                                            }}
+                                        >
+                                            <span className='text-white'>
+                                                {row.description}
+                                            </span>
+                                        </Card.Text>
+                                        <Card.Title
+                                            className='m-0 p-2'
+                                            style={{
+                                                backgroundColor:
+                                                    'rgba(0,0,0,0.5)',
+                                            }}
+                                        >
+                                            <span className='text-white'>
+                                                {row.name}
+                                            </span>
+                                        </Card.Title>
+                                        {authCtx.userRoles.find(
+                                            (role) =>
+                                                role ===
+                                                Api.User.RolesEnum.ADMIN 
+                                                || row.creatorId === authCtx.userId
+                                        ) && (
+                                            <Button
+                                                title='Upraviť'
+                                                variant='outline-secondary'
+                                                type='button'
+                                                onClick={(e) =>
+                                                    editRecipeHandler(e, row.id)
+                                                }
+                                                className='position-absolute border-0'
+                                                style={{ top: 0, right: 0 }}
+                                            >
+                                                <FontAwesomeIcon
+                                                    icon={faPencil}
+                                                />
+                                            </Button>
+                                        )}
+                                    </Card.ImgOverlay>
+                                </Card>
                         </Col>
                     );
                 })}

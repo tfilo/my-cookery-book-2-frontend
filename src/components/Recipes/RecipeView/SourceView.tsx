@@ -6,33 +6,22 @@ type SourceProps = {
 };
 
 const SourceView: React.FC<SourceProps> = (props) => {
-    const urlify = (text: string) => {
-        if (text.includes('http://') || text.includes('https://')) {
-            let start;
-            if (text.includes('http://')) {
-                start = text.indexOf('http://');
-            } else {
-                start = text.indexOf('https://');
-            }
-            let end = text.indexOf(' ', start);
-            if (end === -1) {
-                end = text.length;
-            }
-            if (start) {
+    const stringWithUrlToJSX = (input: string) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+        return input.split(urlRegex).map((p, idx) => {
+            if (urlRegex.test(p)) {
                 return (
-                    <>
-                        {text.substring(0, start)}
-                        <a href={text.substring(start, end)} rel='noopener'>
-                            {text.substring(start, end)}
-                        </a>
-                        {text.substring(end, text.length)}
-                    </>
+                    <a href={p} rel='noreferrer' target='_blank' key={idx}>
+                        {p}
+                    </a>
                 );
+            } else {
+                return <span key={idx}>{p}</span>;
             }
-        } else {
-            return text;
-        }
+        });
     };
+
     return (
         <>
             {props.recipe &&
@@ -40,11 +29,13 @@ const SourceView: React.FC<SourceProps> = (props) => {
                 props.recipe?.sources.length >= 1 && (
                     <section className='mt-3'>
                         <h3>Zdroje</h3>
-                        {props.recipe.sources.map((source) => (
-                            <p className='mb-0' key={source}>
-                                {urlify(source)}
-                            </p>
-                        ))}
+                        <ul>
+                            {props.recipe.sources.map((source) => (
+                                <li className='mb-0' key={source}>
+                                    {stringWithUrlToJSX(source)}
+                                </li>
+                            ))}
+                        </ul>
                     </section>
                 )}
         </>

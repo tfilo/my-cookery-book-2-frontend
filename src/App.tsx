@@ -48,21 +48,21 @@ function App() {
         Api.SimpleCategory[]
     >([]);
 
-    const [resetValues, setResetValues] = useState<{searchingText: string,
-        searchingCategory: number | undefined,
+    const [resetValues, setResetValues] = useState<{
+        searchingText: string;
+        searchingCategory: number | undefined;
+        searchingTags: [];
+        currentPage: number;
+        order: Api.RecipeSearchCriteria.OrderEnum;
+        orderBy: Api.RecipeSearchCriteria.OrderByEnum;
+    }>({
+        searchingText: '',
+        searchingCategory: undefined,
         searchingTags: [],
-        currentPage: number,
-        order: Api.RecipeSearchCriteria.OrderEnum,
-        orderBy:
-            Api.RecipeSearchCriteria
-                .OrderByEnum}>({searchingText: '',
-                    searchingCategory: undefined,
-                    searchingTags: [],
-                    currentPage: 1,
-                    order: Api.RecipeSearchCriteria.OrderEnum.ASC,
-                    orderBy:
-                        Api.RecipeSearchCriteria
-                            .OrderByEnum.Name})
+        currentPage: 1,
+        order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+        orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
+    });
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -115,17 +115,18 @@ function App() {
         setExpanded(false);
     };
 
-    
     const logoutHandler = () => {
         authCtx.logout();
     };
-    
+
     const setStateHandler = (categoryId: number) => {
-        setResetValues((prev) => {return {...prev, searchingCategory: categoryId}});
+        setResetValues((prev) => {
+            return { ...prev, searchingCategory: categoryId };
+        });
         // window.location.reload();
         closeOffcanvas();
     };
-console.log(resetValues)
+    console.log(resetValues);
     return (
         <>
             {isLoggedIn && (
@@ -212,9 +213,8 @@ console.log(resetValues)
                                     </Nav.Link>
                                     {authCtx.userRoles.find(
                                         (role) =>
-                                            role ===
-                                            (Api.User.RolesEnum.ADMIN ||
-                                                Api.User.RolesEnum.CREATOR)
+                                            role === Api.User.RolesEnum.ADMIN ||
+                                            role === Api.User.RolesEnum.CREATOR
                                     ) && (
                                         <Nav.Link
                                             to='/recipe/create'
@@ -247,7 +247,9 @@ console.log(resetValues)
                                             to={`/recipes/${category.id}`}
                                             state={resetValues}
                                             as={Link}
-                                            onClick={()=> setStateHandler(category.id)}
+                                            onClick={() =>
+                                                setStateHandler(category.id)
+                                            }
                                             key={category.id}
                                         >
                                             {category.name}
