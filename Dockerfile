@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 COPY . .
 RUN npm install --location=global npm@latest
 RUN npm install
-RUN npx openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/v1.0.0/src/openapi.json
+RUN npx openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/v1.0.1/src/openapi.json
 RUN sed -i "s|localVarHeaderParameter.set('Content-Type', 'multipart/form-data');|//removed content type|g" src/openapi/api.ts
 RUN npm run build
 
