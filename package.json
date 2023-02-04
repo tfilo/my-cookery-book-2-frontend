@@ -1,6 +1,6 @@
 {
   "name": "my-cookery-book-2-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Petra Filová",
   "license": "MIT",
   "proxy": "http://localhost:8080/",
