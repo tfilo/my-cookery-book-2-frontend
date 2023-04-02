@@ -12,7 +12,6 @@ import AssociatedRecipeView from './AssociatedRecipeView';
 import SectionView from './SectionView';
 import PictureView from './PictureView';
 import SourceView from './SourceView';
-import InitialView from './InitialView';
 import ServeView from './ServeView';
 import AuthorView from './AuthorView';
 import Spinner from '../../UI/Spinner';
@@ -150,13 +149,19 @@ const RecipeView: React.FC = () => {
             </Stack>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
-                <InitialView recipe={recipe} />
+                <h1 className='pt-2'>{recipe?.name}</h1>
                 <ServeView
                     recipe={recipe}
                     serves={serves}
                     setServes={setServes}
                 ></ServeView>
                 <SectionView recipe={recipe} serves={serves} />
+                {recipe?.method && (
+                    <section className='pb-2'>
+                        <h2>Postup prípravy receptu</h2>
+                        <p>{recipe?.method}</p>
+                    </section>
+                )}
                 <PictureView recipe={recipe} />
                 <SourceView recipe={recipe} />
                 <AssociatedRecipeView

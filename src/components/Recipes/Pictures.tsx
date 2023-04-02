@@ -42,7 +42,7 @@ const Pictures: React.FC = () => {
     const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
         // console.log(`position3: ${position}`);
         const data1 = +e.dataTransfer.getData('pos1_position');
-        const data2 = +e.dataTransfer.getData('pos2_position');
+        // const data2 = +e.dataTransfer.getData('pos2_position');
         // console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
         move(data1, position);
     };
@@ -94,7 +94,7 @@ const Pictures: React.FC = () => {
                     ref={imageInputRef}
                 />
             </Form.Group>
-            <Row xs={1} sm={2} lg={4} className='g-4 mb-4'>
+            <Row xs={1} sm={2} lg={4} className='g-4 pb-4'>
                 {fields.map((field, index) => {
                     return (
                         <Col key={field?.id}>

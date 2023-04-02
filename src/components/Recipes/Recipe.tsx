@@ -211,7 +211,16 @@ const Recipe: React.FC = () => {
             serves: null,
             method: null,
             sources: [],
-            recipeSections: [],
+            recipeSections: [
+                {
+                    name: '',
+                    sortNumber: 1,
+                    method: null,
+                    ingredients: [
+                        { name: '', sortNumber: 1, value: null, unitId: -1 },
+                    ],
+                },
+            ],
             tags: [],
             associatedRecipes: [],
             categoryId: -1,
@@ -452,12 +461,12 @@ const Recipe: React.FC = () => {
                             type='number'
                             min={1}
                         />
+                        <RecipeSections units={units} />
                         <Textarea
-                            label='Postup prípravy'
+                            label='Postup prípravy receptu (voliteľné)'
                             name='method'
                             rows={10}
                         />
-                        <RecipeSections units={units} />
                         <Select
                             name='categoryId'
                             label='Kategória receptu'

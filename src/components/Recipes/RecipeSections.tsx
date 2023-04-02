@@ -115,7 +115,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 <Textarea
                                     rows={10}
                                     className='mt-3'
-                                    label='Postup prípravy'
+                                    label='Postup prípravy sekcie'
                                     name={`recipeSections.${index}.method`}
                                 />
                             </section>

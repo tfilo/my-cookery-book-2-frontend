@@ -28,10 +28,10 @@ const SourceView: React.FC<SourceProps> = (props) => {
                 props.recipe.sources &&
                 props.recipe?.sources.length >= 1 && (
                     <section className='mt-3'>
-                        <h3>Zdroje</h3>
+                        <h2>Zdroje</h2>
                         <ul>
                             {props.recipe.sources.map((source) => (
-                                <li className='mb-0' key={source}>
+                                <li className='mb-0 text-truncate' key={source}>
                                     {stringWithUrlToJSX(source)}
                                 </li>
                             ))}

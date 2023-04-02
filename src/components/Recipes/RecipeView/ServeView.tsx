@@ -21,7 +21,7 @@ const ServeView: React.FC<ServeProps> = (props) => {
                 (props.recipe?.serves === null &&
                     props.recipe.recipeSections.length > 0)) && (
                 <Stack direction='horizontal' gap={3}>
-                    <h3>Počet porcií:</h3>
+                    <h2>Počet porcií:</h2>
                     <input
                         type='number'
                         defaultValue={
@@ -34,7 +34,7 @@ const ServeView: React.FC<ServeProps> = (props) => {
                             width: 50,
                             fontSize: '1.3rem',
                         }}
-                        className='border-0 mb-2'
+                        className='border-0 pb-2'
                         min={1}
                     ></input>
                 </Stack>

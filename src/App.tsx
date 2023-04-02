@@ -30,6 +30,7 @@ import {
     faUsers,
     faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
+import CookieConsent from 'react-cookie-consent';
 import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
@@ -68,7 +69,7 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoading(true); // TODO - trosku zle
+                    setIsLoading(true);
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
@@ -86,7 +87,7 @@ function App() {
         if (isLoggedIn) {
             (async () => {
                 try {
-                    setIsLoadingCategories(true); // TODO - trosku zle- zmenila som nazov statu kedze je to asynca obe v useEffect
+                    setIsLoadingCategories(true);
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
@@ -123,12 +124,26 @@ function App() {
         setResetValues((prev) => {
             return { ...prev, searchingCategory: categoryId };
         });
-        // window.location.reload();
         closeOffcanvas();
     };
-    console.log(resetValues);
+
     return (
         <>
+            <CookieConsent
+                location='bottom'
+                buttonText='Súhlasím'
+                containerClasses='bg-primary'
+                buttonClasses='btn btn-warning rounded m-2'
+                disableButtonStyles={true}
+                overlay={true}
+            >
+                Aplikácia pre svoju funkčnosť vyžaduje uložiť v Local Storage
+                prehliadača informáciu o aktuálne prihlásenom používateľovi.
+                Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača.
+                Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
+                vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu
+                záznamu v Local Storage o prihlásenom používateľovi.
+            </CookieConsent>
             {isLoggedIn && (
                 <Navbar
                     bg='primary'

@@ -19,7 +19,7 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                 props.recipe.associatedRecipes &&
                 props.recipe?.associatedRecipes.length >= 1 && (
                     <section className='mt-3'>
-                        <h3>Súvisiace recepty</h3>
+                        <h2>Súvisiace recepty</h2>
                         <div>
                             {props.recipe.associatedRecipes.map(
                                 (assRecipe, index) => {
@@ -35,6 +35,17 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                     <div>
                                                         {props.associatedRecipes && (
                                                             <>
+                                                                <SectionView
+                                                                    recipe={
+                                                                        props
+                                                                            .associatedRecipes[
+                                                                            index
+                                                                        ]
+                                                                    }
+                                                                    serves={
+                                                                        props.serves
+                                                                    }
+                                                                />
                                                                 {props
                                                                     .associatedRecipes[
                                                                     index
@@ -43,6 +54,7 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                         <h3>
                                                                             Postup
                                                                             prípravy
+                                                                            receptu
                                                                         </h3>
                                                                         <p>
                                                                             {
@@ -55,17 +67,6 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                         </p>
                                                                     </section>
                                                                 )}
-                                                                <SectionView
-                                                                    recipe={
-                                                                        props
-                                                                            .associatedRecipes[
-                                                                            index
-                                                                        ]
-                                                                    }
-                                                                    serves={
-                                                                        props.serves
-                                                                    }
-                                                                />
                                                                 <PictureView
                                                                     recipe={
                                                                         props

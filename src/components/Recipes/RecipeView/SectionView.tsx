@@ -52,8 +52,8 @@ const SectionView: React.FC<SectionProps> = (props) => {
             {props.recipe?.recipeSections.map((section) => {
                 return (
                     <section key={section.id}>
-                        <h3>{section.name}</h3>
-                        <h4>Suroviny</h4>
+                        <h2>{section.name}</h2>
+                        <h3>Suroviny</h3>
                         <ul>
                             {section.ingredients.map((ingredient) =>
                                 showIngredients(
@@ -66,8 +66,12 @@ const SectionView: React.FC<SectionProps> = (props) => {
                                 )
                             )}
                         </ul>
-                        <h4>Postup prípravy</h4>
-                        <p>{section?.method}</p>
+                        {section.method && (
+                            <>
+                                <h3>Postup prípravy sekcie</h3>
+                                <p>{section?.method}</p>
+                            </>
+                        )}
                     </section>
                 );
             })}

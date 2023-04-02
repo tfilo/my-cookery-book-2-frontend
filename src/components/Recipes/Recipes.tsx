@@ -78,10 +78,10 @@ const Recipes: React.FC = () => {
     );
     const [showFilter, setShowFilter] = useState(false);
     const [order, setOrder] = useState(
-        state?.order ?? Api.RecipeSearchCriteria.OrderEnum.ASC
+        state?.order ?? Api.RecipeSearchCriteria.OrderEnum.DESC
     );
     const [orderBy, setOrderBy] = useState(
-        state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.Name
+        state?.orderBy ?? Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt
     );
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLoadingRecipes, setIsLoadingRecipes] = useState<boolean>(false);
@@ -271,7 +271,7 @@ const Recipes: React.FC = () => {
 
     return (
         <Fragment>
-            <div className='d-flex flex-column flex-md-row'>
+            <div className='d-flex flex-column flex-md-row mb-3'>
                 <h1 className='flex-grow-1'>Recepty</h1>
                 {authCtx.userRoles.find(
                     (role) =>
@@ -281,7 +281,6 @@ const Recipes: React.FC = () => {
                     <Button
                         variant='primary'
                         onClick={createRecipeHandler}
-                        className='mb-3'
                     >
                         Pridať recept
                     </Button>
