@@ -19,7 +19,7 @@ It will run pgAdmin on port 8082 and database on port 5432 and backend on port 8
 After database and backend is running, you can start development server by commands:
 
 -   `npm install` (only if you didn't run it before or you modifed package.json file)
--   `npm run generate-openapi` (only if you didn't run it before or backend api was modified)
+-   `npm run generate-openapi` (only if you need generate openapi without starting/buildin app)
 -   `npm start`
 
 React App will start in development mode on port 3000.
