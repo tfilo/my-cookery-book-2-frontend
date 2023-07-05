@@ -34,6 +34,7 @@ import CookieConsent from 'react-cookie-consent';
 import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
+import ConfirmationPage from './pages/ConfirmationPage';
 
 function App() {
     // TODO da sa ale dalo by sa aj optimalnejsie
@@ -335,9 +336,10 @@ function App() {
                             />
                         </Fragment>
                     ) : (
-                        <Route path='/signIn' element={<SignInPage />} />
+                            <Route path='/signIn' element={<SignInPage />} />
                     )}
-
+                    <Route path='/confirm' element={<ConfirmationPage />} />
+                    <Route path='/confirm/:username/:key' element={<ConfirmationPage />} />
                     <Route
                         path='*'
                         element={

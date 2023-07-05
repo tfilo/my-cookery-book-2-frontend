@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 import { userApi } from '../../utils/apiWrapper';
@@ -18,6 +18,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { roleLabels } from '../../translate/roleLabel';
 import Checkbox from '../UI/Checkbox';
+import { get } from 'lodash';
 
 type Roles = { value: Api.User.RolesEnum; name: string }[];
 
@@ -86,25 +87,22 @@ const schema = yup
             .array()
             .of(
                 yup.object({
-                    value: yup
-                        .string()
-                        .oneOf(['ADMIN', 'CREATOR'])
-                        .required('Povinná položka'), //nefunguje
+                    value: yup.string().oneOf(['ADMIN', 'CREATOR']),
                     name: yup.string(),
                 })
-                .required('Povinná položka')
             )
-            .min(1, 'Musí byť minimálne jedna rola') //nefunguje
-            // .mixed<Api.User.RolesEnum>()
-            // .oneOf(Object.values(Api.User.RolesEnum))
+            .min(1, 'Musí byť minimálne jedna rola')
             .required(),
         notifications: yup.boolean().required('Povinná položka'),
     })
     .required();
 
 const User: React.FC = () => {
+    const uniqueId = useId();
     const [error, setError] = useState<string>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isUserConfirmed, setIsUserConfirmed] = useState<boolean>(false);
+    const [emailWasSend, setEmailWasSend] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
 
@@ -116,7 +114,7 @@ const User: React.FC = () => {
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors },
         control,
     } = methods;
 
@@ -127,6 +125,7 @@ const User: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await userApi.getUser(parseInt(paramsNumber));
+                    setIsUserConfirmed(data.confirmed);
                     const receivedRoles = data.roles.map((role) => {
                         return {
                             value: role,
@@ -172,16 +171,24 @@ const User: React.FC = () => {
         navigate('/users');
     };
 
+    const confirmHandler = async () => {
+        if (params.id) {
+            await userApi.resendConfirmation(+params.id);
+            setEmailWasSend(true);
+        }
+    };
+
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
-        console.log(data);
         const sendData = {
             ...data,
             roles: data.roles.map((role) => role.value),
         };
-        console.log(sendData)
         try {
             if (params.id) {
-                await userApi.updateUser(parseInt(params.id), sendData as Api.UpdateUser);
+                await userApi.updateUser(
+                    parseInt(params.id),
+                    sendData as Api.UpdateUser
+                );
             } else {
                 await userApi.createUser(sendData as Api.CreateUser);
             }
@@ -190,6 +197,8 @@ const User: React.FC = () => {
             formatErrorMessage(err).then((message) => setError(message));
         }
     };
+
+    const rolesErrorMessage = get(errors, 'roles')?.message;
 
     return (
         <div className='row justify-content-center'>
@@ -218,16 +227,20 @@ const User: React.FC = () => {
                                 name='roles'
                                 render={({ field: { onChange, value } }) => (
                                     <Typeahead
-                                        id='roles'
+                                        id={uniqueId + 'roles'}
                                         labelKey='name'
                                         onChange={onChange}
                                         options={roleOptions}
-                                        placeholder='Vyberte ľubovoľný počet značiek'
+                                        placeholder='Vyberte ľubovoľný počet rolí'
                                         selected={value}
+                                        isInvalid={!!rolesErrorMessage}
                                         multiple
                                     />
                                 )}
                             />
+                            <Form.Control.Feedback type='invalid'>
+                                {rolesErrorMessage?.toString()}
+                            </Form.Control.Feedback>
                         </Form.Group>
                         <Checkbox
                             name='notifications'
@@ -239,6 +252,15 @@ const User: React.FC = () => {
                                     ? 'Zmeniť používateľa'
                                     : 'Vytvoriť používateľa'}
                             </Button>{' '}
+                            {!isUserConfirmed && (
+                                <Button
+                                    variant='secondary'
+                                    type='button'
+                                    onClick={confirmHandler}
+                                >
+                                    Poslať potvrdzujúci e-mail
+                                </Button>
+                            )}
                             <Button
                                 variant='warning'
                                 type='button'
@@ -256,6 +278,14 @@ const User: React.FC = () => {
                 type='error'
                 onClose={() => {
                     setError(undefined);
+                }}
+            />
+            <Modal
+                show={emailWasSend}
+                message='Potvrdzujúci e-mail bol zaslaný používateľovi.'
+                type='info'
+                onClose={() => {
+                    setEmailWasSend(false);
                 }}
             />
             {(isSubmitting || isLoading) && <Spinner />}

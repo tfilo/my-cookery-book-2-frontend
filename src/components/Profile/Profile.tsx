@@ -97,7 +97,6 @@ const Profile: React.FC = () => {
     const submitHandler: SubmitHandler<UpdateProfileForm> = async (
         data: UpdateProfileForm
     ) => {
-        console.log(data);
         try {
             await userApi.updateProfile(data);
             setShowModal(true);
