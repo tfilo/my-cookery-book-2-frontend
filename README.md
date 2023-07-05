@@ -34,6 +34,7 @@ React App will start in development mode on port 3000.
 | Backend - internal              | http://localhost:8081/internal          | API (not used in frontend)                                                                |
 | Backend Health check - internal | http://localhost:8081/internal/health   | Health check (not used in frontend)                                                       |
 | Backend Swagger Api - internal  | http://localhost:8081/internal/api-docs | OpenApi 3 documentation (not used in frontend)                                            |
+| maildev                         | http://localhost:8083                   | Development email server                                                                  |
 | pgAdmin                         | http://localhost:8082                   | Database administration. <br />Username: *user@domain.com* <br />Password: *cookery2123*  |
 | Frontend                        | http://localhost:3000                   | React GUI. <br />Username: _Test_ <br />Password: *Test1234*                              |
 
