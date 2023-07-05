@@ -17,6 +17,7 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { roleLabels } from '../../translate/roleLabel';
+import Checkbox from '../UI/Checkbox';
 
 type Roles = { value: Api.User.RolesEnum; name: string }[];
 
@@ -61,6 +62,11 @@ const schema = yup
             .max(50, 'Musí byť maximálne 50 znakov')
             .default(null)
             .nullable(),
+        email: yup
+            .string()
+            .trim()
+            .max(320, 'Musí mať maximálne 320 znakov')
+            .required('Povinná položka'),
         password: yup
             .string()
             .trim()
@@ -74,18 +80,25 @@ const schema = yup
         confirmPassword: yup
             .string()
             .trim()
-            .transform((val) => (val === '' ? null : val))
             .equals([yup.ref('password')], 'Zadané heslá sa nezhodujú')
             .required('Povinná položka'),
         roles: yup
             .array()
             .of(
                 yup.object({
-                    value: yup.string().oneOf(['ADMIN', 'CREATOR']).required('Povinná položka'), //nefunguje
+                    value: yup
+                        .string()
+                        .oneOf(['ADMIN', 'CREATOR'])
+                        .required('Povinná položka'), //nefunguje
                     name: yup.string(),
                 })
+                .required('Povinná položka')
             )
+            .min(1, 'Musí byť minimálne jedna rola') //nefunguje
+            // .mixed<Api.User.RolesEnum>()
+            // .oneOf(Object.values(Api.User.RolesEnum))
             .required(),
+        notifications: yup.boolean().required('Povinná položka'),
     })
     .required();
 
@@ -114,8 +127,6 @@ const User: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const data = await userApi.getUser(parseInt(paramsNumber));
-                    // console.log(data);
-
                     const receivedRoles = data.roles.map((role) => {
                         return {
                             value: role,
@@ -162,14 +173,15 @@ const User: React.FC = () => {
     };
 
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
+        console.log(data);
         const sendData = {
             ...data,
             roles: data.roles.map((role) => role.value),
-            notifications: false, //TODO toto je zatial pridane aby sedel typ sendData
         };
+        console.log(sendData)
         try {
             if (params.id) {
-                await userApi.updateUser(parseInt(params.id), sendData);
+                await userApi.updateUser(parseInt(params.id), sendData as Api.UpdateUser);
             } else {
                 await userApi.createUser(sendData as Api.CreateUser);
             }
@@ -191,6 +203,7 @@ const User: React.FC = () => {
                         <Input name='username' label='Používateľské meno' />
                         <Input name='firstName' label='Meno' />
                         <Input name='lastName' label='Priezvisko' />
+                        <Input name='email' label='E-mail' />
                         <Input name='password' label='Heslo' />
                         <Input
                             name='confirmPassword'
@@ -216,6 +229,10 @@ const User: React.FC = () => {
                                 )}
                             />
                         </Form.Group>
+                        <Checkbox
+                            name='notifications'
+                            label='Posielať notifikácie e-mailom'
+                        />
                         <Stack direction='horizontal' gap={2}>
                             <Button variant='primary' type='submit'>
                                 {params.id
