@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import { Api } from '../../openapi';
 import { AuthContext } from '../../store/auth-context';
-import { authApi } from '../../utils/apiWrapper';
+import { userApi } from '../../utils/apiWrapper';
 import Modal from '../UI/Modal';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,8 +10,9 @@ import * as yup from 'yup';
 import Spinner from '../UI/Spinner';
 import Input from '../UI/Input';
 import { formatErrorMessage } from '../../utils/errorMessages';
+import Checkbox from '../UI/Checkbox';
 
-type UpdatePasswordForm = Api.UpdatePasswordRequest;
+type UpdateProfileForm = Api.UpdateProfileRequest;
 
 const schema = yup
     .object({
@@ -23,13 +24,37 @@ const schema = yup
         newPassword: yup
             .string()
             .trim()
+            .transform((val) => (val === '' ? null : val))
             .min(8, 'Musí byť minimálne 8 znakov')
             .max(255, 'Musí byť maximálne 255 znakov')
             .matches(
                 /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
                 'Musí obsahovať aspoň jedno malé písmeno, jedno veľke písmeno a jedno číslo'
             )
+            .default(null)
+            .nullable(),
+        firstName: yup
+            .string()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            .min(3, 'Musí mať minimálne 3 znaky')
+            .max(50, 'Musí mať maximálne 50 znakov')
+            .default(null)
+            .nullable(),
+        lastName: yup
+            .string()
+            .trim()
+            .transform((val) => (val === '' ? null : val))
+            .min(3, 'Musí mať minimálne 3 znaky')
+            .max(50, 'Musí mať maximálne 50 znakov')
+            .default(null)
+            .nullable(),
+        email: yup
+            .string()
+            .trim()
+            .max(320, 'Musí mať maximálne 320 znakov')
             .required('Povinná položka'),
+        notifications: yup.boolean().required('Povinná položka'),
     })
     .required();
 
@@ -38,15 +63,16 @@ const Profile: React.FC = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
-    const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
+    const [username, setUsername] = useState('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const methods = useForm<UpdatePasswordForm>({
+    const methods = useForm<UpdateProfileForm>({
         resolver: yupResolver(schema),
     });
 
     const {
         formState: { isSubmitting },
+        reset,
     } = methods;
 
     useEffect(() => {
@@ -54,8 +80,9 @@ const Profile: React.FC = () => {
             (async () => {
                 try {
                     setIsLoading(true);
-                    const user = await authApi.user();
-                    setUserInfo(user);
+                    const user = await userApi.getProfile();
+                    reset(user)
+                    setUsername(user.username);
                 } catch (err) {
                     formatErrorMessage(err).then((message) =>
                         setError(message)
@@ -65,13 +92,14 @@ const Profile: React.FC = () => {
                 }
             })();
         }
-    }, [isLoggedIn]);
+    }, [isLoggedIn, reset]);
 
-    const submitHandler: SubmitHandler<UpdatePasswordForm> = async (
-        data: UpdatePasswordForm
+    const submitHandler: SubmitHandler<UpdateProfileForm> = async (
+        data: UpdateProfileForm
     ) => {
+        console.log(data);
         try {
-            await authApi.updatePassword(data);
+            await userApi.updateProfile(data);
             setShowModal(true);
         } catch (err) {
             if (err instanceof Response && err.statusText === 'Unauthorized') {
@@ -91,23 +119,7 @@ const Profile: React.FC = () => {
                         <Form.Label>Používateľské meno</Form.Label>
                         <Form.Control
                             type='text'
-                            value={userInfo?.username ?? ''}
-                            readOnly
-                        />
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Meno</Form.Label>
-                        <Form.Control
-                            type='text'
-                            value={userInfo?.firstName ?? ''}
-                            readOnly
-                        />
-                    </Form.Group>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Priezvisko</Form.Label>
-                        <Form.Control
-                            type='text'
-                            value={userInfo?.lastName ?? ''}
+                            value={username ?? ''}
                             readOnly
                         />
                     </Form.Group>
@@ -117,14 +129,21 @@ const Profile: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
+                        <Input name='firstName' label='Meno' type='text' />
+                        <Input name='lastName' label='Priezvisko' type='text' />
+                        <Input name='email' label='E-mail' type='email' />
                         <Input name='password' label='Heslo' type='password' />
                         <Input
                             name='newPassword'
                             label='Nové heslo'
                             type='password'
                         />
+                        <Checkbox
+                            name='notifications'
+                            label='Posielať notifikácie e-mailom'
+                        />
                         <Button variant='primary' type='submit'>
-                            Zmeniť heslo
+                            Zmeniť
                         </Button>
                     </Form>
                 </FormProvider>
@@ -139,7 +158,7 @@ const Profile: React.FC = () => {
             />
             <Modal
                 show={showModal}
-                message='Zmena hesla bola úspešná.'
+                message='Zmena profilu bola úspešná.'
                 type='info'
                 onClose={() => {
                     setShowModal(false);

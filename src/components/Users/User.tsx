@@ -165,6 +165,7 @@ const User: React.FC = () => {
         const sendData = {
             ...data,
             roles: data.roles.map((role) => role.value),
+            notifications: false, //TODO toto je zatial pridane aby sedel typ sendData
         };
         try {
             if (params.id) {
