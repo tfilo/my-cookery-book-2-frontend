@@ -86,20 +86,24 @@ const ResetPassword: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <p className='text-primary'>
-                            Pre zmenu hesla prosím zadajte
-                            prihlasovacie meno a registračný kľúč.
-                        </p>
-                        <Input
-                            name='username'
-                            label='Prihlasovacie meno'
-                            type='text'
-                        />
-                        <Input
-                            name='key'
-                            label='Registračný kľúč'
-                            type='text'
-                        />
+                        {!username && !key && (
+                            <>
+                                <p className='text-primary'>
+                                    Pre zmenu hesla prosím zadajte prihlasovacie
+                                    meno a registračný kľúč.
+                                </p>
+                                <Input
+                                    name='username'
+                                    label='Prihlasovacie meno'
+                                    type='text'
+                                />
+                                <Input
+                                    name='key'
+                                    label='Registračný kľúč'
+                                    type='text'
+                                />
+                            </>
+                        )}
                         <Input name='newPassword' label='Heslo' />
                         <Input
                             name='confirmPassword'

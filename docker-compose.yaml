@@ -76,7 +76,7 @@ services:
             MAIL_NOTIFICATION_TEMPLATE_HTML_HBS: "<h1>Hello {{fullName}},</h1><p>here are some new recipes for you.</p><ul>{{#each recipes}}<li><a href='http://localhost:3000/recipe/display/{{id}}' target='_blank' rel='bookmark'>{{name}}</a></li>{{/each}}</ul>"
             MAIL_RESET_SUBJECT: 'My Cookery Book 2: Password reset'
             MAIL_RESET_TEMPLATE_TXT_HBS: 'Hello {{fullName}}, please reset your password on following link http://localhost:3000/reset using your username and following key {{key}}.'
-            MAIL_RESET_TEMPLATE_HTML_HBS: "<h1>Hello {{fullName}},</h1><p>please reset your password on following <a href='http://localhost:3000/reset/{{key}}'>link</a> using your username and following key <b>{{key}}</b>.</p>"
+            MAIL_RESET_TEMPLATE_HTML_HBS: "<h1>Hello {{fullName}},</h1><p>please reset your password on following <a href='http://localhost:3000/reset/{{username}}/{{key}}'>link</a> using your username and following key <b>{{key}}</b>.</p>"
         depends_on:
             db:
                 condition: service_healthy
