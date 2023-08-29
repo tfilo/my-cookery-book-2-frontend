@@ -153,11 +153,13 @@ const Recipes: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        let abortController = new AbortController();
         (async () => {
             try {
                 setIsLoadingRecipes(true);
                 const recipes: RecipeWithUrl = await recipeApi.findRecipe(
-                    criteria
+                    criteria,
+                    { signal: abortController.signal }
                 );
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
@@ -165,7 +167,6 @@ const Recipes: React.FC = () => {
                     count: recipes.count,
                     rows: [],
                 };
-
                 for (let r of recipes.rows) {
                     if (r.pictures.length === 1) {
                         const receivedData =
@@ -187,14 +188,20 @@ const Recipes: React.FC = () => {
                     }
                     return formattedRecipe;
                 });
-            } catch (err) {
-                formatErrorMessage(err).then((message) => {
-                    setError(message);
-                });
+            } catch (err: any) {
+                if (err.name !== 'AbortError') {
+                    formatErrorMessage(err).then((message) => {
+                        setError(message);
+                    });
+                }
             } finally {
                 setIsLoadingRecipes(false);
             }
         })();
+        //clean up function:
+        return () => {
+            abortController.abort();
+        };
     }, [criteria]);
 
     const createRecipeHandler = () => {
@@ -278,10 +285,7 @@ const Recipes: React.FC = () => {
                         role === Api.User.RolesEnum.ADMIN ||
                         role === Api.User.RolesEnum.CREATOR
                 ) && (
-                    <Button
-                        variant='primary'
-                        onClick={createRecipeHandler}
-                    >
+                    <Button variant='primary' onClick={createRecipeHandler}>
                         Pridať recept
                     </Button>
                 )}
@@ -420,70 +424,62 @@ const Recipes: React.FC = () => {
                 {recipes?.rows.map((row) => {
                     return (
                         <Col key={row.id}>
-                                <Card
-                                    className='overflow-hidden'
-                                    role='button'
-                                    onClick={showRecipeHandler.bind(
-                                        null,
-                                        row.id
-                                    )}
-                                >
-                                    <Card.Img
-                                        variant='top'
-                                        src={row.url ?? defImg}
-                                        alt='obrázok'
+                            <Card
+                                className='overflow-hidden'
+                                role='button'
+                                onClick={showRecipeHandler.bind(null, row.id)}
+                            >
+                                <Card.Img
+                                    variant='top'
+                                    src={row.url ?? defImg}
+                                    alt='obrázok'
+                                    style={{
+                                        aspectRatio: 1,
+                                        objectFit: 'cover',
+                                        opacity: row.url ? 1 : 0.3,
+                                    }}
+                                />
+                                <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                    <Card.Text
+                                        className='m-0 p-2'
                                         style={{
-                                            aspectRatio: 1,
-                                            objectFit: 'cover',
-                                            opacity: row.url ? 1 : 0.3,
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
                                         }}
-                                    />
-                                    <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                                        <Card.Text
-                                            className='m-0 p-2'
-                                            style={{
-                                                backgroundColor:
-                                                    'rgba(0,0,0,0.5)',
-                                            }}
+                                    >
+                                        <span className='text-white'>
+                                            {row.description}
+                                        </span>
+                                    </Card.Text>
+                                    <Card.Title
+                                        className='m-0 p-2'
+                                        style={{
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                        }}
+                                    >
+                                        <span className='text-white'>
+                                            {row.name}
+                                        </span>
+                                    </Card.Title>
+                                    {authCtx.userRoles.find(
+                                        (role) =>
+                                            role === Api.User.RolesEnum.ADMIN ||
+                                            row.creatorId === authCtx.userId
+                                    ) && (
+                                        <Button
+                                            title='Upraviť'
+                                            variant='outline-secondary'
+                                            type='button'
+                                            onClick={(e) =>
+                                                editRecipeHandler(e, row.id)
+                                            }
+                                            className='position-absolute border-0'
+                                            style={{ top: 0, right: 0 }}
                                         >
-                                            <span className='text-white'>
-                                                {row.description}
-                                            </span>
-                                        </Card.Text>
-                                        <Card.Title
-                                            className='m-0 p-2'
-                                            style={{
-                                                backgroundColor:
-                                                    'rgba(0,0,0,0.5)',
-                                            }}
-                                        >
-                                            <span className='text-white'>
-                                                {row.name}
-                                            </span>
-                                        </Card.Title>
-                                        {authCtx.userRoles.find(
-                                            (role) =>
-                                                role ===
-                                                Api.User.RolesEnum.ADMIN 
-                                                || row.creatorId === authCtx.userId
-                                        ) && (
-                                            <Button
-                                                title='Upraviť'
-                                                variant='outline-secondary'
-                                                type='button'
-                                                onClick={(e) =>
-                                                    editRecipeHandler(e, row.id)
-                                                }
-                                                className='position-absolute border-0'
-                                                style={{ top: 0, right: 0 }}
-                                            >
-                                                <FontAwesomeIcon
-                                                    icon={faPencil}
-                                                />
-                                            </Button>
-                                        )}
-                                    </Card.ImgOverlay>
-                                </Card>
+                                            <FontAwesomeIcon icon={faPencil} />
+                                        </Button>
+                                    )}
+                                </Card.ImgOverlay>
+                            </Card>
                         </Col>
                     );
                 })}
