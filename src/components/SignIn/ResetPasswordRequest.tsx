@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
@@ -8,76 +8,52 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useNavigate, useParams } from 'react-router-dom';
 import { authApi } from '../../utils/apiWrapper';
 
 const schema = yup
     .object({
-        username: yup
+        email: yup
             .string()
             .trim()
-            .min(4, 'Musia byť minimálne 4 znaky')
-            .max(50, 'Musí byť maximálne 50 znakov')
-            .required('Povinná položka'),
-        key: yup
-            .string()
-            .trim()
-            .max(36, 'Musí byť maximálne 36 znakov')
+            .max(320, 'Musí mať maximálne 320 znakov')
             .required('Povinná položka'),
     })
     .required();
 
-const Confirmation: React.FC = () => {
-    const methods = useForm<Api.ConfirmEmailRequest>({
+const ResetPasswordRequest: React.FC = () => {
+    const methods = useForm<Api.ResetPasswordLinkRequest>({
         resolver: yupResolver(schema),
     });
 
     const {
         formState: { isSubmitting },
-        reset
     } = methods;
-    const navigate = useNavigate();
     const [error, setError] = useState<string>();
     const [successfulConfirmation, setSuccessfulConfirmation] = useState(false);
-    const {username, key} = useParams();
 
-    useEffect(()=> {
-        if(username && key) {
-            reset({username: username, key: key})
-        }
-    }, [reset, username, key])
-
-    const submitHandler = async (data: Api.ConfirmEmailRequest) => {
+    const submitHandler = async (data: Api.ResetPasswordLinkRequest) => {
         try {
-            await authApi.confirmEmail(data);
+            await authApi.resetPasswordLink(data);
             setSuccessfulConfirmation(true);
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
     };
+
     return (
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
-                <h1>Potvrdenie registrácie</h1>
+                <h1>Zmena hesla</h1>
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
                         <p className='text-primary'>
-                            Pre dokončenie registrácie prosím zadajte
-                            prihlasovacie meno a registračný kľúč.
+                            Prosím zadajte e-mail, na ktorý Vám bude odoslané
+                            informácie pre zmenu hesla.
                         </p>
-                        <Input
-                            name='username'
-                            label='Prihlasovacie meno'
-                            type='text'
-                        />
-                        <Input
-                            name='key'
-                            label='Registračný kľúč'
-                            type='text'
-                        />
+                        <Input name='email' label='E-mail' />
                         <Button variant='primary' type='submit'>
                             Potvrdiť
                         </Button>
@@ -95,14 +71,14 @@ const Confirmation: React.FC = () => {
             />
             <Modal
                 show={successfulConfirmation}
-                message='Potvrdenie registrácie prebehlo úspešne.'
+                message='Na Váš e-mail bol odoslané informácie pre zmenu hesla.'
                 type='info'
                 onClose={() => {
-                    navigate('/signIn');
+                    setSuccessfulConfirmation(false);
                 }}
             />
         </div>
     );
 };
 
-export default Confirmation;
+export default ResetPasswordRequest;

@@ -36,6 +36,7 @@ import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
 import ConfirmationPage from './pages/ConfirmationPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
 
 function App() {
     // TODO da sa ale dalo by sa aj optimalnejsie
@@ -341,6 +342,7 @@ function App() {
                     )}
                     <Route path='/confirm' element={<ConfirmationPage />} />
                     <Route path='/confirm/:username/:key' element={<ConfirmationPage />} />
+                    <Route path='/resetRequest' element={<ResetPasswordRequestPage />} />
                     <Route path='/reset' element={<ResetPasswordPage />} />
                     <Route path='/reset/:username/:key' element={<ResetPasswordPage />} />
                     <Route

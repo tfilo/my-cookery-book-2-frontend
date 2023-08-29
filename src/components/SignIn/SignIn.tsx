@@ -73,7 +73,7 @@ const SignIn: React.FC = () => {
                         <Input name='password' label='Heslo' type='password' />
                         <div className='d-flex flex-column flex-md-row justify-content-between'>
                         <Checkbox name='login' label='Zapamätať prihlásenie'/>
-                        <Link to={'/reset'} style={{textDecoration: 'none'}}><p  style={{"color": "#b4b4b4"}}>Zabudol si heslo?</p></Link>
+                        <Link to={'/resetRequest'} style={{textDecoration: 'none'}}><p  style={{"color": "#b4b4b4"}}>Zabudol si heslo?</p></Link>
                         </div><Button variant='primary' type='submit'>
                             Prihlásiť sa
                         </Button>
