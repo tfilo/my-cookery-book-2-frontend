@@ -3,6 +3,7 @@ import React, {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import {
@@ -50,6 +51,15 @@ interface RecipeWithUrl extends Omit<Api.SimpleRecipePage, 'rows'> {
     rows: SimpleRecipeWithUrl[];
 }
 
+export type RecipeState = {
+    searchingText: string;
+    searchingCategory: number | undefined;
+    selectedTags: Api.SimpleTag[];
+    currentPage: number;
+    order: Api.RecipeSearchCriteria.OrderEnum;
+    orderBy: Api.RecipeSearchCriteria.OrderByEnum;
+};
+
 const pagesToShow = 5;
 const pageSize = 12;
 
@@ -74,7 +84,7 @@ const Recipes: React.FC = () => {
     >([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [selectedTags, setSelectedTags] = useState<Api.SimpleTag[]>(
-        state?.searchingTags ?? []
+        state?.selectedTags ?? []
     );
     const [showFilter, setShowFilter] = useState(false);
     const [order, setOrder] = useState(
@@ -88,6 +98,7 @@ const Recipes: React.FC = () => {
     const params = useParams();
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
     const authCtx = useContext(AuthContext);
+    const searchingTextInputRef = useRef(searchingText);
 
     useEffect(() => {
         if (categoryId > 0 || selectedTags.length > 0) {
@@ -95,12 +106,22 @@ const Recipes: React.FC = () => {
         }
     }, [categoryId, selectedTags]);
 
+    useEffect(() => {
+        if (state) {
+            setCurrentPage(state.currentPage);
+            setOrder(state.order);
+            setOrderBy(state.orderBy);
+            setSelectedTags(state.selectedTags);
+            setSearchingText(state.searchingText);
+            searchingTextInputRef.current.value = state.searchingText;
+        }
+    }, [state]);
+
     const criteria: Api.RecipeSearchCriteria = useMemo(() => {
-        const searchingTags = selectedTags.map((t) => t.id);
         return {
             search: searchingText,
             categoryId: categoryId === -1 ? null : categoryId,
-            tags: searchingTags,
+            tags: selectedTags.map((t) => t.id),
             page: currentPage - 1,
             pageSize: pageSize,
             orderBy: orderBy,
@@ -204,16 +225,18 @@ const Recipes: React.FC = () => {
         };
     }, [criteria]);
 
+    const navigationState: RecipeState = {
+        searchingText: searchingText,
+        selectedTags: selectedTags,
+        searchingCategory: categoryId,
+        currentPage: currentPage,
+        order: order,
+        orderBy: orderBy,
+    };
+
     const createRecipeHandler = () => {
         navigate('/recipe/create', {
-            state: {
-                searchingText: searchingText,
-                searchingTags: selectedTags,
-                searchingCategory: categoryId,
-                currentPage: currentPage,
-                order: order,
-                orderBy: orderBy,
-            },
+            state: navigationState,
         });
     };
 
@@ -223,27 +246,13 @@ const Recipes: React.FC = () => {
     ) => {
         event.stopPropagation();
         navigate(`/recipe/${id}`, {
-            state: {
-                searchingText: searchingText,
-                searchingTags: selectedTags,
-                searchingCategory: categoryId,
-                currentPage: currentPage,
-                order: order,
-                orderBy: orderBy,
-            },
+            state: navigationState,
         });
     };
 
     const showRecipeHandler = (id: number) => {
         navigate(`/recipe/display/${id}`, {
-            state: {
-                searchingText: searchingText,
-                searchingTags: selectedTags,
-                searchingCategory: categoryId,
-                currentPage: currentPage,
-                order: order,
-                orderBy: orderBy,
-            },
+            state: navigationState,
         });
     };
 
@@ -301,6 +310,7 @@ const Recipes: React.FC = () => {
                     aria-label='vyhľadávanie'
                     onChange={debouncedChangeHandler}
                     defaultValue={searchingText}
+                    ref={searchingTextInputRef}
                 />
                 <Button
                     variant='outline-secondary'

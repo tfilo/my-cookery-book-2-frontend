@@ -37,6 +37,7 @@ import Modal from './components/UI/Modal';
 import ConfirmationPage from './pages/ConfirmationPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
+import { RecipeState } from './components/Recipes/Recipes';
 
 function App() {
     // TODO da sa ale dalo by sa aj optimalnejsie
@@ -52,17 +53,10 @@ function App() {
         Api.SimpleCategory[]
     >([]);
 
-    const [resetValues, setResetValues] = useState<{
-        searchingText: string;
-        searchingCategory: number | undefined;
-        searchingTags: [];
-        currentPage: number;
-        order: Api.RecipeSearchCriteria.OrderEnum;
-        orderBy: Api.RecipeSearchCriteria.OrderByEnum;
-    }>({
+    const [resetValues, setResetValues] = useState<RecipeState>({
         searchingText: '',
         searchingCategory: undefined,
-        searchingTags: [],
+        selectedTags: [],
         currentPage: 1,
         order: Api.RecipeSearchCriteria.OrderEnum.ASC,
         orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
