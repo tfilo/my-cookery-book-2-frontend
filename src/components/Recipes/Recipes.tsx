@@ -1,5 +1,6 @@
 import React, {
     Fragment,
+    useCallback,
     useContext,
     useEffect,
     useMemo,
@@ -36,7 +37,7 @@ import {
     faMagnifyingGlass,
     faPencil,
 } from '@fortawesome/free-solid-svg-icons';
-import { Typeahead } from 'react-bootstrap-typeahead';
+import { Typeahead, TypeaheadComponentProps } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { debounce } from 'lodash';
 import Spinner from '../UI/Spinner';
@@ -291,6 +292,23 @@ const Recipes: React.FC = () => {
         setCurrentPage(1);
     };
 
+    const tagSelectionHandler = useCallback((selected: TypeaheadComponentProps['options'])=>{
+        setSelectedTags(
+            selected as Api.SimpleTag[]
+        );
+        setCurrentPage(1);
+    }, []);
+
+    const categorySelectionHandler = useCallback((e: React.ChangeEvent<HTMLSelectElement>)=> {
+        navigate(
+            recipesUrlWithCategory(
+                e.target.value
+            )
+        );
+        setCurrentPage(1);
+    }, [navigate]);
+    
+
     return (
         <Fragment>
             <div className='d-flex flex-column flex-md-row mb-3'>
@@ -388,14 +406,7 @@ const Recipes: React.FC = () => {
                                             ? 'text-secondary'
                                             : ''
                                     }
-                                    onChange={(e) => {
-                                        navigate(
-                                            recipesUrlWithCategory(
-                                                e.target.value
-                                            )
-                                        );
-                                        setCurrentPage(1);
-                                    }}
+                                    onChange={categorySelectionHandler}
                                     value={`${categoryId}`}
                                 >
                                     <option value='-1' className='text-dark'>
@@ -419,13 +430,7 @@ const Recipes: React.FC = () => {
                                 <Typeahead
                                     id='tagsMultiselection'
                                     labelKey='name'
-                                    onChange={(selected) => {
-                                        // TODO toto tiez moze byt ako handler ale nemusi :)
-                                        setSelectedTags(
-                                            selected as Api.SimpleTag[]
-                                        );
-                                        setCurrentPage(1);
-                                    }}
+                                    onChange={tagSelectionHandler}
                                     options={listOfTags}
                                     placeholder='Vyberte ľubovoľný počet značiek'
                                     selected={selectedTags}
