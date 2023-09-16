@@ -10,7 +10,7 @@ type AuthContextObj = {
     userId: number | null;
     userRoles: Api.User.RolesEnum[];
     isLoggedIn: boolean;
-    login: (token: string, refreshToken: string) => void;
+    login: (token: string, refreshToken: string, rememberMe: boolean) => void;
     logout: () => void;
 };
 
@@ -42,6 +42,8 @@ const tokenValidity = (token: string | null) => {
 
 const storedToken = localStorage.getItem('token');
 const storedRefreshToken = localStorage.getItem('refreshToken');
+//@ts-ignore
+window.token = storedToken;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
     const [token, setToken] = useState(
@@ -50,6 +52,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
     const [refreshToken, setRefreshToken] = useState(
         tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null
     );
+    const [rememberMe, setRememberMe] = useState(!!refreshToken);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>();
     const [userId, setUserId] = useState(() => {
@@ -85,7 +88,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                                 refreshToken,
                             });
                             if (data) {
-                                loginHandler(data.token, data.refreshToken);
+                                loginHandler(data.token, data.refreshToken, rememberMe);
                             }
                             if (!data) {
                                 logoutHandler();
@@ -112,7 +115,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                             refreshToken,
                         });
                         if (data) {
-                            loginHandler(data.token, data.refreshToken);
+                            loginHandler(data.token, data.refreshToken, rememberMe);
                         }
                         if (!data) {
                             logoutHandler();
@@ -129,15 +132,21 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         } else {
             logoutHandler();
         }
-    }, [token, refreshToken, userId]);
+    }, [token, refreshToken, userId, rememberMe]);
 
-    const loginHandler = (token: string, refreshToken: string) => {
+    const loginHandler = (token: string, refreshToken: string, rememberMe: boolean) => {
         setToken(token);
         setRefreshToken(refreshToken);
+        setRememberMe(rememberMe);
         const decodedToken = jwt_decode<CustomToken>(token);
         setUserId(decodedToken?.userId);
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
+        if (rememberMe) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
+        }
+        //@ts-ignore
+        window.token = token;
+
     };
 
     const logoutHandler = () => {
@@ -146,6 +155,8 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         setUserId(null);
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
+        //@ts-ignore
+        delete window.token;
     };
 
     const contextValue: AuthContextObj = {

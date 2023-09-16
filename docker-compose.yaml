@@ -58,7 +58,7 @@ services:
             DATABASE_LOGGING: 'true'
             LOGGING_ERROR: 'true'
             TOKEN_SIGN_KEY: 'somesecrettoken'
-            TOKEN_VALIDITY: '60m'
+            TOKEN_VALIDITY: '5m'
             REFRESH_TOKEN_VALIDITY: '30d'
             THUMBNAIL_DIMENSION: 640
             IMAGE_DIMENSION: 2048
