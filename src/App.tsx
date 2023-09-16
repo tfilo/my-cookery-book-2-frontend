@@ -40,7 +40,6 @@ import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
 import { RecipeState } from './components/Recipes/Recipes';
 
 function App() {
-    // TODO da sa ale dalo by sa aj optimalnejsie
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
@@ -254,7 +253,6 @@ function App() {
                                     </Nav.Link>
                                     <hr />
                                     {listOfCategories.map((category) => (
-                                        // TODO preklik z menu nepremaze kriteria !!!
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
                                             state={resetValues}
