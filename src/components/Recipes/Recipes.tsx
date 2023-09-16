@@ -182,17 +182,20 @@ const Recipes: React.FC = () => {
                     criteria,
                     { signal: abortController.signal }
                 );
+
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
                     pageSize: recipes.pageSize,
                     count: recipes.count,
                     rows: [],
                 };
+
                 for (let r of recipes.rows) {
                     if (r.pictures.length === 1) {
                         const receivedData =
                             await pictureApi.getPictureThumbnail(
-                                r.pictures[0].id
+                                r.pictures[0].id,
+                                { signal: abortController.signal }
                             );
                         if (receivedData instanceof Blob) {
                             const url = URL.createObjectURL(receivedData);
@@ -201,22 +204,25 @@ const Recipes: React.FC = () => {
                     }
                     formattedRecipe.rows.push(r);
                 }
-                setRecipes((prev) => {
-                    if (prev) {
-                        prev.rows.forEach(
-                            (r) => r.url && URL.revokeObjectURL(r.url)
-                        );
-                    }
-                    return formattedRecipe;
-                });
+
+                if (!abortController.signal.aborted) {
+                    setRecipes((prev) => {
+                        if (prev) {
+                            prev.rows.forEach(
+                                (r) => r.url && URL.revokeObjectURL(r.url)
+                            );
+                        }
+                        return formattedRecipe;
+                    });
+                    setIsLoadingRecipes(false);
+                }
             } catch (err: any) {
                 if (err.name !== 'AbortError') {
                     formatErrorMessage(err).then((message) => {
                         setError(message);
                     });
+                    setIsLoadingRecipes(false);
                 }
-            } finally {
-                setIsLoadingRecipes(false);
             }
         })();
         //clean up function:
