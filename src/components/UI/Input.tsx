@@ -10,7 +10,7 @@ type InputProps = {
     placeholder?: string;
     autoComplete?: 'on' | 'off';
     disabled?: boolean;
-    type?: 'text' | 'password' | 'number';
+    type?: 'text' | 'password' | 'number' | 'email';
     min?: number;
 };
 

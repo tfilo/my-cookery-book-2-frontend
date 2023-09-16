@@ -1,45 +1,45 @@
 {
   "name": "my-cookery-book-2-frontend",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": "Petra Filová",
   "license": "MIT",
   "proxy": "http://localhost:8080/",
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.2.1",
-    "@fortawesome/free-solid-svg-icons": "^6.2.1",
+    "@fortawesome/fontawesome-svg-core": "^6.4.2",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@hookform/resolvers": "^2.9.10",
-    "@openapi-generator-plus/typescript-fetch-client-generator": "^1.4.2",
-    "@testing-library/jest-dom": "^5.16.5",
+    "@hookform/resolvers": "^2.9.11",
+    "@openapi-generator-plus/typescript-fetch-client-generator": "^1.5.0",
+    "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
-    "@types/lodash": "^4.14.191",
-    "@types/node": "^16.18.11",
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
+    "@types/lodash": "^4.14.197",
+    "@types/node": "^16.18.47",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
     "@types/react-router-dom": "^5.3.3",
-    "bootstrap": "^5.2.3",
+    "bootstrap": "^5.3.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
-    "openapi-generator-plus": "^2.3.3",
+    "openapi-generator-plus": "^2.6.0",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.7.0",
-    "react-bootstrap-typeahead": "^6.0.0",
+    "react-bootstrap": "^2.8.0",
+    "react-bootstrap-typeahead": "^6.2.3",
     "react-cookie-consent": "^8.0.1",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.42.1",
-    "react-router-dom": "^6.7.0",
+    "react-hook-form": "^7.45.4",
+    "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
-    "react-to-print": "^2.14.11",
-    "sass": "^1.57.1",
-    "typescript": "^4.9.4",
+    "react-to-print": "^2.14.13",
+    "sass": "^1.66.1",
+    "typescript": "^4.9.5",
     "yup": "^0.32.11"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "generate-openapi": "openapi-generator-plus -o src/openapi/ -g @openapi-generator-plus/typescript-fetch-client-generator https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/v1.0.1/src/openapi.json && sed -i \"s|localVarHeaderParameter.set('Content-Type', 'multipart/form-data');|//removed content type|g\" src/openapi/api.ts"
+    "start": "npm run generate-openapi && react-scripts start",
+    "build": "npm run generate-openapi && react-scripts build",
+    "generate-openapi": "del-cli src/openapi && openapi-generator-plus -c openapi-config.yml && replace-in-file --configFile=replace-config.js"
   },
   "eslintConfig": {
     "extends": [
@@ -58,5 +58,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "del-cli": "^5.1.0",
+    "replace-in-file": "^6.3.5"
   }
 }

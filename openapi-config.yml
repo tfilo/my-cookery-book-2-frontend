@@ -1,0 +1,12 @@
+# OpenAPI Generator Plus generator configuration
+#
+# The path (relative to this configuration file) or a URL for your API specification
+inputPath: https://raw.githubusercontent.com/tfilo/my-cookery-book-2-backend/v1.1.1/src/openapi.json
+
+# The path (relative to this configuration file) where the generated API should be output
+outputPath: src/openapi
+
+# The name of the generator template used
+generator: "@openapi-generator-plus/typescript-fetch-client-generator"
+
+# See https://github.com/karlvr/openapi-generator-plus-generators/tree/master/packages/typescript-fetch-node-client#readme for more configuration options

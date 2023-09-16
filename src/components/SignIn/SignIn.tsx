@@ -11,6 +11,7 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Link } from 'react-router-dom';
 
 type SignInForm = Api.LoginRequest & {
     login: boolean;
@@ -70,8 +71,10 @@ const SignIn: React.FC = () => {
                     >
                         <Input name='username' label='Prihlasovacie meno' />
                         <Input name='password' label='Heslo' type='password' />
-                        <Checkbox name='login' label='Zapamätať prihlásenie' />
-                        <Button variant='primary' type='submit'>
+                        <div className='d-flex flex-column flex-md-row justify-content-between'>
+                        <Checkbox name='login' label='Zapamätať prihlásenie'/>
+                        <Link to={'/resetRequest'} style={{textDecoration: 'none'}}><p  style={{"color": "#b4b4b4"}}>Zabudol si heslo?</p></Link>
+                        </div><Button variant='primary' type='submit'>
                             Prihlásiť sa
                         </Button>
                         {isSubmitting && <Spinner />}

@@ -34,6 +34,10 @@ import CookieConsent from 'react-cookie-consent';
 import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
+import ConfirmationPage from './pages/ConfirmationPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
+import { RecipeState } from './components/Recipes/Recipes';
 
 function App() {
     // TODO da sa ale dalo by sa aj optimalnejsie
@@ -49,17 +53,10 @@ function App() {
         Api.SimpleCategory[]
     >([]);
 
-    const [resetValues, setResetValues] = useState<{
-        searchingText: string;
-        searchingCategory: number | undefined;
-        searchingTags: [];
-        currentPage: number;
-        order: Api.RecipeSearchCriteria.OrderEnum;
-        orderBy: Api.RecipeSearchCriteria.OrderByEnum;
-    }>({
+    const [resetValues, setResetValues] = useState<RecipeState>({
         searchingText: '',
         searchingCategory: undefined,
-        searchingTags: [],
+        selectedTags: [],
         currentPage: 1,
         order: Api.RecipeSearchCriteria.OrderEnum.ASC,
         orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
@@ -335,9 +332,13 @@ function App() {
                             />
                         </Fragment>
                     ) : (
-                        <Route path='/signIn' element={<SignInPage />} />
+                            <Route path='/signIn' element={<SignInPage />} />
                     )}
-
+                    <Route path='/confirm' element={<ConfirmationPage />} />
+                    <Route path='/confirm/:username/:key' element={<ConfirmationPage />} />
+                    <Route path='/resetRequest' element={<ResetPasswordRequestPage />} />
+                    <Route path='/reset' element={<ResetPasswordPage />} />
+                    <Route path='/reset/:username/:key' element={<ResetPasswordPage />} />
                     <Route
                         path='*'
                         element={
