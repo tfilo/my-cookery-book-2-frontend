@@ -3,8 +3,8 @@ import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Modal from '../components/UI/Modal';
-import Spinner from '../components/UI/Spinner';
 import { Api } from '../openapi';
+import Welcome from '../components/Welcome';
 
 type AuthContextObj = {
     userId: number | null;
@@ -53,7 +53,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null
     );
     const [rememberMe, setRememberMe] = useState(!!refreshToken);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>();
     const [userId, setUserId] = useState(() => {
         if (token) {
@@ -83,7 +83,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 (async () => {
                     if (refreshToken) {
                         try {
-                            setIsLoading(true);
                             const data = await authApi.refreshToken({
                                 refreshToken,
                             });
@@ -97,12 +96,11 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                             formatErrorMessage(err).then((message) =>
                                 setError(message)
                             );
-                        } finally {
-                            setIsLoading(false);
                         }
                     }
                 })();
             }, tokenValidity(token));
+            setIsLoading(false);
             return () => {
                 clearInterval(interval);
             };
@@ -110,7 +108,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             (async () => {
                 if (refreshToken) {
                     try {
-                        setIsLoading(true);
                         const data = await authApi.refreshToken({
                             refreshToken,
                         });
@@ -131,6 +128,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             })();
         } else {
             logoutHandler();
+            setIsLoading(false);
         }
     }, [token, refreshToken, userId, rememberMe]);
 
@@ -169,6 +167,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
 
     return (
         <>
+            <Welcome show={isLoading} />
             <AuthContext.Provider value={contextValue}>
                 {props.children}
             </AuthContext.Provider>
@@ -180,7 +179,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
         </>
     );
 };
