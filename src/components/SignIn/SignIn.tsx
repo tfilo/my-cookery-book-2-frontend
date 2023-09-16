@@ -14,7 +14,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Link } from 'react-router-dom';
 
 type SignInForm = Api.LoginRequest & {
-    login: boolean;
+    rememberMe: boolean;
 };
 
 const schema = yup
@@ -29,7 +29,7 @@ const schema = yup
             .trim()
             .max(255, 'Musí byť maximálne 255 znakov')
             .required('Povinná položka'),
-        login: yup.boolean().required('Povinná položka'),
+        rememberMe: yup.boolean().required('Povinná položka'),
     })
     .required();
 
@@ -54,7 +54,7 @@ const SignIn: React.FC = () => {
         };
         try {
             const response = await authApi.login(sendData);
-            authCtx.login(response.token, response.refreshToken);
+            authCtx.login(response.token, response.refreshToken, data.rememberMe);
         } catch (err) {
             formatErrorMessage(err).then((message) => setError(message));
         }
@@ -72,7 +72,7 @@ const SignIn: React.FC = () => {
                         <Input name='username' label='Prihlasovacie meno' />
                         <Input name='password' label='Heslo' type='password' />
                         <div className='d-flex flex-column flex-md-row justify-content-between'>
-                        <Checkbox name='login' label='Zapamätať prihlásenie'/>
+                        <Checkbox name='rememberMe' label='Zapamätať prihlásenie'/>
                         <Link to={'/resetRequest'} style={{textDecoration: 'none'}}><p  style={{"color": "#b4b4b4"}}>Zabudol si heslo?</p></Link>
                         </div><Button variant='primary' type='submit'>
                             Prihlásiť sa
