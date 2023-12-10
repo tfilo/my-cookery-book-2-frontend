@@ -315,8 +315,8 @@ const Recipes: React.FC = () => {
                 <h1 className='flex-grow-1'>Recepty</h1>
                 {authCtx.userRoles.find(
                     (role) =>
-                        role === Api.User.RolesEnum.ADMIN ||
-                        role === Api.User.RolesEnum.CREATOR
+                        role === Api.User.RoleEnum.ADMIN ||
+                        role === Api.User.RoleEnum.CREATOR
                 ) && (
                     <Button variant='primary' onClick={createRecipeHandler}>
                         Pridať recept
@@ -483,7 +483,7 @@ const Recipes: React.FC = () => {
                                     </Card.Title>
                                     {authCtx.userRoles.find(
                                         (role) =>
-                                            role === Api.User.RolesEnum.ADMIN ||
+                                            role === Api.User.RoleEnum.ADMIN ||
                                             row.creatorId === authCtx.userId
                                     ) && (
                                         <Button

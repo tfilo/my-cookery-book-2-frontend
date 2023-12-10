@@ -76,7 +76,7 @@ const Categories: React.FC = () => {
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Kategórie</h1>
                 {authCtx.userRoles.find(
-                    (role) => role === Api.User.RolesEnum.ADMIN
+                    (role) => role === Api.User.RoleEnum.ADMIN
                 ) && (
                     <Button variant='primary' onClick={createCategoryHandler}>
                         Pridať kategóriu
@@ -96,7 +96,7 @@ const Categories: React.FC = () => {
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
                                 {authCtx.userRoles.find(
-                                    (role) => role === Api.User.RolesEnum.ADMIN
+                                    (role) => role === Api.User.RoleEnum.ADMIN
                                 ) && (
                                     <Stack
                                         direction='horizontal'

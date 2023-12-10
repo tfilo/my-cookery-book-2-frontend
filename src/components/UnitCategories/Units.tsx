@@ -77,7 +77,7 @@ const Units: React.FC<{
                         <td className='align-middle'>{unit.name}</td>
                         <td className='align-middle'>{unit.abbreviation}</td>
                         {authCtx.userRoles.find(
-                            (role) => role === Api.User.RolesEnum.ADMIN
+                            (role) => role === Api.User.RoleEnum.ADMIN
                         ) && (
                             <Stack
                                 as={'td'}

@@ -94,7 +94,7 @@ const UnitCategories: React.FC = () => {
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Jednotky</h1>
                 {authCtx.userRoles.find(
-                    (role) => role === Api.User.RolesEnum.ADMIN
+                    (role) => role === Api.User.RoleEnum.ADMIN
                 ) && (
                     <Button
                         variant='primary'
@@ -119,7 +119,7 @@ const UnitCategories: React.FC = () => {
                                     {unitCategory.name}
                                     {authCtx.userRoles.find(
                                         (role) =>
-                                            role === Api.User.RolesEnum.ADMIN
+                                            role === Api.User.RoleEnum.ADMIN
                                     ) && (
                                         <Stack
                                             style={{ border: 'none' }}

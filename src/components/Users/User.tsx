@@ -20,7 +20,7 @@ import { roleLabels } from '../../translate/roleLabel';
 import Checkbox from '../UI/Checkbox';
 import { get } from 'lodash';
 
-type Roles = { value: Api.User.RolesEnum; name: string }[];
+type Roles = { value: Api.User.RoleEnum; name: string }[];
 
 export interface UserForm
     extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
@@ -29,9 +29,9 @@ export interface UserForm
 }
 
 const roleOptions = [
-    { value: Api.User.RolesEnum.ADMIN, name: 'Administrátor' },
+    { value: Api.User.RoleEnum.ADMIN, name: 'Administrátor' },
     {
-        value: Api.User.RolesEnum.CREATOR,
+        value: Api.User.RoleEnum.CREATOR,
         name: 'Tvorca obsahu',
     },
 ];
@@ -135,15 +135,15 @@ const User: React.FC = () => {
 
                     // const receivedRoles = [];
                     // for (let r of data.roles) {
-                    //     if (r === Api.User.RolesEnum.ADMIN) {
+                    //     if (r === Api.User.RoleEnum.ADMIN) {
                     //         receivedRoles.push({
-                    //             value: Api.User.RolesEnum.ADMIN,
+                    //             value: Api.User.RoleEnum.ADMIN,
                     //             name: 'Administrátor',
                     //         });
                     //     }
-                    //     if (r === Api.User.RolesEnum.CREATOR) {
+                    //     if (r === Api.User.RoleEnum.CREATOR) {
                     //         receivedRoles.push({
-                    //             value: Api.User.RolesEnum.CREATOR,
+                    //             value: Api.User.RoleEnum.CREATOR,
                     //             name: 'Tvorca obsahu',
                     //         });
                     //     }

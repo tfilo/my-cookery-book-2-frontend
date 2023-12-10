@@ -8,7 +8,7 @@ import Welcome from '../components/Welcome';
 
 type AuthContextObj = {
     userId: number | null;
-    userRoles: Api.User.RolesEnum[];
+    userRoles: Api.User.RoleEnum[];
     isLoggedIn: boolean;
     login: (token: string, refreshToken: string, rememberMe: boolean) => void;
     logout: () => void;
@@ -68,7 +68,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         if (token) {
             return (
                 jwt_decode<CustomToken>(token).roles?.map(
-                    (r) => r as Api.User.RolesEnum
+                    (r) => r as Api.User.RoleEnum
                 ) ?? []
             );
         }

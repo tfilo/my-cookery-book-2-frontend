@@ -175,7 +175,7 @@ function App() {
                                     </Nav.Link>
                                     {authCtx.userRoles.find(
                                         (role) =>
-                                            role === Api.User.RolesEnum.ADMIN
+                                            role === Api.User.RoleEnum.ADMIN
                                     ) && (
                                         <Nav.Link
                                             to='/users'
@@ -224,8 +224,8 @@ function App() {
                                     </Nav.Link>
                                     {authCtx.userRoles.find(
                                         (role) =>
-                                            role === Api.User.RolesEnum.ADMIN ||
-                                            role === Api.User.RolesEnum.CREATOR
+                                            role === Api.User.RoleEnum.ADMIN ||
+                                            role === Api.User.RoleEnum.CREATOR
                                     ) && (
                                         <Nav.Link
                                             to='/recipe/create'
