@@ -17,17 +17,9 @@ type UnitForm = Api.CreateUnit | Api.UpdateUnit;
 
 const schema = yup
     .object({
-        name: yup
-            .string()
-            .trim()
-            .max(80, 'Musí byť maximálne 80 znakov')
-            .required('Povinná položka'),
-        abbreviation: yup
-            .string()
-            .trim()
-            .max(20, 'Musí byť maximálne 20 znakov')
-            .required('Povinná položka'),
-        required: yup.boolean().required('Povinná položka'),
+        name: yup.string().trim().max(80, 'Musí byť maximálne 80 znakov').required('Povinná položka'),
+        abbreviation: yup.string().trim().max(20, 'Musí byť maximálne 20 znakov').required('Povinná položka'),
+        required: yup.boolean().required('Povinná položka')
     })
     .required();
 
@@ -39,11 +31,11 @@ const Unit: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UnitForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
 
     useEffect(() => {
@@ -56,9 +48,7 @@ const Unit: React.FC = () => {
                     // console.log(data);
                     methods.reset(data);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -76,12 +66,12 @@ const Unit: React.FC = () => {
                 if (params.unitId) {
                     await unitApi.updateUnit(parseInt(params.unitId), {
                         ...data,
-                        unitCategoryId: categoryId,
+                        unitCategoryId: categoryId
                     });
                 } else {
                     await unitApi.createUnit({
                         ...data,
-                        unitCategoryId: categoryId,
+                        unitCategoryId: categoryId
                     });
                 }
                 navigate('/units');
@@ -102,14 +92,27 @@ const Unit: React.FC = () => {
                         noValidate
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
-                        <Input name='name' label='Názov jednotky' />
-                        <Input name='abbreviation' label='Skratka' />
-                        <Checkbox name='required' label='Povinná hodnota' />
-                        <Stack direction='horizontal' gap={2}>
-                            <Button variant='primary' type='submit'>
-                                {params.unitId
-                                    ? 'Zmeniť jednotku'
-                                    : 'Vytvoriť jednotku'}
+                        <Input
+                            name='name'
+                            label='Názov jednotky'
+                        />
+                        <Input
+                            name='abbreviation'
+                            label='Skratka'
+                        />
+                        <Checkbox
+                            name='required'
+                            label='Povinná hodnota'
+                        />
+                        <Stack
+                            direction='horizontal'
+                            gap={2}
+                        >
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                {params.unitId ? 'Zmeniť jednotku' : 'Vytvoriť jednotku'}
                             </Button>{' '}
                             <Button
                                 variant='warning'

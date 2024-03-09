@@ -16,11 +16,7 @@ type UpdateProfileForm = Api.UpdateProfileRequest;
 
 const schema = yup
     .object({
-        password: yup
-            .string()
-            .trim()
-            .max(255, 'Musí byť maximálne 255 znakov')
-            .required('Povinná položka'),
+        password: yup.string().trim().max(255, 'Musí byť maximálne 255 znakov').required('Povinná položka'),
         newPassword: yup
             .string()
             .trim()
@@ -49,12 +45,8 @@ const schema = yup
             .max(50, 'Musí mať maximálne 50 znakov')
             .default(null)
             .nullable(),
-        email: yup
-            .string()
-            .trim()
-            .max(320, 'Musí mať maximálne 320 znakov')
-            .required('Povinná položka'),
-        notifications: yup.boolean().required('Povinná položka'),
+        email: yup.string().trim().max(320, 'Musí mať maximálne 320 znakov').required('Povinná položka'),
+        notifications: yup.boolean().required('Povinná položka')
     })
     .required();
 
@@ -67,12 +59,12 @@ const Profile: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const methods = useForm<UpdateProfileForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
         formState: { isSubmitting },
-        reset,
+        reset
     } = methods;
 
     useEffect(() => {
@@ -81,12 +73,10 @@ const Profile: React.FC = () => {
                 try {
                     setIsLoading(true);
                     const user = await userApi.getProfile();
-                    reset(user)
+                    reset(user);
                     setUsername(user.username);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -94,9 +84,7 @@ const Profile: React.FC = () => {
         }
     }, [isLoggedIn, reset]);
 
-    const submitHandler: SubmitHandler<UpdateProfileForm> = async (
-        data: UpdateProfileForm
-    ) => {
+    const submitHandler: SubmitHandler<UpdateProfileForm> = async (data: UpdateProfileForm) => {
         try {
             await userApi.updateProfile(data);
             setShowModal(true);
@@ -128,10 +116,26 @@ const Profile: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <Input name='firstName' label='Meno' type='text' />
-                        <Input name='lastName' label='Priezvisko' type='text' />
-                        <Input name='email' label='E-mail' type='email' />
-                        <Input name='password' label='Heslo' type='password' />
+                        <Input
+                            name='firstName'
+                            label='Meno'
+                            type='text'
+                        />
+                        <Input
+                            name='lastName'
+                            label='Priezvisko'
+                            type='text'
+                        />
+                        <Input
+                            name='email'
+                            label='E-mail'
+                            type='email'
+                        />
+                        <Input
+                            name='password'
+                            label='Heslo'
+                            type='password'
+                        />
                         <Input
                             name='newPassword'
                             label='Nové heslo'
@@ -141,7 +145,10 @@ const Profile: React.FC = () => {
                             name='notifications'
                             label='Posielať notifikácie e-mailom'
                         />
-                        <Button variant='primary' type='submit'>
+                        <Button
+                            variant='primary'
+                            type='submit'
+                        >
                             Zmeniť
                         </Button>
                     </Form>

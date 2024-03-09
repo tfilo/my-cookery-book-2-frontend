@@ -12,21 +12,17 @@ import { authApi } from '../../utils/apiWrapper';
 
 const schema = yup
     .object({
-        email: yup
-            .string()
-            .trim()
-            .max(320, 'Musí mať maximálne 320 znakov')
-            .required('Povinná položka'),
+        email: yup.string().trim().max(320, 'Musí mať maximálne 320 znakov').required('Povinná položka')
     })
     .required();
 
 const ResetPasswordRequest: React.FC = () => {
     const methods = useForm<Api.ResetPasswordLinkRequest>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
     const [error, setError] = useState<string>();
     const [successfulConfirmation, setSuccessfulConfirmation] = useState(false);
@@ -49,12 +45,15 @@ const ResetPasswordRequest: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <p className='text-primary'>
-                            Prosím zadajte e-mail, na ktorý Vám bude odoslané
-                            informácie pre zmenu hesla.
-                        </p>
-                        <Input name='email' label='E-mail' />
-                        <Button variant='primary' type='submit'>
+                        <p className='text-primary'>Prosím zadajte e-mail, na ktorý Vám bude odoslané informácie pre zmenu hesla.</p>
+                        <Input
+                            name='email'
+                            label='E-mail'
+                        />
+                        <Button
+                            variant='primary'
+                            type='submit'
+                        >
                             Potvrdiť
                         </Button>
                         {isSubmitting && <Spinner />}

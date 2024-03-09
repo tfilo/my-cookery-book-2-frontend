@@ -19,7 +19,7 @@ const AssociatedRecipes: React.FC = () => {
 
     const {
         control,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext<RecipeForm>();
 
     const handleSearch = (query: string) => {
@@ -33,7 +33,7 @@ const AssociatedRecipes: React.FC = () => {
                     page: 0,
                     pageSize: 5,
                     orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
-                    order: Api.RecipeSearchCriteria.OrderEnum.ASC,
+                    order: Api.RecipeSearchCriteria.OrderEnum.ASC
                 };
                 const recipes = await recipeApi.findRecipe(data);
                 const recipeList = recipes.rows.map((recipe) => {
@@ -54,9 +54,7 @@ const AssociatedRecipes: React.FC = () => {
     return (
         <>
             <Form.Group className='mt-2 mb-3'>
-                <Form.Label htmlFor={`${id}associatedRecipes`}>
-                    Súvisiace recepty
-                </Form.Label>
+                <Form.Label htmlFor={`${id}associatedRecipes`}>Súvisiace recepty</Form.Label>
                 <Controller
                     name='associatedRecipes'
                     control={control}
@@ -79,9 +77,7 @@ const AssociatedRecipes: React.FC = () => {
                         />
                     )}
                 />
-                <Form.Control.Feedback type='invalid'>
-                    {errorMessage?.toString()}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
             </Form.Group>
             <Modal
                 show={!!error}

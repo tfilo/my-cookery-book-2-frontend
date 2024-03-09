@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import BootstrapModal from 'react-bootstrap/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faLeftLong,
-    faRightLong,
-    faXmark,
-} from '@fortawesome/free-solid-svg-icons';
+import { faLeftLong, faRightLong, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { pictureApi } from '../../../utils/apiWrapper';
 import { RecipesWithUrlInPictures } from './RecipeView';
 import { formatErrorMessage } from '../../../utils/errorMessages';
@@ -40,7 +36,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                         return {
                             title: title,
                             url: fullPic,
-                            index: idx,
+                            index: idx
                         };
                     });
                 }
@@ -56,17 +52,9 @@ const PictureView: React.FC<PictureProps> = (props) => {
         if (show && props.recipe?.pictures) {
             const next = show.index + 1;
             if (next >= props.recipe?.pictures.length) {
-                showPictureHandler(
-                    props.recipe?.pictures[0].id,
-                    props.recipe?.pictures[0].name,
-                    0
-                );
+                showPictureHandler(props.recipe?.pictures[0].id, props.recipe?.pictures[0].name, 0);
             } else {
-                showPictureHandler(
-                    props.recipe?.pictures[next].id,
-                    props.recipe?.pictures[next].name,
-                    next
-                );
+                showPictureHandler(props.recipe?.pictures[next].id, props.recipe?.pictures[next].name, next);
             }
         }
     };
@@ -76,18 +64,12 @@ const PictureView: React.FC<PictureProps> = (props) => {
             const prev = show.index - 1;
             if (prev < 0) {
                 showPictureHandler(
-                    props.recipe?.pictures[props.recipe?.pictures.length - 1]
-                        .id,
-                    props.recipe?.pictures[props.recipe?.pictures.length - 1]
-                        .name,
+                    props.recipe?.pictures[props.recipe?.pictures.length - 1].id,
+                    props.recipe?.pictures[props.recipe?.pictures.length - 1].name,
                     props.recipe?.pictures.length - 1
                 );
             } else {
-                showPictureHandler(
-                    props.recipe?.pictures[prev].id,
-                    props.recipe?.pictures[prev].name,
-                    prev
-                );
+                showPictureHandler(props.recipe?.pictures[prev].id, props.recipe?.pictures[prev].name, prev);
             }
         }
     };
@@ -104,44 +86,42 @@ const PictureView: React.FC<PictureProps> = (props) => {
     return (
         <>
             {/* <section> */}
-                <Row xs={1} sm={2} lg={4} className='g-4'>
-                    {props.recipe?.pictures.map((picture, idx) => (
-                        <Col key={picture.id}>
-                            <Card
-                                className='overflow-hidden'
-                                role='button'
-                                onClick={showPictureHandler.bind(
-                                    null,
-                                    picture.id,
-                                    picture.name,
-                                    idx
-                                )}
-                            >
-                                <Card.Img
-                                    variant='top'
-                                    src={picture.url}
-                                    alt='obrázok'
+            <Row
+                xs={1}
+                sm={2}
+                lg={4}
+                className='g-4'
+            >
+                {props.recipe?.pictures.map((picture, idx) => (
+                    <Col key={picture.id}>
+                        <Card
+                            className='overflow-hidden'
+                            role='button'
+                            onClick={showPictureHandler.bind(null, picture.id, picture.name, idx)}
+                        >
+                            <Card.Img
+                                variant='top'
+                                src={picture.url}
+                                alt='obrázok'
+                                style={{
+                                    aspectRatio: 1,
+                                    objectFit: 'cover'
+                                }}
+                            />
+                            <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
+                                <Card.Title
+                                    className='m-0 p-2'
                                     style={{
-                                        aspectRatio: 1,
-                                        objectFit: 'cover',
+                                        backgroundColor: 'rgba(0,0,0,0.5)'
                                     }}
-                                />
-                                <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                                    <Card.Title
-                                        className='m-0 p-2'
-                                        style={{
-                                            backgroundColor: 'rgba(0,0,0,0.5)',
-                                        }}
-                                    >
-                                        <span className='text-white'>
-                                            {picture.name}
-                                        </span>
-                                    </Card.Title>
-                                </Card.ImgOverlay>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
+                                >
+                                    <span className='text-white'>{picture.name}</span>
+                                </Card.Title>
+                            </Card.ImgOverlay>
+                        </Card>
+                    </Col>
+                ))}
+            </Row>
             {/* </section> */}
 
             <BootstrapModal
@@ -185,9 +165,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                             <FontAwesomeIcon icon={faRightLong} />
                         </Button>
                     </div>
-                    <BootstrapModal.Title className='bg-dark text-white'>
-                        {show?.title}
-                    </BootstrapModal.Title>
+                    <BootstrapModal.Title className='bg-dark text-white'>{show?.title}</BootstrapModal.Title>
                 </BootstrapModal.Header>
                 <BootstrapModal.Body className='p-0 bg-dark text-center d-flex justify-content-center'>
                     <img
@@ -196,7 +174,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                         style={{
                             flex: '1 1',
                             objectFit: 'contain',
-                            maxWidth: '100vw',
+                            maxWidth: '100vw'
                         }}
                     />
                 </BootstrapModal.Body>

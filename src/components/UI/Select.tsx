@@ -28,7 +28,7 @@ const Select: React.FC<SelectProps> = (props) => {
         register,
         formState: { errors },
         getValues,
-        setValue,
+        setValue
     } = useFormContext();
 
     const errorMessage = get(errors, props.name)?.message;
@@ -50,7 +50,10 @@ const Select: React.FC<SelectProps> = (props) => {
     }, [value, props.multiple, props.name, setValue]);
 
     return (
-        <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
+        <Form.Group
+            className='mb-3'
+            controlId={`${id}_${props.name}`}
+        >
             <Form.Label>{props.label}</Form.Label>
             <Form.Select
                 {...register(props.name)}
@@ -59,7 +62,10 @@ const Select: React.FC<SelectProps> = (props) => {
                 isInvalid={!!errorMessage}
             >
                 {!props.multiple && (
-                    <option value='-1' disabled>
+                    <option
+                        value='-1'
+                        disabled
+                    >
                         Prosím zvolte možnosť
                     </option>
                 )}
@@ -71,7 +77,10 @@ const Select: React.FC<SelectProps> = (props) => {
                                 label={option.optGroupName}
                             >
                                 {option.options.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>
+                                    <option
+                                        key={opt.value}
+                                        value={opt.value}
+                                    >
                                         {opt.label}
                                     </option>
                                 ))}
@@ -79,16 +88,17 @@ const Select: React.FC<SelectProps> = (props) => {
                         );
                     } else {
                         return (
-                            <option key={option.value} value={option.value}>
+                            <option
+                                key={option.value}
+                                value={option.value}
+                            >
                                 {option.label}
                             </option>
                         );
                     }
                 })}
             </Form.Select>
-            <Form.Control.Feedback type='invalid'>
-                {errorMessage?.toString()}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
         </Form.Group>
     );
 };

@@ -11,12 +11,8 @@ import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
 
 const Pictures: React.FC = () => {
-    const { fields, append, remove, move } = useFieldArray<
-        RecipeForm,
-        'pictures',
-        'id'
-    >({
-        name: 'pictures',
+    const { fields, append, remove, move } = useFieldArray<RecipeForm, 'pictures', 'id'>({
+        name: 'pictures'
     });
 
     const imageInputRef = useRef<HTMLInputElement>(null);
@@ -56,12 +52,10 @@ const Pictures: React.FC = () => {
                     const picture = await pictureApi.uploadPicture({
                         file: {
                             value: event.target.files[0],
-                            filename: pictureName,
-                        },
+                            filename: pictureName
+                        }
                     });
-                    const data = await pictureApi.getPictureThumbnail(
-                        picture.id
-                    );
+                    const data = await pictureApi.getPictureThumbnail(picture.id);
                     if (data instanceof Blob) {
                         const url = URL.createObjectURL(data);
                         append({ id: picture.id, url: url, name: pictureName });
@@ -85,7 +79,10 @@ const Pictures: React.FC = () => {
 
     return (
         <>
-            <Form.Group controlId='pictureUpload' className='mb-3'>
+            <Form.Group
+                controlId='pictureUpload'
+                className='mb-3'
+            >
                 <Form.Label>Pridajte obrázok</Form.Label>
                 <Form.Control
                     type='file'
@@ -94,7 +91,12 @@ const Pictures: React.FC = () => {
                     ref={imageInputRef}
                 />
             </Form.Group>
-            <Row xs={1} sm={2} lg={4} className='g-4 pb-4'>
+            <Row
+                xs={1}
+                sm={2}
+                lg={4}
+                className='g-4 pb-4'
+            >
                 {fields.map((field, index) => {
                     return (
                         <Col key={field?.id}>
@@ -110,18 +112,14 @@ const Pictures: React.FC = () => {
                                     alt={field.name}
                                     style={{
                                         aspectRatio: 1.33,
-                                        objectFit: 'cover',
+                                        objectFit: 'cover'
                                     }}
                                 />
                                 <Button
                                     title='Vymazať obrázok'
                                     variant='outline-danger'
                                     type='button'
-                                    onClick={removePictureHandler.bind(
-                                        null,
-                                        index,
-                                        field.url
-                                    )}
+                                    onClick={removePictureHandler.bind(null, index, field.url)}
                                     className='position-absolute border-0'
                                     style={{ top: 0, right: 0 }}
                                 >
@@ -134,13 +132,9 @@ const Pictures: React.FC = () => {
                                     className='position-absolute border-0'
                                     style={{ top: 0, left: 0 }}
                                     onMouseOver={() => setDragableGroup(index)}
-                                    onMouseOut={() =>
-                                        setDragableGroup(undefined)
-                                    }
+                                    onMouseOut={() => setDragableGroup(undefined)}
                                     onTouchStart={() => setDragableGroup(index)}
-                                    onTouchEnd={() =>
-                                        setDragableGroup(undefined)
-                                    }
+                                    onTouchEnd={() => setDragableGroup(undefined)}
                                 >
                                     <FontAwesomeIcon icon={faGripVertical} />
                                 </Button>

@@ -19,17 +19,13 @@ const schema = yup
             .min(4, 'Musia byť minimálne 4 znaky')
             .max(50, 'Musí byť maximálne 50 znakov')
             .required('Povinná položka'),
-        key: yup
-            .string()
-            .trim()
-            .max(36, 'Musí byť maximálne 36 znakov')
-            .required('Povinná položka'),
+        key: yup.string().trim().max(36, 'Musí byť maximálne 36 znakov').required('Povinná položka')
     })
     .required();
 
 const Confirmation: React.FC = () => {
     const methods = useForm<Api.ConfirmEmailRequest>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
@@ -39,13 +35,13 @@ const Confirmation: React.FC = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string>();
     const [successfulConfirmation, setSuccessfulConfirmation] = useState(false);
-    const {username, key} = useParams();
+    const { username, key } = useParams();
 
-    useEffect(()=> {
-        if(username && key) {
-            reset({username: username, key: key})
+    useEffect(() => {
+        if (username && key) {
+            reset({ username: username, key: key });
         }
-    }, [reset, username, key])
+    }, [reset, username, key]);
 
     const submitHandler = async (data: Api.ConfirmEmailRequest) => {
         try {
@@ -64,10 +60,7 @@ const Confirmation: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <p className='text-primary'>
-                            Pre dokončenie registrácie prosím zadajte
-                            prihlasovacie meno a registračný kľúč.
-                        </p>
+                        <p className='text-primary'>Pre dokončenie registrácie prosím zadajte prihlasovacie meno a registračný kľúč.</p>
                         <Input
                             name='username'
                             label='Prihlasovacie meno'
@@ -78,7 +71,10 @@ const Confirmation: React.FC = () => {
                             label='Registračný kľúč'
                             type='text'
                         />
-                        <Button variant='primary' type='submit'>
+                        <Button
+                            variant='primary'
+                            type='submit'
+                        >
                             Potvrdiť
                         </Button>
                         {isSubmitting && <Spinner />}

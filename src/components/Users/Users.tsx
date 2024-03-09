@@ -72,11 +72,17 @@ const Users: React.FC = () => {
         <>
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Používatelia</h1>
-                <Button variant='primary' onClick={createUserHandler}>
+                <Button
+                    variant='primary'
+                    onClick={createUserHandler}
+                >
                     Pridať používateľa
                 </Button>
             </div>
-            <Table striped responsive>
+            <Table
+                striped
+                responsive
+            >
                 <thead>
                     <tr>
                         <th>Používateľské meno</th>
@@ -109,10 +115,7 @@ const Users: React.FC = () => {
                                         title='Upraviť'
                                         aria-label='Upraviť'
                                         variant='outline-secondary'
-                                        onClick={editUserHandler.bind(
-                                            null,
-                                            user.id
-                                        )}
+                                        onClick={editUserHandler.bind(null, user.id)}
                                         style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faPencil} />
@@ -121,10 +124,7 @@ const Users: React.FC = () => {
                                         title='Vymazať'
                                         aria-label='Vymazať'
                                         variant='outline-danger'
-                                        onClick={deleteUserHandler.bind(
-                                            null,
-                                            user
-                                        )}
+                                        onClick={deleteUserHandler.bind(null, user)}
                                         style={{ border: 'none' }}
                                     >
                                         <FontAwesomeIcon icon={faTrash} />

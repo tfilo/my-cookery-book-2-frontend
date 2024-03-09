@@ -36,8 +36,7 @@ const RecipeView: React.FC = () => {
     const params = useParams();
     const [serves, setServes] = useState<number>(1);
     const componentRef = useRef<HTMLDivElement>(null);
-    const [associatedRecipes, setAssociatedRecipes] =
-        useState<RecipesWithUrlInPictures[]>();
+    const [associatedRecipes, setAssociatedRecipes] = useState<RecipesWithUrlInPictures[]>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const { state } = useLocation();
@@ -47,13 +46,10 @@ const RecipeView: React.FC = () => {
             try {
                 if (params.recipeId) {
                     setIsLoading(true);
-                    const rec: RecipesWithUrlInPictures =
-                        await recipeApi.getRecipe(+params.recipeId);
+                    const rec: RecipesWithUrlInPictures = await recipeApi.getRecipe(+params.recipeId);
 
                     for (let picture of rec.pictures) {
-                        const data = await pictureApi.getPictureThumbnail(
-                            picture.id
-                        );
+                        const data = await pictureApi.getPictureThumbnail(picture.id);
                         if (data instanceof Blob) {
                             const url = URL.createObjectURL(data);
                             picture.url = url;
@@ -65,21 +61,15 @@ const RecipeView: React.FC = () => {
                     }
 
                     if (rec.associatedRecipes.length > 0) {
-                        const associatedRecipesId = rec.associatedRecipes.map(
-                            (a) => a.id
-                        );
+                        const associatedRecipesId = rec.associatedRecipes.map((a) => a.id);
                         const assRecipes: RecipesWithUrlInPictures[] = [];
                         for (let id of associatedRecipesId) {
-                            const assRec: RecipesWithUrlInPictures =
-                                await recipeApi.getRecipe(id);
+                            const assRec: RecipesWithUrlInPictures = await recipeApi.getRecipe(id);
                             assRecipes.push(assRec);
                         }
                         for (let assRecipe of assRecipes) {
                             for (let picture of assRecipe.pictures) {
-                                const data =
-                                    await pictureApi.getPictureThumbnail(
-                                        picture.id
-                                    );
+                                const data = await pictureApi.getPictureThumbnail(picture.id);
                                 if (data instanceof Blob) {
                                     const url = URL.createObjectURL(data);
                                     picture.url = url;
@@ -89,14 +79,9 @@ const RecipeView: React.FC = () => {
                         setAssociatedRecipes((prev) => {
                             if (prev) {
                                 prev.forEach((assRecipe) => {
-                                    assRecipe.pictures.forEach(
-                                        (assRecipePicture) => {
-                                            assRecipePicture.url &&
-                                                URL.revokeObjectURL(
-                                                    assRecipePicture.url
-                                                );
-                                        }
-                                    );
+                                    assRecipe.pictures.forEach((assRecipePicture) => {
+                                        assRecipePicture.url && URL.revokeObjectURL(assRecipePicture.url);
+                                    });
                                 });
                             }
                             return assRecipes;
@@ -127,12 +112,9 @@ const RecipeView: React.FC = () => {
                     aria-label='späť'
                     type='button'
                     onClick={() => {
-                        navigate(
-                            recipesUrlWithCategory(state?.searchingCategory),
-                            {
-                                state,
-                            }
-                        );
+                        navigate(recipesUrlWithCategory(state?.searchingCategory), {
+                            state
+                        });
                     }}
                 >
                     <FontAwesomeIcon icon={faCircleArrowLeft} />
@@ -155,7 +137,10 @@ const RecipeView: React.FC = () => {
                     serves={serves}
                     setServes={setServes}
                 ></ServeView>
-                <SectionView recipe={recipe} serves={serves} />
+                <SectionView
+                    recipe={recipe}
+                    serves={serves}
+                />
                 {recipe?.method && (
                     <section className='pb-2'>
                         <h2>Postup prípravy receptu</h2>

@@ -9,14 +9,17 @@ const Sources: React.FC = () => {
     const {
         fields: sourcesFields,
         append: sourcesAppend,
-        remove: sourcesRemove,
+        remove: sourcesRemove
     } = useFieldArray({
-        name: 'sources',
+        name: 'sources'
     });
 
     return (
         <>
-            <Stack direction='horizontal' gap={3}>
+            <Stack
+                direction='horizontal'
+                gap={3}
+            >
                 <Form.Label>Zdroj receptu</Form.Label>
                 <Button
                     aria-label='pridať zdroj receptu'
@@ -25,7 +28,7 @@ const Sources: React.FC = () => {
                     className='border-0'
                     onClick={() =>
                         sourcesAppend({
-                            value: '',
+                            value: ''
                         })
                     }
                 >
@@ -44,26 +47,16 @@ const Sources: React.FC = () => {
                                         placeholder='Url'
                                         button={{
                                             label: 'Odstrániť zdroj',
-                                            children: (
-                                                <FontAwesomeIcon
-                                                    icon={faCircleMinus}
-                                                />
-                                            ),
+                                            children: <FontAwesomeIcon icon={faCircleMinus} />,
                                             variant: 'outline-danger',
                                             style: {
-                                                borderRightColor:
-                                                    'rgba(0, 0, 0, 0.175)',
-                                                borderTopColor:
-                                                    'rgba(0, 0, 0, 0.175)',
-                                                borderBottomColor:
-                                                    'rgba(0, 0, 0, 0.175)',
-                                                borderLeftColor:
-                                                    'rgba(0, 0, 0, 0)',
-                                                borderTopRightRadius:
-                                                    '0.375rem',
-                                                borderBottomRightRadius:
-                                                    '0.375rem',
-                                            },
+                                                borderRightColor: 'rgba(0, 0, 0, 0.175)',
+                                                borderTopColor: 'rgba(0, 0, 0, 0.175)',
+                                                borderBottomColor: 'rgba(0, 0, 0, 0.175)',
+                                                borderLeftColor: 'rgba(0, 0, 0, 0)',
+                                                borderTopRightRadius: '0.375rem',
+                                                borderBottomRightRadius: '0.375rem'
+                                            }
                                         }}
                                         onClick={() => sourcesRemove(index)}
                                     />

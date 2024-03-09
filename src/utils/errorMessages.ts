@@ -2,14 +2,9 @@ export const formatErrorMessage = async (err: unknown) => {
     if (err instanceof Response) {
         const responseError = await err.json();
         if (responseError.code) {
-            return (
-                ErrorMessages[responseError.code] ??
-                'Nastala neočakávana chyba.'
-            );
+            return ErrorMessages[responseError.code] ?? 'Nastala neočakávana chyba.';
         } else {
-            return (
-                ErrorMessages[err.statusText] ?? 'Nastala neočakávana chyba.'
-            );
+            return ErrorMessages[err.statusText] ?? 'Nastala neočakávana chyba.';
         }
     } else {
         console.error(err);
@@ -28,5 +23,5 @@ const ErrorMessages: { [name: string]: string } = {
     EXPIRED_TOKEN: 'Vypršaná autentifikácia',
     INVALID_TOKEN: 'Neplatná autentifikácia',
     UNIQUE_CONSTRAINT_ERROR: 'Záznam s rovnakými parametrami už existuje',
-    CONSTRAINT_FAILED: 'Nemožno odstrániť, daný záznam sa používa',
+    CONSTRAINT_FAILED: 'Nemožno odstrániť, daný záznam sa používa'
 };

@@ -14,7 +14,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
     const id = useId();
     const {
         register,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext();
 
     const errorMessage = errors[props.name]?.message;
@@ -33,9 +33,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
                 isInvalid={!!errorMessage}
                 rows={props.rows}
             />
-            <Form.Control.Feedback type='invalid'>
-                {errorMessage?.toString()}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
         </Form.Group>
     );
 };

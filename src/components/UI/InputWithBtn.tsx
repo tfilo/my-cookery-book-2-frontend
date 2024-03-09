@@ -22,7 +22,7 @@ type InputWithBtnProps = {
 const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
     const {
         register,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext();
     const id = useId();
 
@@ -46,13 +46,10 @@ const InputWithBtn: React.FC<InputWithBtnProps> = (props) => {
                 title={props.button.label}
                 aria-label={props.button.label}
                 style={props.button.style}
-                
             >
                 {props.button.children}
             </Button>
-            <Form.Control.Feedback type='invalid'>
-                {errorMessage?.toString()}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
         </InputGroup>
     );
 };

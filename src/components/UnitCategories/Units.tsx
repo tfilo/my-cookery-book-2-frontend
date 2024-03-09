@@ -24,9 +24,7 @@ const Units: React.FC<{
         (async () => {
             try {
                 setIsLoading(true);
-                const units = await unitApi.getUnitsByUnitCategory(
-                    unitCategoryId
-                );
+                const units = await unitApi.getUnitsByUnitCategory(unitCategoryId);
                 setListOfUnits(units);
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
@@ -76,9 +74,7 @@ const Units: React.FC<{
                     <tr key={unit.id}>
                         <td className='align-middle'>{unit.name}</td>
                         <td className='align-middle'>{unit.abbreviation}</td>
-                        {authCtx.userRoles.find(
-                            (role) => role === Api.User.RoleEnum.ADMIN
-                        ) && (
+                        {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                             <Stack
                                 as={'td'}
                                 direction='horizontal'
@@ -89,10 +85,7 @@ const Units: React.FC<{
                                     title='Upraviť'
                                     aria-label='Upraviť'
                                     variant='outline-secondary'
-                                    onClick={editUnitHandler.bind(
-                                        null,
-                                        unit.id
-                                    )}
+                                    onClick={editUnitHandler.bind(null, unit.id)}
                                     style={{ border: 'none' }}
                                 >
                                     <FontAwesomeIcon icon={faPencil} />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, PropsWithChildren, useMemo } from 'react';
+// eslint-disable-next-line camelcase
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
@@ -25,7 +26,7 @@ export const AuthContext = React.createContext<AuthContextObj>({
     userRoles: [],
     isLoggedIn: false,
     login: () => {},
-    logout: () => {},
+    logout: () => {}
 });
 
 const tokenValidity = (token: string | null) => {
@@ -42,16 +43,12 @@ const tokenValidity = (token: string | null) => {
 
 const storedToken = localStorage.getItem('token');
 const storedRefreshToken = localStorage.getItem('refreshToken');
-//@ts-ignore
+// @ts-ignore
 window.token = storedToken;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
-    const [token, setToken] = useState(
-        tokenValidity(storedToken) > 0 ? storedToken : null
-    );
-    const [refreshToken, setRefreshToken] = useState(
-        tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null
-    );
+    const [token, setToken] = useState(tokenValidity(storedToken) > 0 ? storedToken : null);
+    const [refreshToken, setRefreshToken] = useState(tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null);
     const [rememberMe, setRememberMe] = useState(!!refreshToken);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>();
@@ -66,11 +63,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
     const userIsLoggedIn = !!token;
     const userRoles = useMemo(() => {
         if (token) {
-            return (
-                jwt_decode<CustomToken>(token).roles?.map(
-                    (r) => r as Api.User.RoleEnum
-                ) ?? []
-            );
+            return jwt_decode<CustomToken>(token).roles?.map((r) => r as Api.User.RoleEnum) ?? [];
         }
         return [];
     }, [token]);
@@ -84,7 +77,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                     if (refreshToken) {
                         try {
                             const data = await authApi.refreshToken({
-                                refreshToken,
+                                refreshToken
                             });
                             if (data) {
                                 loginHandler(data.token, data.refreshToken, rememberMe);
@@ -93,9 +86,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                                 logoutHandler();
                             }
                         } catch (err) {
-                            formatErrorMessage(err).then((message) =>
-                                setError(message)
-                            );
+                            formatErrorMessage(err).then((message) => setError(message));
                         }
                     }
                 })();
@@ -109,7 +100,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 if (refreshToken) {
                     try {
                         const data = await authApi.refreshToken({
-                            refreshToken,
+                            refreshToken
                         });
                         if (data) {
                             loginHandler(data.token, data.refreshToken, rememberMe);
@@ -118,9 +109,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                             logoutHandler();
                         }
                     } catch (err) {
-                        formatErrorMessage(err).then((message) =>
-                            setError(message)
-                        );
+                        formatErrorMessage(err).then((message) => setError(message));
                     } finally {
                         setIsLoading(false);
                     }
@@ -142,9 +131,8 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
         }
-        //@ts-ignore
+        // @ts-ignore
         window.token = token;
-
     };
 
     const logoutHandler = () => {
@@ -153,7 +141,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         setUserId(null);
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        //@ts-ignore
+        // @ts-ignore
         delete window.token;
     };
 
@@ -162,15 +150,13 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         userRoles,
         isLoggedIn: userIsLoggedIn,
         login: loginHandler,
-        logout: logoutHandler,
+        logout: logoutHandler
     };
 
     return (
         <>
             <Welcome show={isLoading} />
-            <AuthContext.Provider value={contextValue}>
-                {props.children}
-            </AuthContext.Provider>
+            <AuthContext.Provider value={contextValue}>{props.children}</AuthContext.Provider>
             <Modal
                 show={!!error}
                 message={error}

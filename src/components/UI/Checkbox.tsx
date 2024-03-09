@@ -12,13 +12,16 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
     const id = useId();
     const {
         register,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext();
 
     const errorMessage = errors[props.name]?.message;
 
     return (
-        <Form.Group className='mb-3' controlId={`${id}_${props.name}`}>
+        <Form.Group
+            className='mb-3'
+            controlId={`${id}_${props.name}`}
+        >
             <Form.Check
                 {...register(props.name)}
                 label={props.label}

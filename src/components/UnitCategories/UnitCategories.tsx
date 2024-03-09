@@ -1,8 +1,4 @@
-import {
-    faCirclePlus,
-    faPencil,
-    faTrash,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
@@ -16,9 +12,7 @@ import Spinner from '../UI/Spinner';
 import Units from './Units';
 
 const UnitCategories: React.FC = () => {
-    const [listOfUnitCategories, setListOfUnitCategories] = useState<
-        Api.SimpleUnitCategory[]
-    >([]);
+    const [listOfUnitCategories, setListOfUnitCategories] = useState<Api.SimpleUnitCategory[]>([]);
     const [error, setError] = useState<string>();
     const [unitCategory, setUnitCategory] = useState<Api.SimpleUnitCategory>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -30,8 +24,7 @@ const UnitCategories: React.FC = () => {
         (async () => {
             try {
                 setIsLoading(true);
-                const unitCategories =
-                    await unitCategoryApi.getUnitCategories();
+                const unitCategories = await unitCategoryApi.getUnitCategories();
                 setListOfUnitCategories(unitCategories);
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
@@ -53,9 +46,7 @@ const UnitCategories: React.FC = () => {
         navigate(`/unitCategory/${id}`);
     };
 
-    const deleteUnitCategoryHandler = (
-        unitCategory: Api.SimpleUnitCategory
-    ) => {
+    const deleteUnitCategoryHandler = (unitCategory: Api.SimpleUnitCategory) => {
         setUnitCategory(unitCategory);
     };
 
@@ -65,14 +56,9 @@ const UnitCategories: React.FC = () => {
                 if (unitCategory) {
                     try {
                         setIsLoading(true);
-                        await unitCategoryApi.deleteUnitCategory(
-                            unitCategory.id
-                        );
+                        await unitCategoryApi.deleteUnitCategory(unitCategory.id);
                         setListOfUnitCategories((prev) => {
-                            return prev.filter(
-                                (_unitCategory) =>
-                                    _unitCategory.id !== unitCategory.id
-                            );
+                            return prev.filter((_unitCategory) => _unitCategory.id !== unitCategory.id);
                         });
                     } catch (err) {
                         formatErrorMessage(err).then((message) => {
@@ -93,9 +79,7 @@ const UnitCategories: React.FC = () => {
         <>
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Jednotky</h1>
-                {authCtx.userRoles.find(
-                    (role) => role === Api.User.RoleEnum.ADMIN
-                ) && (
+                {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                     <Button
                         variant='primary'
                         onClick={createUnitCategoryHandler}
@@ -106,7 +90,11 @@ const UnitCategories: React.FC = () => {
             </div>
             <div>
                 {listOfUnitCategories.map((unitCategory) => (
-                    <Table striped responsive key={unitCategory.id}>
+                    <Table
+                        striped
+                        responsive
+                        key={unitCategory.id}
+                    >
                         <thead>
                             <tr>
                                 <Stack
@@ -117,10 +105,7 @@ const UnitCategories: React.FC = () => {
                                     gap={2}
                                 >
                                     {unitCategory.name}
-                                    {authCtx.userRoles.find(
-                                        (role) =>
-                                            role === Api.User.RoleEnum.ADMIN
-                                    ) && (
+                                    {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                                         <Stack
                                             style={{ border: 'none' }}
                                             direction='horizontal'
@@ -131,40 +116,25 @@ const UnitCategories: React.FC = () => {
                                                 aria-label={`Pridať kategóriu jednotky ${unitCategory.name}`}
                                                 variant='outline-success'
                                                 type='button'
-                                                onClick={createUnitHandler.bind(
-                                                    null,
-                                                    unitCategory.id
-                                                )}
+                                                onClick={createUnitHandler.bind(null, unitCategory.id)}
                                             >
-                                                <FontAwesomeIcon
-                                                    icon={faCirclePlus}
-                                                />
+                                                <FontAwesomeIcon icon={faCirclePlus} />
                                             </Button>
                                             <Button
                                                 title={`Upraviť kategóriu jednotky ${unitCategory.name}`}
                                                 aria-label={`Upraviť kategóriu jednotky ${unitCategory.name}`}
                                                 variant='outline-secondary'
-                                                onClick={editUnitCategoryHandler.bind(
-                                                    null,
-                                                    unitCategory.id
-                                                )}
+                                                onClick={editUnitCategoryHandler.bind(null, unitCategory.id)}
                                             >
-                                                <FontAwesomeIcon
-                                                    icon={faPencil}
-                                                />
+                                                <FontAwesomeIcon icon={faPencil} />
                                             </Button>
                                             <Button
                                                 title={`Vymazať kategóriu jednotky ${unitCategory.name}`}
                                                 aria-label={`Vymazať kategóriu jednotky ${unitCategory.name}`}
                                                 variant='outline-danger'
-                                                onClick={deleteUnitCategoryHandler.bind(
-                                                    null,
-                                                    unitCategory
-                                                )}
+                                                onClick={deleteUnitCategoryHandler.bind(null, unitCategory)}
                                             >
-                                                <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                />
+                                                <FontAwesomeIcon icon={faTrash} />
                                             </Button>
                                         </Stack>
                                     )}

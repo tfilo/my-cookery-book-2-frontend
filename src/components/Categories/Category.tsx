@@ -15,12 +15,7 @@ type CategoryForm = Api.CreateCategory | Api.UpdateCategory;
 
 const schema = yup
     .object({
-        name: yup
-            .string()
-            .trim()
-            .min(1, 'Musí byť minimálne 1 znak')
-            .max(50, 'Musí byť maximálne 50 znakov')
-            .required('Povinná položka'),
+        name: yup.string().trim().min(1, 'Musí byť minimálne 1 znak').max(50, 'Musí byť maximálne 50 znakov').required('Povinná položka')
     })
     .required();
 
@@ -31,11 +26,11 @@ const Category: React.FC = () => {
     const params = useParams();
 
     const methods = useForm<CategoryForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
 
     useEffect(() => {
@@ -44,14 +39,10 @@ const Category: React.FC = () => {
             (async () => {
                 try {
                     setIsLoading(true);
-                    const data = await categoryApi.getCategory(
-                        parseInt(paramsNumber)
-                    );
+                    const data = await categoryApi.getCategory(parseInt(paramsNumber));
                     methods.reset(data);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -63,9 +54,7 @@ const Category: React.FC = () => {
         navigate('/categories');
     };
 
-    const submitHandler: SubmitHandler<CategoryForm> = async (
-        data: CategoryForm
-    ) => {
+    const submitHandler: SubmitHandler<CategoryForm> = async (data: CategoryForm) => {
         try {
             if (params.id) {
                 await categoryApi.updateCategory(parseInt(params.id), data);
@@ -87,12 +76,19 @@ const Category: React.FC = () => {
                         noValidate
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
-                        <Input name='name' label='Kategória' />
-                        <Stack direction='horizontal' gap={2}>
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť kategóriu'
-                                    : 'Vytvoriť kategóriu'}
+                        <Input
+                            name='name'
+                            label='Kategória'
+                        />
+                        <Stack
+                            direction='horizontal'
+                            gap={2}
+                        >
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                {params.id ? 'Zmeniť kategóriu' : 'Vytvoriť kategóriu'}
                             </Button>{' '}
                             <Button
                                 variant='warning'
