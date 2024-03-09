@@ -13,25 +13,17 @@ const AuthorView: React.FC<AuthorProps> = (props) => {
                     props.recipe.creator &&
                     `Pridal: ${
                         props.recipe.creator.firstName
-                            ? props.recipe.creator.firstName +
-                                  ' ' +
-                                  props.recipe.creator.lastName ?? ''
+                            ? props.recipe.creator.firstName + ' ' + props.recipe.creator.lastName ?? ''
                             : props.recipe.creator.username
-                    } dňa: ${new Date(
-                        props.recipe.createdAt
-                    ).toLocaleDateString()}`.trim()}
+                    } dňa: ${new Date(props.recipe.createdAt).toLocaleDateString()}`.trim()}
             </p>
             <p className='mb-3'>
                 {props.recipe &&
                     `Upravil: ${
                         props.recipe.modifier.firstName
-                            ? props.recipe.modifier.firstName +
-                                  ' ' +
-                                  props.recipe.modifier.lastName ?? ''
+                            ? props.recipe.modifier.firstName + ' ' + props.recipe.modifier.lastName ?? ''
                             : props.recipe.modifier.username
-                    } dňa: ${new Date(
-                        props.recipe.updatedAt
-                    ).toLocaleDateString()}`.trim()}
+                    } dňa: ${new Date(props.recipe.updatedAt).toLocaleDateString()}`.trim()}
             </p>
         </>
     );

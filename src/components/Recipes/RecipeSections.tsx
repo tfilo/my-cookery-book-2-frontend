@@ -3,12 +3,7 @@ import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import Input from '../UI/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faCirclePlus,
-    faCircleMinus,
-    faCircleChevronDown,
-    faCircleChevronUp,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleMinus, faCircleChevronDown, faCircleChevronUp } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
 import Ingredients from './Ingredients/Ingredients';
@@ -21,12 +16,15 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
     const { register } = useFormContext();
 
     const { fields, append, remove, move } = useFieldArray({
-        name: 'recipeSections',
+        name: 'recipeSections'
     });
 
     return (
         <>
-            <Stack direction='horizontal' gap={3}>
+            <Stack
+                direction='horizontal'
+                gap={3}
+            >
                 <Form.Label>Sekcie</Form.Label>
                 <Button
                     aria-label='pridať sekciu'
@@ -41,9 +39,9 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 {
                                     name: '',
                                     value: null,
-                                    unitId: -1,
-                                },
-                            ],
+                                    unitId: -1
+                                }
+                            ]
                         })
                     }
                 >
@@ -53,14 +51,17 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
 
             {fields.map((field, index, array) => {
                 return (
-                    <Card key={field?.id} className='mb-3'>
+                    <Card
+                        key={field?.id}
+                        className='mb-3'
+                    >
                         <Card.Body className='pb-0'>
                             <section>
                                 <div
                                     className='position-absolute'
                                     style={{
                                         top: '0px',
-                                        right: '0px',
+                                        right: '0px'
                                     }}
                                 >
                                     <Button

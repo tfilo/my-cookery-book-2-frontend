@@ -8,14 +8,14 @@ import {
     TagApi,
     UnitApi,
     UnitCategoryApi,
-    UserApi,
+    UserApi
 } from '../openapi';
 import { Environment } from './env';
 
 declare const env: Environment;
 
 const config = new Configuration({
-    //@ts-ignore
+    // @ts-ignore
     authorization: () => window.token,
     basePath: env.baseApiUrl ?? '/api'
 });
@@ -30,14 +30,4 @@ const unitCategoryApi = new UnitCategoryApi(config);
 const userApi = new UserApi(config);
 const healthApi = new HealthApi(config);
 
-export {
-    authApi,
-    categoryApi,
-    pictureApi,
-    recipeApi,
-    tagApi,
-    unitApi,
-    unitCategoryApi,
-    userApi,
-    healthApi,
-};
+export { authApi, categoryApi, pictureApi, recipeApi, tagApi, unitApi, unitCategoryApi, userApi, healthApi };

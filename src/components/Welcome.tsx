@@ -16,7 +16,7 @@ const Welcome: React.FC<{
             } z-3 position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-white`}
             style={{
                 transition: 'opacity 2s',
-                transitionDelay: '1s',
+                transitionDelay: '1s'
             }}
             onTransitionEnd={() => setIsVisible(false)}
         >
@@ -29,11 +29,9 @@ const Welcome: React.FC<{
                         maxWidth: show ? '512px' : '1024px',
                         width: show ? '50%' : '80%',
                         transition: 'all 2s',
-                        transitionDelay: '1s',
+                        transitionDelay: '1s'
                     }}
-                    className={`${
-                        show ? 'opacity-100' : 'opacity-0'
-                    } rounded-5`}
+                    className={`${show ? 'opacity-100' : 'opacity-0'} rounded-5`}
                 />
                 <h1
                     className={`${show ? 'opacity-100' : 'opacity-0'} pt-2`}

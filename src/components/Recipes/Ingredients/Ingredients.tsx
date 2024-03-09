@@ -13,12 +13,15 @@ type IngredientsProps = {
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
     const { fields, append, remove, move } = useFieldArray({
-        name: `${props.recipeSectionName}.ingredients`,
+        name: `${props.recipeSectionName}.ingredients`
     });
 
     return (
         <>
-            <Stack direction='horizontal' gap={3}>
+            <Stack
+                direction='horizontal'
+                gap={3}
+            >
                 <Form.Label>Suroviny</Form.Label>
                 <Button
                     aria-label='pridať ingredienciu'

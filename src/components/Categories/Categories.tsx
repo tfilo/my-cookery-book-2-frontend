@@ -11,9 +11,7 @@ import Spinner from '../UI/Spinner';
 import { AuthContext } from '../../store/auth-context';
 
 const Categories: React.FC = () => {
-    const [listOfCategories, setListOfCategories] = useState<
-        Api.SimpleCategory[]
-    >([]);
+    const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
     const [error, setError] = useState<string>();
     const [category, setCategory] = useState<Api.SimpleCategory>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -75,15 +73,19 @@ const Categories: React.FC = () => {
         <Fragment>
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Kategórie</h1>
-                {authCtx.userRoles.find(
-                    (role) => role === Api.User.RoleEnum.ADMIN
-                ) && (
-                    <Button variant='primary' onClick={createCategoryHandler}>
+                {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
+                    <Button
+                        variant='primary'
+                        onClick={createCategoryHandler}
+                    >
                         Pridať kategóriu
                     </Button>
                 )}
             </div>
-            <Table striped responsive>
+            <Table
+                striped
+                responsive
+            >
                 <thead>
                     <tr>
                         <th>Názov kategórie</th>
@@ -95,9 +97,7 @@ const Categories: React.FC = () => {
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
-                                {authCtx.userRoles.find(
-                                    (role) => role === Api.User.RoleEnum.ADMIN
-                                ) && (
+                                {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                                     <Stack
                                         direction='horizontal'
                                         gap={2}
@@ -107,10 +107,7 @@ const Categories: React.FC = () => {
                                             title='Upraviť'
                                             aria-label='Upraviť'
                                             variant='outline-secondary'
-                                            onClick={editCategoryHandler.bind(
-                                                null,
-                                                category.id
-                                            )}
+                                            onClick={editCategoryHandler.bind(null, category.id)}
                                             style={{ border: 'none' }}
                                         >
                                             <FontAwesomeIcon icon={faPencil} />
@@ -120,10 +117,7 @@ const Categories: React.FC = () => {
                                             title='Vymazať'
                                             aria-label='Vymazať'
                                             variant='outline-danger'
-                                            onClick={deleteCategoryHandler.bind(
-                                                null,
-                                                category
-                                            )}
+                                            onClick={deleteCategoryHandler.bind(null, category)}
                                             style={{ border: 'none' }}
                                         >
                                             <FontAwesomeIcon icon={faTrash} />

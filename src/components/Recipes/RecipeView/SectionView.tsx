@@ -6,11 +6,7 @@ type SectionProps = {
     serves: number;
 };
 
-const countServes = (
-    ingredientValue: number | null,
-    definedServes: number,
-    serves: number
-) => {
+const countServes = (ingredientValue: number | null, definedServes: number, serves: number) => {
     if (ingredientValue === null) {
         return;
     }
@@ -23,9 +19,7 @@ const countServes = (
         decimalPoints = 1;
     }
 
-    return parseFloat(
-        ((ingredientValue / definedServes) * serves).toFixed(decimalPoints)
-    );
+    return parseFloat(((ingredientValue / definedServes) * serves).toFixed(decimalPoints));
 };
 
 const SectionView: React.FC<SectionProps> = (props) => {

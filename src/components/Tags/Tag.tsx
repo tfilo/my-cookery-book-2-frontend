@@ -15,12 +15,7 @@ type TagForm = Api.CreateTag | Api.UpdateTag;
 
 const schema = yup
     .object({
-        name: yup
-            .string()
-            .trim()
-            .min(1, 'Musí byť minimálne 1 znak')
-            .max(80, 'Musí byť maximálne 80 znakov')
-            .required('Povinná položka'),
+        name: yup.string().trim().min(1, 'Musí byť minimálne 1 znak').max(80, 'Musí byť maximálne 80 znakov').required('Povinná položka')
     })
     .required();
 
@@ -31,11 +26,11 @@ const Tag: React.FC = () => {
     const params = useParams();
 
     const methods = useForm<TagForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
 
     useEffect(() => {
@@ -47,9 +42,7 @@ const Tag: React.FC = () => {
                     const data = await tagApi.getTag(parseInt(paramsNumber));
                     methods.reset(data);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -83,12 +76,19 @@ const Tag: React.FC = () => {
                         noValidate
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
-                        <Input name='name' label='Značka' />
-                        <Stack direction='horizontal' gap={2}>
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť značku'
-                                    : 'Vytvoriť značku'}
+                        <Input
+                            name='name'
+                            label='Značka'
+                        />
+                        <Stack
+                            direction='horizontal'
+                            gap={2}
+                        >
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                {params.id ? 'Zmeniť značku' : 'Vytvoriť značku'}
                             </Button>{' '}
                             <Button
                                 variant='warning'

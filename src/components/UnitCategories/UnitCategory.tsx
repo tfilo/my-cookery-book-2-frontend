@@ -15,12 +15,7 @@ type UnitCategoryForm = Api.CreateUnitCategory | Api.UpdateUnitCategory;
 
 const schema = yup
     .object({
-        name: yup
-            .string()
-            .trim()
-            .min(1, 'Musí byť minimálne 1 znak')
-            .max(80, 'Musí byť maximálne 80 znakov')
-            .required('Povinná položka'),
+        name: yup.string().trim().min(1, 'Musí byť minimálne 1 znak').max(80, 'Musí byť maximálne 80 znakov').required('Povinná položka')
     })
     .required();
 
@@ -31,11 +26,11 @@ const UnitCategory: React.FC = () => {
     const params = useParams();
 
     const methods = useForm<UnitCategoryForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
 
     useEffect(() => {
@@ -44,14 +39,10 @@ const UnitCategory: React.FC = () => {
             (async () => {
                 try {
                     setIsLoading(true);
-                    const data = await unitCategoryApi.getUnitCategory(
-                        parseInt(paramsNumber)
-                    );
+                    const data = await unitCategoryApi.getUnitCategory(parseInt(paramsNumber));
                     methods.reset(data);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -63,15 +54,10 @@ const UnitCategory: React.FC = () => {
         navigate('/units');
     };
 
-    const submitHandler: SubmitHandler<UnitCategoryForm> = async (
-        data: UnitCategoryForm
-    ) => {
+    const submitHandler: SubmitHandler<UnitCategoryForm> = async (data: UnitCategoryForm) => {
         try {
             if (params.id) {
-                await unitCategoryApi.updateUnitCategory(
-                    parseInt(params.id),
-                    data
-                );
+                await unitCategoryApi.updateUnitCategory(parseInt(params.id), data);
                 navigate('/units');
             } else {
                 await unitCategoryApi.createUnitCategory(data);
@@ -91,12 +77,19 @@ const UnitCategory: React.FC = () => {
                         noValidate
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
-                        <Input name='name' label='Názov kategórie jednotiek' />
-                        <Stack direction='horizontal' gap={2}>
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť kategóriu'
-                                    : 'Vytvoriť kategóriu'}
+                        <Input
+                            name='name'
+                            label='Názov kategórie jednotiek'
+                        />
+                        <Stack
+                            direction='horizontal'
+                            gap={2}
+                        >
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                {params.id ? 'Zmeniť kategóriu' : 'Vytvoriť kategóriu'}
                             </Button>{' '}
                             <Button
                                 variant='warning'

@@ -1,16 +1,9 @@
-import {
-    faCircleMinus,
-    faGripVertical,
-} from '@fortawesome/free-solid-svg-icons';
+import { faCircleMinus, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
 import React, { useId, useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import {
-    UseFieldArrayMove,
-    UseFieldArrayRemove,
-    useFormContext,
-} from 'react-hook-form';
+import { UseFieldArrayMove, UseFieldArrayRemove, useFormContext } from 'react-hook-form';
 import { SelectGroupOptions } from '../../UI/Select';
 
 type IngredientProps = {
@@ -24,7 +17,7 @@ type IngredientProps = {
 const Ingredient: React.FC<IngredientProps> = (props) => {
     const {
         register,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext();
     const id = useId();
 
@@ -59,7 +52,10 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
 
     return (
         <section>
-            <input {...register(`${props.name}.id`)} type='hidden' />
+            <input
+                {...register(`${props.name}.id`)}
+                type='hidden'
+            />
             <InputGroup
                 className='mb-2 '
                 onDragStart={(e) => dragStart(e, props.index)}
@@ -75,7 +71,7 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                         borderLeftColor: 'rgba(0, 0, 0, 0.175)',
                         borderTopColor: 'rgba(0, 0, 0, 0.175)',
                         borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-                        borderRightColor: 'rgba(0, 0, 0, 0)',
+                        borderRightColor: 'rgba(0, 0, 0, 0)'
                     }}
                     onMouseOver={() => setDragableGroup(props.index)}
                     onMouseOut={() => setDragableGroup(undefined)}
@@ -112,7 +108,10 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                     isInvalid={!!unitErrorMessage}
                     id={`${id}_unitId`}
                 >
-                    <option disabled value='-1'>
+                    <option
+                        disabled
+                        value='-1'
+                    >
                         Vyberte Jednotku
                     </option>
                     {props.units.map((option) => {
@@ -122,7 +121,10 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                                 label={option.optGroupName}
                             >
                                 {option.options.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>
+                                    <option
+                                        key={opt.value}
+                                        value={opt.value}
+                                    >
                                         {opt.label}
                                     </option>
                                 ))}
@@ -139,7 +141,7 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                         borderRightColor: 'rgba(0, 0, 0, 0.175)',
                         borderTopColor: 'rgba(0, 0, 0, 0.175)',
                         borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-                        borderLeftColor: 'rgba(0, 0, 0, 0)',
+                        borderLeftColor: 'rgba(0, 0, 0, 0)'
                     }}
                 >
                     <FontAwesomeIcon icon={faCircleMinus} />
@@ -149,23 +151,17 @@ const Ingredient: React.FC<IngredientProps> = (props) => {
                 <ul>
                     {nameErrorMessage && (
                         <li className='text-danger'>
-                            <label htmlFor={`${id}_name`}>
-                                {nameErrorMessage?.toString()}
-                            </label>
+                            <label htmlFor={`${id}_name`}>{nameErrorMessage?.toString()}</label>
                         </li>
                     )}
                     {valueErrorMessage && (
                         <li className='text-danger'>
-                            <label htmlFor={`${id}_value`}>
-                                {valueErrorMessage?.toString()}
-                            </label>
+                            <label htmlFor={`${id}_value`}>{valueErrorMessage?.toString()}</label>
                         </li>
                     )}
                     {unitErrorMessage && (
                         <li className='text-danger'>
-                            <label htmlFor={`${id}_unitId`}>
-                                {unitErrorMessage?.toString()}
-                            </label>
+                            <label htmlFor={`${id}_unitId`}>{unitErrorMessage?.toString()}</label>
                         </li>
                     )}
                 </ul>

@@ -1,7 +1,6 @@
 import { Fragment, useContext, useEffect, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, Link } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import './App.scss';
 import { AuthContext } from './store/auth-context';
 import SignInPage from './pages/SignInPage';
@@ -22,13 +21,14 @@ import RecipesPage from './pages/RecipesPage';
 import RecipeViewPage from './pages/RecipeViewPage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+    faArrowRightFromBracket,
     faList,
     faPizzaSlice,
     faScaleBalanced,
     faTags,
     faUser,
     faUsers,
-    faUtensils,
+    faUtensils
 } from '@fortawesome/free-solid-svg-icons';
 import CookieConsent from 'react-cookie-consent';
 import { formatErrorMessage } from './utils/errorMessages';
@@ -45,12 +45,9 @@ function App() {
     const [expanded, setExpanded] = useState(false);
     const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isLoadingCategories, setIsLoadingCategories] =
-        useState<boolean>(false);
+    const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(false);
     const [error, setError] = useState<string>();
-    const [listOfCategories, setListOfCategories] = useState<
-        Api.SimpleCategory[]
-    >([]);
+    const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
 
     const [resetValues, setResetValues] = useState<RecipeState>({
         searchingText: '',
@@ -58,7 +55,7 @@ function App() {
         selectedTags: [],
         currentPage: 1,
         order: Api.RecipeSearchCriteria.OrderEnum.ASC,
-        orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
+        orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name
     });
 
     useEffect(() => {
@@ -69,9 +66,7 @@ function App() {
                     const user = await authApi.user();
                     setUserInfo(user);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -87,9 +82,7 @@ function App() {
                     const categories = await categoryApi.getCategories();
                     setListOfCategories(categories);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoadingCategories(false);
                 }
@@ -97,9 +90,7 @@ function App() {
         }
     }, [isLoggedIn]);
 
-    let username = `${userInfo?.firstName ?? ''} ${
-        userInfo?.lastName ?? ''
-    }`.trim();
+    let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
     if (!username) {
         username = userInfo?.username ?? '';
     }
@@ -133,12 +124,9 @@ function App() {
                 disableButtonStyles={true}
                 overlay={true}
             >
-                Aplikácia pre svoju funkčnosť vyžaduje uložiť v Local Storage
-                prehliadača informáciu o aktuálne prihlásenom používateľovi.
-                Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača.
-                Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
-                vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu
-                záznamu v Local Storage o prihlásenom používateľovi.
+                Aplikácia pre svoju funkčnosť vyžaduje uložiť v Local Storage prehliadača informáciu o aktuálne prihlásenom používateľovi.
+                Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača. Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
+                vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu záznamu v Local Storage o prihlásenom používateľovi.
             </CookieConsent>
             {isLoggedIn && (
                 <Navbar
@@ -149,10 +137,24 @@ function App() {
                 >
                     <Container fluid>
                         <Navbar.Toggle onClick={openOffcanvas} />
-                        <Navbar.Brand as={Link} to='/recipes'>
+                        <Navbar.Brand
+                            as={Link}
+                            to='/recipes'
+                        >
                             Kuchárska kniha
                         </Navbar.Brand>
-                        <Button onClick={logoutHandler}>Odhlásiť sa</Button>
+                        <Button
+                            onClick={logoutHandler}
+                            aria-label='Odhlásiť sa'
+                        >
+                            <FontAwesomeIcon
+                                className='d-lg-none'
+                                icon={faArrowRightFromBracket}
+                                title='Odhlásiť sa'
+                                aria-hidden='true'
+                            />
+                            <span className='d-none d-lg-inline'>Odhlásiť sa</span>
+                        </Button>
                         <Navbar.Offcanvas
                             placement='start'
                             onHide={closeOffcanvas}
@@ -173,10 +175,7 @@ function App() {
                                         />{' '}
                                         Profil
                                     </Nav.Link>
-                                    {authCtx.userRoles.find(
-                                        (role) =>
-                                            role === Api.User.RoleEnum.ADMIN
-                                    ) && (
+                                    {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                                         <Nav.Link
                                             to='/users'
                                             as={Link}
@@ -223,9 +222,7 @@ function App() {
                                         Značky
                                     </Nav.Link>
                                     {authCtx.userRoles.find(
-                                        (role) =>
-                                            role === Api.User.RoleEnum.ADMIN ||
-                                            role === Api.User.RoleEnum.CREATOR
+                                        (role) => role === Api.User.RoleEnum.ADMIN || role === Api.User.RoleEnum.CREATOR
                                     ) && (
                                         <Nav.Link
                                             to='/recipe/create'
@@ -257,9 +254,7 @@ function App() {
                                             to={`/recipes/${category.id}`}
                                             state={resetValues}
                                             as={Link}
-                                            onClick={() =>
-                                                setStateHandler(category.id)
-                                            }
+                                            onClick={() => setStateHandler(category.id)}
                                             key={category.id}
                                         >
                                             {category.name}
@@ -271,14 +266,29 @@ function App() {
                     </Container>
                 </Navbar>
             )}
-            <Container as={'main'} className='py-4'>
+            <Container
+                as={'main'}
+                className='py-4'
+            >
                 <Routes>
                     {isLoggedIn ? (
                         <Fragment>
-                            <Route path='/profile' element={<ProfilePage />} />
-                            <Route path='/users' element={<UsersPage />} />
-                            <Route path='/user' element={<UserPage />} />
-                            <Route path='/user/:id' element={<UserPage />} />
+                            <Route
+                                path='/profile'
+                                element={<ProfilePage />}
+                            />
+                            <Route
+                                path='/users'
+                                element={<UsersPage />}
+                            />
+                            <Route
+                                path='/user'
+                                element={<UserPage />}
+                            />
+                            <Route
+                                path='/user/:id'
+                                element={<UserPage />}
+                            />
                             <Route
                                 path='/categories'
                                 element={<CategoriesPage />}
@@ -291,10 +301,22 @@ function App() {
                                 path='/category/:id'
                                 element={<CategoryPage />}
                             />
-                            <Route path='/tags' element={<TagsPage />} />
-                            <Route path='/tag' element={<TagPage />} />
-                            <Route path='/tag/:id' element={<TagPage />} />
-                            <Route path='/units' element={<UnitsPage />} />
+                            <Route
+                                path='/tags'
+                                element={<TagsPage />}
+                            />
+                            <Route
+                                path='/tag'
+                                element={<TagPage />}
+                            />
+                            <Route
+                                path='/tag/:id'
+                                element={<TagPage />}
+                            />
+                            <Route
+                                path='/units'
+                                element={<UnitsPage />}
+                            />
                             <Route
                                 path='/unit/:categoryId/'
                                 element={<UnitPage />}
@@ -323,20 +345,41 @@ function App() {
                                 path='/recipe/display/:recipeId'
                                 element={<RecipeViewPage />}
                             />
-                            <Route path='/recipes' element={<RecipesPage />} />
+                            <Route
+                                path='/recipes'
+                                element={<RecipesPage />}
+                            />
                             <Route
                                 path='/recipes/:categoryId/'
                                 element={<RecipesPage />}
                             />
                         </Fragment>
                     ) : (
-                            <Route path='/signIn' element={<SignInPage />} />
+                        <Route
+                            path='/signIn'
+                            element={<SignInPage />}
+                        />
                     )}
-                    <Route path='/confirm' element={<ConfirmationPage />} />
-                    <Route path='/confirm/:username/:key' element={<ConfirmationPage />} />
-                    <Route path='/resetRequest' element={<ResetPasswordRequestPage />} />
-                    <Route path='/reset' element={<ResetPasswordPage />} />
-                    <Route path='/reset/:username/:key' element={<ResetPasswordPage />} />
+                    <Route
+                        path='/confirm'
+                        element={<ConfirmationPage />}
+                    />
+                    <Route
+                        path='/confirm/:username/:key'
+                        element={<ConfirmationPage />}
+                    />
+                    <Route
+                        path='/resetRequest'
+                        element={<ResetPasswordRequestPage />}
+                    />
+                    <Route
+                        path='/reset'
+                        element={<ResetPasswordPage />}
+                    />
+                    <Route
+                        path='/reset/:username/:key'
+                        element={<ResetPasswordPage />}
+                    />
                     <Route
                         path='*'
                         element={

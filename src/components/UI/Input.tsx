@@ -17,7 +17,7 @@ type InputProps = {
 const Input: React.FC<InputProps> = (props) => {
     const {
         register,
-        formState: { errors },
+        formState: { errors }
     } = useFormContext();
     const id = useId();
 
@@ -38,9 +38,7 @@ const Input: React.FC<InputProps> = (props) => {
                 isInvalid={!!errorMessage}
                 min={props.min}
             />
-            <Form.Control.Feedback type='invalid'>
-                {errorMessage?.toString()}
-            </Form.Control.Feedback>
+            <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
         </Form.Group>
     );
 };

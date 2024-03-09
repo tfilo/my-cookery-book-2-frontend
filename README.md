@@ -50,6 +50,6 @@ Project is licensed under [MIT](./LICENSE) License. There are 3rd party librarie
 
 If added new dependencies, list of used libraries can be updated using this script
 
-./generateLibrariesNotice.sh
+`npm run licenseReport`
 
 WHILE RUNNING IT WILL INSTANLL GLOBALLY license-report LIBRARY

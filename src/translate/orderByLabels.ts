@@ -5,5 +5,5 @@ export const orderByLabels: {
 } = {
     name: 'Názov',
     createdAt: 'Dátum vytvorenia',
-    updatedAt: 'Dátum úpravy',
+    updatedAt: 'Dátum úpravy'
 };

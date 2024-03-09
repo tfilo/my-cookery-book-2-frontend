@@ -19,38 +19,28 @@ type SignInForm = Api.LoginRequest & {
 
 const schema = yup
     .object({
-        username: yup
-            .string()
-            .trim()
-            .max(50, 'Musí byť maximálne 50 znakov')
-            .required('Povinná položka'),
-        password: yup
-            .string()
-            .trim()
-            .max(255, 'Musí byť maximálne 255 znakov')
-            .required('Povinná položka'),
-        rememberMe: yup.boolean().required('Povinná položka'),
+        username: yup.string().trim().max(50, 'Musí byť maximálne 50 znakov').required('Povinná položka'),
+        password: yup.string().trim().max(255, 'Musí byť maximálne 255 znakov').required('Povinná položka'),
+        rememberMe: yup.boolean().required('Povinná položka')
     })
     .required();
 
 const SignIn: React.FC = () => {
     const methods = useForm<SignInForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema)
     });
 
     const {
-        formState: { isSubmitting },
+        formState: { isSubmitting }
     } = methods;
 
     const authCtx = useContext(AuthContext);
     const [error, setError] = useState<string>();
 
-    const submitHandler: SubmitHandler<SignInForm> = async (
-        data: SignInForm
-    ) => {
+    const submitHandler: SubmitHandler<SignInForm> = async (data: SignInForm) => {
         const sendData = {
             username: data.username,
-            password: data.password,
+            password: data.password
         };
         try {
             const response = await authApi.login(sendData);
@@ -69,12 +59,31 @@ const SignIn: React.FC = () => {
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
                     >
-                        <Input name='username' label='Prihlasovacie meno' />
-                        <Input name='password' label='Heslo' type='password' />
+                        <Input
+                            name='username'
+                            label='Prihlasovacie meno'
+                        />
+                        <Input
+                            name='password'
+                            label='Heslo'
+                            type='password'
+                        />
                         <div className='d-flex flex-column flex-md-row justify-content-between'>
-                        <Checkbox name='rememberMe' label='Zapamätať prihlásenie'/>
-                        <Link to={'/resetRequest'} style={{textDecoration: 'none'}}><p  style={{"color": "#b4b4b4"}}>Zabudol si heslo?</p></Link>
-                        </div><Button variant='primary' type='submit'>
+                            <Checkbox
+                                name='rememberMe'
+                                label='Zapamätať prihlásenie'
+                            />
+                            <Link
+                                to={'/resetRequest'}
+                                style={{ textDecoration: 'none' }}
+                            >
+                                <p style={{ color: '#b4b4b4' }}>Zabudol si heslo?</p>
+                            </Link>
+                        </div>
+                        <Button
+                            variant='primary'
+                            type='submit'
+                        >
                             Prihlásiť sa
                         </Button>
                         {isSubmitting && <Spinner />}

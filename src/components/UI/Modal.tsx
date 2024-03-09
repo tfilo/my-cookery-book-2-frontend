@@ -12,9 +12,7 @@ export type ModalProps = {
 
 const Modal: React.FC<ModalProps> = (props) => {
     const type = props.type ?? 'info';
-    const title =
-        props.title ??
-        (type === 'info' ? 'Oznam' : type === 'question' ? 'Otázka' : 'Chyba');
+    const title = props.title ?? (type === 'info' ? 'Oznam' : type === 'question' ? 'Otázka' : 'Chyba');
 
     return (
         <BootstrapModal show={props.show}>

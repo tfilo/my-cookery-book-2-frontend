@@ -73,15 +73,19 @@ const Tags: React.FC = () => {
         <>
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Značky</h1>
-                {authCtx.userRoles.find(
-                    (role) => role === Api.User.RoleEnum.ADMIN
-                ) && (
-                    <Button variant='primary' onClick={createCategoryHandler}>
+                {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
+                    <Button
+                        variant='primary'
+                        onClick={createCategoryHandler}
+                    >
                         Pridať značku
                     </Button>
                 )}
             </div>
-            <Table striped responsive>
+            <Table
+                striped
+                responsive
+            >
                 <thead>
                     <tr>
                         <th colSpan={2}>Názov značky</th>
@@ -92,9 +96,7 @@ const Tags: React.FC = () => {
                         <tr key={tag.id}>
                             <td className='align-middle'>{tag.name}</td>
                             <td className='align-middle '>
-                                {authCtx.userRoles.find(
-                                    (role) => role === Api.User.RoleEnum.ADMIN
-                                ) && (
+                                {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                                     <Stack
                                         direction='horizontal'
                                         gap={2}
@@ -104,10 +106,7 @@ const Tags: React.FC = () => {
                                             title='Upraviť'
                                             aria-label='Upraviť'
                                             variant='outline-secondary'
-                                            onClick={editTagHandler.bind(
-                                                null,
-                                                tag.id
-                                            )}
+                                            onClick={editTagHandler.bind(null, tag.id)}
                                             style={{ border: 'none' }}
                                         >
                                             <FontAwesomeIcon icon={faPencil} />
@@ -116,10 +115,7 @@ const Tags: React.FC = () => {
                                             title='Vymazať'
                                             aria-label='Vymazať'
                                             variant='outline-danger'
-                                            onClick={deleteTagHandler.bind(
-                                                null,
-                                                tag
-                                            )}
+                                            onClick={deleteTagHandler.bind(null, tag)}
                                             style={{ border: 'none' }}
                                         >
                                             <FontAwesomeIcon icon={faTrash} />

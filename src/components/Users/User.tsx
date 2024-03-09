@@ -8,12 +8,7 @@ import Modal from '../UI/Modal';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-    useForm,
-    SubmitHandler,
-    FormProvider,
-    Controller,
-} from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { roleLabels } from '../../translate/roleLabel';
@@ -22,8 +17,7 @@ import { get } from 'lodash';
 
 type Roles = { value: Api.User.RoleEnum; name: string }[];
 
-export interface UserForm
-    extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
+export interface UserForm extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
     roles: Roles;
     confirmPassword?: string;
 }
@@ -32,8 +26,8 @@ const roleOptions = [
     { value: Api.User.RoleEnum.ADMIN, name: 'Administrátor' },
     {
         value: Api.User.RoleEnum.CREATOR,
-        name: 'Tvorca obsahu',
-    },
+        name: 'Tvorca obsahu'
+    }
 ];
 
 const schema = yup
@@ -63,11 +57,7 @@ const schema = yup
             .max(50, 'Musí byť maximálne 50 znakov')
             .default(null)
             .nullable(),
-        email: yup
-            .string()
-            .trim()
-            .max(320, 'Musí mať maximálne 320 znakov')
-            .required('Povinná položka'),
+        email: yup.string().trim().max(320, 'Musí mať maximálne 320 znakov').required('Povinná položka'),
         password: yup
             .string()
             .trim()
@@ -88,12 +78,12 @@ const schema = yup
             .of(
                 yup.object({
                     value: yup.string().oneOf(['ADMIN', 'CREATOR']),
-                    name: yup.string(),
+                    name: yup.string()
                 })
             )
             .min(1, 'Musí byť minimálne jedna rola')
             .required(),
-        notifications: yup.boolean().required('Povinná položka'),
+        notifications: yup.boolean().required('Povinná položka')
     })
     .required();
 
@@ -109,13 +99,13 @@ const User: React.FC = () => {
     const methods = useForm<UserForm>({
         resolver: yupResolver(schema),
         defaultValues: {
-            roles: [],
-        },
+            roles: []
+        }
     });
 
     const {
         formState: { isSubmitting, errors },
-        control,
+        control
     } = methods;
 
     useEffect(() => {
@@ -129,7 +119,7 @@ const User: React.FC = () => {
                     const receivedRoles = data.roles.map((role) => {
                         return {
                             value: role,
-                            name: roleLabels[role],
+                            name: roleLabels[role]
                         };
                     });
 
@@ -153,13 +143,11 @@ const User: React.FC = () => {
                         ...data,
                         password: '',
                         confirmPassword: '',
-                        roles: receivedRoles,
+                        roles: receivedRoles
                     };
                     methods.reset(formattedData);
                 } catch (err) {
-                    formatErrorMessage(err).then((message) =>
-                        setError(message)
-                    );
+                    formatErrorMessage(err).then((message) => setError(message));
                 } finally {
                     setIsLoading(false);
                 }
@@ -181,14 +169,11 @@ const User: React.FC = () => {
     const submitHandler: SubmitHandler<UserForm> = async (data: UserForm) => {
         const sendData = {
             ...data,
-            roles: data.roles.map((role) => role.value),
+            roles: data.roles.map((role) => role.value)
         };
         try {
             if (params.id) {
-                await userApi.updateUser(
-                    parseInt(params.id),
-                    sendData as Api.UpdateUser
-                );
+                await userApi.updateUser(parseInt(params.id), sendData as Api.UpdateUser);
             } else {
                 await userApi.createUser(sendData as Api.CreateUser);
             }
@@ -209,19 +194,32 @@ const User: React.FC = () => {
                         noValidate
                         onSubmit={methods.handleSubmit(submitHandler)}
                     >
-                        <Input name='username' label='Používateľské meno' />
-                        <Input name='firstName' label='Meno' />
-                        <Input name='lastName' label='Priezvisko' />
-                        <Input name='email' label='E-mail' />
-                        <Input name='password' label='Heslo' />
+                        <Input
+                            name='username'
+                            label='Používateľské meno'
+                        />
+                        <Input
+                            name='firstName'
+                            label='Meno'
+                        />
+                        <Input
+                            name='lastName'
+                            label='Priezvisko'
+                        />
+                        <Input
+                            name='email'
+                            label='E-mail'
+                        />
+                        <Input
+                            name='password'
+                            label='Heslo'
+                        />
                         <Input
                             name='confirmPassword'
                             label='Potvrdenie hesla'
                         />
                         <Form.Group className='mb-3'>
-                            <Form.Label htmlFor='tagsMultiselection'>
-                                Používateľské role
-                            </Form.Label>
+                            <Form.Label htmlFor='tagsMultiselection'>Používateľské role</Form.Label>
                             <Controller
                                 control={control}
                                 name='roles'
@@ -238,19 +236,21 @@ const User: React.FC = () => {
                                     />
                                 )}
                             />
-                            <Form.Control.Feedback type='invalid'>
-                                {rolesErrorMessage?.toString()}
-                            </Form.Control.Feedback>
+                            <Form.Control.Feedback type='invalid'>{rolesErrorMessage?.toString()}</Form.Control.Feedback>
                         </Form.Group>
                         <Checkbox
                             name='notifications'
                             label='Posielať notifikácie e-mailom'
                         />
-                        <Stack direction='horizontal' gap={2}>
-                            <Button variant='primary' type='submit'>
-                                {params.id
-                                    ? 'Zmeniť používateľa'
-                                    : 'Vytvoriť používateľa'}
+                        <Stack
+                            direction='horizontal'
+                            gap={2}
+                        >
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                {params.id ? 'Zmeniť používateľa' : 'Vytvoriť používateľa'}
                             </Button>{' '}
                             {!isUserConfirmed && (
                                 <Button
