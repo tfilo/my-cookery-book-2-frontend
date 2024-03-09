@@ -13,7 +13,7 @@ const Welcome: React.FC<{
         <div
             className={`${
                 show ? 'opacity-100' : 'opacity-0'
-            } z-3 position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-white`}
+            } z-3 position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-white pe-none`}
             style={{
                 transition: 'opacity 2s',
                 transitionDelay: '1s'

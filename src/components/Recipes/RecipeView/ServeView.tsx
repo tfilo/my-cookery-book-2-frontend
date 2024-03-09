@@ -31,7 +31,7 @@ const ServeView: React.FC<ServeProps> = (props) => {
                         }}
                         className='border-0 pb-2'
                         min={1}
-                    ></input>
+                    />
                 </Stack>
             )}
         </>

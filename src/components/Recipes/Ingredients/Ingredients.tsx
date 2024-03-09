@@ -1,10 +1,11 @@
 import React from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
-import { useFieldArray } from 'react-hook-form';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { SelectGroupOptions } from '../../UI/Select';
 import Ingredient from './Ingredient';
+import { RecipeForm } from '../Recipe';
 
 type IngredientsProps = {
     recipeSectionName: string;
@@ -12,8 +13,12 @@ type IngredientsProps = {
 };
 
 const Ingredients: React.FC<IngredientsProps> = (props) => {
+    const { control } = useFormContext<RecipeForm>();
+
     const { fields, append, remove, move } = useFieldArray({
-        name: `${props.recipeSectionName}.ingredients`
+        name: `${props.recipeSectionName}.ingredients` as 'recipeSections.0.ingredients',
+        keyName: '_id',
+        control
     });
 
     return (
@@ -31,7 +36,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
                     onClick={() =>
                         append({
                             name: '',
-                            sortNumber: null,
+                            sortNumber: fields.length + 1,
                             value: null,
                             unitId: -1
                         })
@@ -44,7 +49,7 @@ const Ingredients: React.FC<IngredientsProps> = (props) => {
             {fields.map((field, index) => {
                 return (
                     <Ingredient
-                        key={field.id}
+                        key={field._id}
                         name={`${props.recipeSectionName}.ingredients.${index}`}
                         index={index}
                         units={props.units}

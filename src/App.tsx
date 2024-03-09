@@ -38,16 +38,13 @@ import ConfirmationPage from './pages/ConfirmationPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
 import { RecipeState } from './components/Recipes/Recipes';
+import { useQuery } from '@tanstack/react-query';
 
 function App() {
     const authCtx = useContext(AuthContext);
     const isLoggedIn = authCtx.isLoggedIn;
     const [expanded, setExpanded] = useState(false);
-    const [userInfo, setUserInfo] = useState<Api.AuthenticatedUser>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [isLoadingCategories, setIsLoadingCategories] = useState<boolean>(false);
     const [error, setError] = useState<string>();
-    const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
 
     const [resetValues, setResetValues] = useState<RecipeState>({
         searchingText: '',
@@ -58,37 +55,44 @@ function App() {
         orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name
     });
 
-    useEffect(() => {
-        if (isLoggedIn) {
-            (async () => {
-                try {
-                    setIsLoading(true);
-                    const user = await authApi.user();
-                    setUserInfo(user);
-                } catch (err) {
-                    formatErrorMessage(err).then((message) => setError(message));
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
-        }
-    }, [isLoggedIn]);
+    const {
+        data: userInfo,
+        isFetching: isFetchingUserInfo,
+        error: userInfoError
+    } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: ({ signal }) => authApi.user({ signal }),
+        enabled: isLoggedIn
+    });
 
     useEffect(() => {
-        if (isLoggedIn) {
-            (async () => {
-                try {
-                    setIsLoadingCategories(true);
-                    const categories = await categoryApi.getCategories();
-                    setListOfCategories(categories);
-                } catch (err) {
-                    formatErrorMessage(err).then((message) => setError(message));
-                } finally {
-                    setIsLoadingCategories(false);
-                }
-            })();
+        if (userInfoError) {
+            formatErrorMessage(userInfoError).then((message) => setError(message));
         }
-    }, [isLoggedIn]);
+    }, [userInfoError]);
+
+    const {
+        data: listOfCategories,
+        isFetching: isFetchingListOfCategories,
+        error: listOfCategoriesError
+    } = useQuery({
+        queryKey: ['categories'],
+        queryFn: ({ signal }) =>
+            categoryApi.getCategories({ signal }).then((data) =>
+                data.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, {
+                        sensitivity: 'base'
+                    })
+                )
+            ),
+        enabled: isLoggedIn
+    });
+
+    useEffect(() => {
+        if (listOfCategoriesError) {
+            formatErrorMessage(listOfCategoriesError).then((message) => setError(message));
+        }
+    }, [listOfCategoriesError]);
 
     let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
     if (!username) {
@@ -249,7 +253,7 @@ function App() {
                                         Všetky recepty
                                     </Nav.Link>
                                     <hr />
-                                    {listOfCategories.map((category) => (
+                                    {listOfCategories?.map((category) => (
                                         <Nav.Link
                                             to={`/recipes/${category.id}`}
                                             state={resetValues}
@@ -399,7 +403,7 @@ function App() {
                     setError(undefined);
                 }}
             />
-            {(isLoading || isLoadingCategories) && <Spinner />}
+            {(isFetchingListOfCategories || isFetchingUserInfo) && <Spinner />}
         </>
     );
 }

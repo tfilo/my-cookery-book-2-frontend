@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 
@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Checkbox from '../UI/Checkbox';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type UnitForm = Api.CreateUnit | Api.UpdateUnit;
 
@@ -27,60 +28,109 @@ const Unit: React.FC = () => {
     const [error, setError] = useState<string>();
     const navigate = useNavigate();
     const params = useParams();
-    const categoryId = params?.categoryId ? parseInt(params?.categoryId) : null;
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    if (!params.categoryId) {
+        throw new Error('categoryId is required parameter');
+    }
+    const categoryId = parseInt(params.categoryId);
+    const queryClient = useQueryClient();
+
+    console.log(params);
 
     const methods = useForm<UnitForm>({
-        resolver: yupResolver(schema)
+        resolver: yupResolver(schema),
+        defaultValues: async () => {
+            if (params.unitId) {
+                try {
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ['unitcategories', categoryId, 'units', parseInt(params.unitId)] as const,
+                        queryFn: ({ queryKey, signal }) => {
+                            return unitApi.getUnit(queryKey[3], { signal });
+                        }
+                    });
+                    console.log(data);
+                    return data;
+                } catch (e) {
+                    formatErrorMessage(e).then((message) => setError(message));
+                }
+            }
+            return {
+                name: '',
+                abbreviation: '',
+                required: false,
+                unitCategoryId: categoryId
+            };
+        }
     });
 
     const {
-        formState: { isSubmitting }
+        formState: { isSubmitting, isLoading }
     } = methods;
-
-    useEffect(() => {
-        if (params.unitId) {
-            const unitId = parseInt(params.unitId);
-            (async () => {
-                try {
-                    setIsLoading(true);
-                    const data = await unitApi.getUnit(unitId);
-                    // console.log(data);
-                    methods.reset(data);
-                } catch (err) {
-                    formatErrorMessage(err).then((message) => setError(message));
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
-        }
-    }, [params.unitId, methods]);
 
     const cancelHandler = () => {
         navigate('/units');
     };
 
-    const submitHandler: SubmitHandler<UnitForm> = async (data: UnitForm) => {
-        try {
-            if (categoryId) {
-                if (params.unitId) {
-                    await unitApi.updateUnit(parseInt(params.unitId), {
-                        ...data,
-                        unitCategoryId: categoryId
-                    });
-                } else {
-                    await unitApi.createUnit({
-                        ...data,
-                        unitCategoryId: categoryId
-                    });
-                }
-                navigate('/units');
+    const { mutate: saveUnit, isPending: isSaving } = useMutation({
+        mutationFn: ({ data, unitId }: { data: UnitForm & { unitCategoryId: number }; unitId?: number }) => {
+            if (unitId) {
+                return unitApi.updateUnit(unitId, data);
             } else {
-                console.error('Missing unitCategoryId in route parameters!');
+                return unitApi.createUnit(data);
             }
-        } catch (err) {
-            formatErrorMessage(err).then((message) => setError(message));
+        },
+        onMutate: async ({ data }) => {
+            await queryClient.cancelQueries({ queryKey: ['unitcategories', data.unitCategoryId, 'units'] });
+        },
+        onSettled: async (data, error) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (data) {
+                queryClient.setQueryData<Api.Unit>(['unitcategories', data.unitCategoryId, 'units', data.id], () => data);
+                queryClient.setQueryData<Api.SimpleUnit[]>(['unitcategories', data.unitCategoryId, 'units'], (units) => {
+                    const index = units?.findIndex((u) => u.id === data.id) ?? -1;
+                    if (index > -1) {
+                        const result = [...(units ?? [])];
+                        result[index] = {
+                            id: data.id,
+                            name: data.name,
+                            abbreviation: data.abbreviation,
+                            required: data.required
+                        };
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    } else {
+                        const result = [
+                            ...(units ?? []),
+                            {
+                                id: data.id,
+                                name: data.name,
+                                abbreviation: data.abbreviation,
+                                required: data.required
+                            }
+                        ];
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    }
+                });
+                navigate('/units');
+            }
         }
+    });
+
+    const submitHandler: SubmitHandler<UnitForm> = (data: UnitForm) => {
+        saveUnit({
+            data: {
+                ...data,
+                unitCategoryId: categoryId
+            },
+            unitId: params.unitId ? parseInt(params.unitId) : undefined
+        });
     };
 
     return (
@@ -133,7 +183,7 @@ const Unit: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isSubmitting || isLoading) && <Spinner />}
+            {(isSubmitting || isLoading || isSaving) && <Spinner />}
         </div>
     );
 };

@@ -110,11 +110,12 @@ const User: React.FC = () => {
 
     useEffect(() => {
         if (params.id) {
+            const controller = new AbortController();
             const paramsNumber = params?.id;
             (async () => {
                 try {
                     setIsLoading(true);
-                    const data = await userApi.getUser(parseInt(paramsNumber));
+                    const data = await userApi.getUser(parseInt(paramsNumber), { signal: controller.signal });
                     setIsUserConfirmed(data.confirmed);
                     const receivedRoles = data.roles.map((role) => {
                         return {
@@ -122,22 +123,6 @@ const User: React.FC = () => {
                             name: roleLabels[role]
                         };
                     });
-
-                    // const receivedRoles = [];
-                    // for (let r of data.roles) {
-                    //     if (r === Api.User.RoleEnum.ADMIN) {
-                    //         receivedRoles.push({
-                    //             value: Api.User.RoleEnum.ADMIN,
-                    //             name: 'Administrátor',
-                    //         });
-                    //     }
-                    //     if (r === Api.User.RoleEnum.CREATOR) {
-                    //         receivedRoles.push({
-                    //             value: Api.User.RoleEnum.CREATOR,
-                    //             name: 'Tvorca obsahu',
-                    //         });
-                    //     }
-                    // }
 
                     const formattedData: UserForm = {
                         ...data,
@@ -152,6 +137,7 @@ const User: React.FC = () => {
                     setIsLoading(false);
                 }
             })();
+            return () => controller.abort();
         }
     }, [params.id, methods]);
 

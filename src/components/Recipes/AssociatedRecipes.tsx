@@ -10,42 +10,45 @@ import { get } from 'lodash';
 import Spinner from '../UI/Spinner';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AssociatedRecipes: React.FC = () => {
     const id = useId();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>();
     const [list, setList] = useState<{}[]>([]);
+    const queryClient = useQueryClient();
 
     const {
         control,
         formState: { errors }
     } = useFormContext<RecipeForm>();
 
-    const handleSearch = (query: string) => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const data = {
-                    search: query,
-                    categoryId: null,
-                    tags: [],
-                    page: 0,
-                    pageSize: 5,
-                    orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
-                    order: Api.RecipeSearchCriteria.OrderEnum.ASC
-                };
-                const recipes = await recipeApi.findRecipe(data);
-                const recipeList = recipes.rows.map((recipe) => {
-                    return { name: recipe.name, id: recipe.id };
-                });
-                setList(recipeList);
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
+    const handleSearch = async (query: string) => {
+        try {
+            setIsLoading(true);
+            const data = {
+                search: query,
+                categoryId: null,
+                tags: [],
+                page: 0,
+                pageSize: 5,
+                orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name,
+                order: Api.RecipeSearchCriteria.OrderEnum.ASC
+            };
+            const recipes = await queryClient.fetchQuery({
+                queryKey: ['find', data] as const,
+                queryFn: async ({ queryKey, signal }) => recipeApi.findRecipe(queryKey[1], { signal })
+            });
+            const recipeList = recipes.rows.map((recipe) => {
+                return { name: recipe.name, id: recipe.id };
+            });
+            setList(recipeList);
+        } catch (err) {
+            formatErrorMessage(err).then((message) => setError(message));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const errorMessage = get(errors, 'associatedRecipes')?.message;

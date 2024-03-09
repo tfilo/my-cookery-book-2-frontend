@@ -8,6 +8,7 @@ import { RecipesWithUrlInPictures } from './RecipeView';
 import { formatErrorMessage } from '../../../utils/errorMessages';
 import Modal from '../../UI/Modal';
 import Spinner from '../../UI/Spinner';
+import { useQueryClient } from '@tanstack/react-query';
 
 type PictureProps = {
     recipe: RecipesWithUrlInPictures | undefined;
@@ -21,12 +22,17 @@ const PictureView: React.FC<PictureProps> = (props) => {
         url: string;
         index: number;
     } | null>(null);
+    const queryClient = useQueryClient();
 
     const showPictureHandler = (id: number, title: string, idx: number) => {
         (async () => {
             try {
                 setIsLoading(true);
-                const data = await pictureApi.getPictureData(id);
+                const data = await queryClient.fetchQuery({
+                    queryKey: ['pictures', id] as const,
+                    queryFn: ({ signal }) => pictureApi.getPictureData(id, { signal })
+                });
+
                 if (data instanceof Blob) {
                     const fullPic = URL.createObjectURL(data);
                     setShow((prev) => {
@@ -85,7 +91,6 @@ const PictureView: React.FC<PictureProps> = (props) => {
 
     return (
         <>
-            {/* <section> */}
             <Row
                 xs={1}
                 sm={2}
@@ -122,7 +127,6 @@ const PictureView: React.FC<PictureProps> = (props) => {
                     </Col>
                 ))}
             </Row>
-            {/* </section> */}
 
             <BootstrapModal
                 show={!!show}

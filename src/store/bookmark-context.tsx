@@ -3,6 +3,7 @@ import { pictureApi, recipeApi } from '../utils/apiWrapper';
 import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';
 import { useMatch, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 
 type BookmarkContextObj = {
     addRecipe: (recipeId: number) => void;
@@ -26,28 +27,26 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     const navigate = useNavigate();
     const [url, setUrl] = useState<string | undefined | null>(undefined);
     const [title, setTitle] = useState<string>('');
+    const queryClient = useQueryClient();
 
     const isSelected = match?.params?.recipeId === recipeId.toString();
 
     useEffect(() => {
         let url: string | null = null;
-        let abortController = new AbortController();
         (async () => {
             try {
-                const recipe = await recipeApi.getRecipe(recipeId, {
-                    signal: abortController.signal
+                const recipe = await queryClient.fetchQuery({
+                    queryKey: ['recipes', recipeId] as const,
+                    queryFn: async ({ queryKey }) => recipeApi.getRecipe(queryKey[1])
                 });
                 if (recipe && recipe.pictures.length > 0) {
-                    if (!abortController.signal.aborted) {
-                        const data = await pictureApi.getPictureThumbnail(recipe.pictures[0].id, {
-                            signal: abortController.signal
-                        });
-                        if (data instanceof Blob) {
-                            if (!abortController.signal.aborted) {
-                                url = URL.createObjectURL(data);
-                                setUrl(url);
-                            }
-                        }
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ['thumbnails', recipe.pictures[0].id] as const,
+                        queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1])
+                    });
+                    if (data instanceof Blob) {
+                        url = URL.createObjectURL(data);
+                        setUrl(url);
                     }
                     setTitle(recipe.name);
                 } else {
@@ -56,12 +55,11 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
             } catch (e) {}
         })();
         return () => {
-            abortController.abort();
             if (url) {
                 URL.revokeObjectURL(url);
             }
         };
-    }, [recipeId]);
+    }, [queryClient, recipeId]);
 
     const onClickHandler = useCallback(() => {
         navigate('/recipe/display/' + recipeId);
@@ -73,13 +71,13 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
 
     return (
         <button
-            className='btn btn-link p-0 m-0'
+            className='btn btn-link p-0 m-0 pe-auto'
             onClick={onClickHandler}
             title={title}
         >
             <img
                 className='rounded-circle border border-light'
-                style={{ maxWidth: '64px', opacity: isSelected ? 1 : 0.4 }}
+                style={{ maxWidth: '64px', opacity: isSelected ? 1 : 0.5 }}
                 alt='Založka'
                 src={url ?? defImg}
             />
@@ -89,6 +87,10 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
 
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [bookmarks, setBookmars] = useState<number[]>([]);
+    const inRecipes = useMatch('/recipe/display/*');
+    const inSearch = useMatch('/recipes/*');
+
+    const showBookmarks = (inRecipes || inSearch) && bookmarks.length > 0;
 
     const addRecipe = useCallback((recipeId: number) => {
         setBookmars((prev) => {
@@ -129,11 +131,13 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
 
     return (
         <>
-            <BookmarkContext.Provider value={contextValue}>{children}</BookmarkContext.Provider>
-            {bookmarks.length > 0 && (
+            <BookmarkContext.Provider value={contextValue}>
+                <div className={showBookmarks ? 'pb-5' : ''}>{children}</div>
+            </BookmarkContext.Provider>
+            {showBookmarks && (
                 <Stack
                     direction='horizontal'
-                    className='container-fluid position-fixed bottom-0 end-0 start-0 p-3 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto'
+                    className='container-fluid position-fixed bottom-0 end-0 start-0 p-3 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto pe-none'
                 >
                     {bookmarks.map((recipeId) => {
                         return (

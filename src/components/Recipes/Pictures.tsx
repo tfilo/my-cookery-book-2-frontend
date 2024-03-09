@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
-import { useFieldArray } from 'react-hook-form';
+import { FieldArrayWithId, UseFieldArrayMove, UseFieldArrayRemove, useFieldArray, useFormContext } from 'react-hook-form';
 import { pictureApi } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { RecipeForm } from './Recipe';
@@ -9,72 +9,188 @@ import { faGripVertical, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Api } from '../../openapi';
+
+type PictureProps = {
+    field: FieldArrayWithId<RecipeForm, 'pictures', '_id'>;
+    remove: UseFieldArrayRemove;
+    move: UseFieldArrayMove;
+    index: number;
+};
+
+const imageStyle: React.CSSProperties = {
+    aspectRatio: 1.33,
+    objectFit: 'cover'
+};
+
+const handleStyle: React.CSSProperties = { top: 0, left: 0 };
+
+const Picture: React.FC<PictureProps> = ({ remove, move, field, index }) => {
+    const [dragable, setDragable] = useState<boolean>(false);
+    const [url, setUrl] = useState<string>();
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        let url: string | undefined = undefined;
+        (async () => {
+            const response = await queryClient.fetchQuery({
+                queryKey: ['thumbnails', field.id] as const,
+                queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1])
+            });
+            if (response instanceof Blob) {
+                url = URL.createObjectURL(response);
+                setUrl(url);
+            }
+        })();
+
+        return () => {
+            if (url) {
+                URL.revokeObjectURL(url);
+            }
+        };
+    }, [field.id, queryClient]);
+
+    const onDragStart = useCallback(
+        (e: React.DragEvent<HTMLElement>) => {
+            e.dataTransfer.clearData();
+            if (dragable) {
+                e.dataTransfer.setData('position', index.toString());
+                e.dataTransfer.dropEffect = 'move';
+            }
+        },
+        [dragable, index]
+    );
+
+    const onDragOver = useCallback((e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault();
+    }, []);
+
+    const onDrop = useCallback(
+        (e: React.DragEvent<HTMLElement>) => {
+            const data1 = +e.dataTransfer.getData('position');
+            move(data1, index);
+        },
+        [move, index]
+    );
+
+    const removePictureHandler = useCallback(
+        async (index: number, url?: string) => {
+            remove(index);
+            queryClient.removeQueries({
+                queryKey: ['thumbnails', field.id]
+            });
+            queryClient.removeQueries({
+                queryKey: ['pictures', field.id]
+            });
+            if (url) {
+                URL.revokeObjectURL(url);
+            }
+        },
+        [field.id, queryClient, remove]
+    );
+
+    const onEnableDrag = useCallback(() => {
+        setDragable(true);
+    }, []);
+
+    const onDisableDrag = useCallback(() => {
+        setDragable(false);
+    }, []);
+
+    return (
+        <Col>
+            <Card
+                onDragStart={onDragStart}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
+                draggable={dragable}
+            >
+                <Card.Img
+                    variant='top'
+                    src={url}
+                    alt={field.name}
+                    style={imageStyle}
+                />
+                <Button
+                    title='Vymazať obrázok'
+                    variant='outline-danger'
+                    type='button'
+                    onClick={removePictureHandler.bind(null, index, url)}
+                    className='position-absolute border-0'
+                    style={{ top: 0, right: 0 }}
+                >
+                    <FontAwesomeIcon icon={faTrash} />
+                </Button>
+                <Button
+                    title='Presunúť obrázok'
+                    variant='outline-secondary'
+                    type='button'
+                    className='position-absolute border-0'
+                    style={handleStyle}
+                    onMouseOver={onEnableDrag}
+                    onMouseOut={onDisableDrag}
+                    onTouchStart={onEnableDrag}
+                    onTouchEnd={onDisableDrag}
+                >
+                    <FontAwesomeIcon icon={faGripVertical} />
+                </Button>
+                <Card.Body className='pb-0'>
+                    <Input
+                        name={`pictures.${index}.name`}
+                        type='text'
+                        label='názov obrázka'
+                    />
+                </Card.Body>
+            </Card>
+        </Col>
+    );
+};
 
 const Pictures: React.FC = () => {
-    const { fields, append, remove, move } = useFieldArray<RecipeForm, 'pictures', 'id'>({
-        name: 'pictures'
+    const { control } = useFormContext<RecipeForm>();
+    const { fields, append, remove, move } = useFieldArray({
+        name: 'pictures',
+        keyName: '_id',
+        control
     });
 
     const imageInputRef = useRef<HTMLInputElement>(null);
-    const [dragableGroup, setDragableGroup] = useState<number>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>();
+    const queryClient = useQueryClient();
 
-    const dragStart = (e: React.DragEvent<HTMLElement>, position: number) => {
-        if (dragableGroup) {
-            // console.log(`position1: ${position}`);
-            e.dataTransfer.setData('pos1_position', position.toString());
-            e.dataTransfer.dropEffect = 'move';
+    const { mutate: uploadImage, isPending: isUploadingImage } = useMutation({
+        mutationFn: (image: Api.UploadPictureRequest.MultipartFormData) => {
+            return pictureApi.uploadPicture(image);
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['thumbnails'] });
+            await queryClient.cancelQueries({ queryKey: ['pictures'] });
+        },
+        onSettled: (data, error, image) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (data) {
+                queryClient.removeQueries({ queryKey: ['thumbnails', data.id] });
+                queryClient.removeQueries({ queryKey: ['pictures', data.id] });
+                append({ id: data.id, name: image.file!.filename!, sortNumber: fields.length + 1 });
+                if (imageInputRef.current) {
+                    imageInputRef.current.value = '';
+                }
+            }
         }
-    };
-
-    const dragOver = (e: React.DragEvent<HTMLElement>, position: number) => {
-        e.preventDefault();
-        // console.log(`position2: ${position}`);
-        e.dataTransfer.setData('pos2_position', position.toString());
-        e.dataTransfer.dropEffect = 'move';
-    };
-
-    const drop = (e: React.DragEvent<HTMLElement>, position: number) => {
-        // console.log(`position3: ${position}`);
-        const data1 = +e.dataTransfer.getData('pos1_position');
-        // const data2 = +e.dataTransfer.getData('pos2_position');
-        // console.log(`data1: ${data1} data2: ${data2} position3: ${position}`);
-        move(data1, position);
-    };
+    });
 
     const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                if (event.target.files && event.target.files.length === 1) {
-                    const pictureName = event.target.files[0]?.name;
-                    const picture = await pictureApi.uploadPicture({
-                        file: {
-                            value: event.target.files[0],
-                            filename: pictureName
-                        }
-                    });
-                    const data = await pictureApi.getPictureThumbnail(picture.id);
-                    if (data instanceof Blob) {
-                        const url = URL.createObjectURL(data);
-                        append({ id: picture.id, url: url, name: pictureName });
-                    }
-                    if (imageInputRef.current) {
-                        imageInputRef.current.value = '';
-                    }
+        if (event.target.files && event.target.files.length === 1) {
+            const pictureName = event.target.files[0]?.name;
+            uploadImage({
+                file: {
+                    value: event.target.files[0],
+                    filename: pictureName
                 }
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
-    };
-
-    const removePictureHandler = (index: number, url: string) => {
-        remove(index);
-        URL.revokeObjectURL(url);
+            });
+        }
     };
 
     return (
@@ -99,54 +215,13 @@ const Pictures: React.FC = () => {
             >
                 {fields.map((field, index) => {
                     return (
-                        <Col key={field?.id}>
-                            <Card
-                                onDragStart={(e) => dragStart(e, index)}
-                                onDragOver={(e) => dragOver(e, index)}
-                                onDrop={(e) => drop(e, index)}
-                                draggable={dragableGroup === index}
-                            >
-                                <Card.Img
-                                    variant='top'
-                                    src={field.url}
-                                    alt={field.name}
-                                    style={{
-                                        aspectRatio: 1.33,
-                                        objectFit: 'cover'
-                                    }}
-                                />
-                                <Button
-                                    title='Vymazať obrázok'
-                                    variant='outline-danger'
-                                    type='button'
-                                    onClick={removePictureHandler.bind(null, index, field.url)}
-                                    className='position-absolute border-0'
-                                    style={{ top: 0, right: 0 }}
-                                >
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </Button>
-                                <Button
-                                    title='Presunúť obrázok'
-                                    variant='outline-secondary'
-                                    type='button'
-                                    className='position-absolute border-0'
-                                    style={{ top: 0, left: 0 }}
-                                    onMouseOver={() => setDragableGroup(index)}
-                                    onMouseOut={() => setDragableGroup(undefined)}
-                                    onTouchStart={() => setDragableGroup(index)}
-                                    onTouchEnd={() => setDragableGroup(undefined)}
-                                >
-                                    <FontAwesomeIcon icon={faGripVertical} />
-                                </Button>
-                                <Card.Body className='pb-0'>
-                                    <Input
-                                        name={`pictures.${index}.name`}
-                                        type='text'
-                                        label='názov obrázka'
-                                    ></Input>
-                                </Card.Body>
-                            </Card>
-                        </Col>
+                        <Picture
+                            key={field.id}
+                            field={field}
+                            move={move}
+                            remove={remove}
+                            index={index}
+                        />
                     );
                 })}
             </Row>
@@ -158,7 +233,7 @@ const Pictures: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            {isUploadingImage && <Spinner />}
         </>
     );
 };

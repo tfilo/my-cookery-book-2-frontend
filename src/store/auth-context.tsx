@@ -1,4 +1,4 @@
-import React, { useState, useEffect, PropsWithChildren, useMemo } from 'react';
+import React, { useState, useEffect, PropsWithChildren, useMemo, useCallback } from 'react';
 // eslint-disable-next-line camelcase
 import jwt_decode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
@@ -6,6 +6,7 @@ import { formatErrorMessage } from '../utils/errorMessages';
 import Modal from '../components/UI/Modal';
 import { Api } from '../openapi';
 import Welcome from '../components/Welcome';
+import { useQueryClient } from '@tanstack/react-query';
 
 type AuthContextObj = {
     userId: number | null;
@@ -47,6 +48,7 @@ const storedRefreshToken = localStorage.getItem('refreshToken');
 window.token = storedToken;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
+    const queryClient = useQueryClient();
     const [token, setToken] = useState(tokenValidity(storedToken) > 0 ? storedToken : null);
     const [refreshToken, setRefreshToken] = useState(tokenValidity(storedRefreshToken) > 0 ? storedRefreshToken : null);
     const [rememberMe, setRememberMe] = useState(!!refreshToken);
@@ -68,7 +70,21 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         return [];
     }, [token]);
 
+    const logoutHandler = useCallback(() => {
+        setToken(null);
+        setRefreshToken(null);
+        setUserId(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        // @ts-ignore
+        delete window.token;
+        queryClient.removeQueries({
+            queryKey: ['currentUser']
+        });
+    }, [queryClient]);
+
     useEffect(() => {
+        const controller = new AbortController();
         const tokenIsValid = tokenValidity(token) > 0;
         const refreshTokenIsValid = tokenValidity(refreshToken) > 0;
         if (tokenIsValid && refreshTokenIsValid) {
@@ -76,9 +92,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                 (async () => {
                     if (refreshToken) {
                         try {
-                            const data = await authApi.refreshToken({
-                                refreshToken
-                            });
+                            const data = await authApi.refreshToken(
+                                {
+                                    refreshToken
+                                },
+                                { signal: controller.signal }
+                            );
                             if (data) {
                                 loginHandler(data.token, data.refreshToken, rememberMe);
                             }
@@ -99,9 +118,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             (async () => {
                 if (refreshToken) {
                     try {
-                        const data = await authApi.refreshToken({
-                            refreshToken
-                        });
+                        const data = await authApi.refreshToken(
+                            {
+                                refreshToken
+                            },
+                            { signal: controller.signal }
+                        );
                         if (data) {
                             loginHandler(data.token, data.refreshToken, rememberMe);
                         }
@@ -119,7 +141,8 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
             logoutHandler();
             setIsLoading(false);
         }
-    }, [token, refreshToken, userId, rememberMe]);
+        return () => controller.abort();
+    }, [token, refreshToken, userId, rememberMe, logoutHandler]);
 
     const loginHandler = (token: string, refreshToken: string, rememberMe: boolean) => {
         setToken(token);
@@ -133,16 +156,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         }
         // @ts-ignore
         window.token = token;
-    };
-
-    const logoutHandler = () => {
-        setToken(null);
-        setRefreshToken(null);
-        setUserId(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        // @ts-ignore
-        delete window.token;
     };
 
     const contextValue: AuthContextObj = {

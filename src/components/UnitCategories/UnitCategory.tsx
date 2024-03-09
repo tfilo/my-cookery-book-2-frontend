@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 import { unitCategoryApi } from '../../utils/apiWrapper';
@@ -10,6 +10,7 @@ import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type UnitCategoryForm = Api.CreateUnitCategory | Api.UpdateUnitCategory;
 
@@ -21,51 +22,94 @@ const schema = yup
 
 const UnitCategory: React.FC = () => {
     const [error, setError] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
+    const queryClient = useQueryClient();
 
     const methods = useForm<UnitCategoryForm>({
-        resolver: yupResolver(schema)
+        resolver: yupResolver(schema),
+        defaultValues: async () => {
+            if (params.id) {
+                try {
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ['unitcategories', parseInt(params?.id)] as const,
+                        queryFn: ({ queryKey, signal }) => {
+                            return unitCategoryApi.getUnitCategory(queryKey[1], { signal });
+                        }
+                    });
+                    return data;
+                } catch (e) {
+                    formatErrorMessage(e).then((message) => setError(message));
+                }
+            }
+            return {
+                name: ''
+            };
+        }
     });
 
     const {
-        formState: { isSubmitting }
+        formState: { isSubmitting, isLoading }
     } = methods;
-
-    useEffect(() => {
-        if (params.id) {
-            const paramsNumber = params?.id;
-            (async () => {
-                try {
-                    setIsLoading(true);
-                    const data = await unitCategoryApi.getUnitCategory(parseInt(paramsNumber));
-                    methods.reset(data);
-                } catch (err) {
-                    formatErrorMessage(err).then((message) => setError(message));
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
-        }
-    }, [params.id, methods]);
 
     const cancelHandler = () => {
         navigate('/units');
     };
 
-    const submitHandler: SubmitHandler<UnitCategoryForm> = async (data: UnitCategoryForm) => {
-        try {
-            if (params.id) {
-                await unitCategoryApi.updateUnitCategory(parseInt(params.id), data);
-                navigate('/units');
+    const { mutate: saveUnitCategory, isPending: isSaving } = useMutation({
+        mutationFn: ({ data, unitCategoryId }: { data: UnitCategoryForm; unitCategoryId?: number }) => {
+            if (unitCategoryId) {
+                return unitCategoryApi.updateUnitCategory(unitCategoryId, data);
             } else {
-                await unitCategoryApi.createUnitCategory(data);
+                return unitCategoryApi.createUnitCategory(data);
+            }
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['unitcategories'] });
+        },
+        onSettled: async (data, error) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (data) {
+                queryClient.setQueryData<Api.UnitCategory>(['unitcategories', data.id], () => data);
+                queryClient.setQueryData<Api.SimpleUnitCategory[]>(['unitcategories'], (unitCategories) => {
+                    const index = unitCategories?.findIndex((c) => c.id === data.id) ?? -1;
+                    if (index > -1) {
+                        const result = [...(unitCategories ?? [])];
+                        result[index] = {
+                            id: data.id,
+                            name: data.name
+                        };
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    } else {
+                        const result = [
+                            ...(unitCategories ?? []),
+                            {
+                                id: data.id,
+                                name: data.name
+                            }
+                        ];
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    }
+                });
                 navigate('/units');
             }
-        } catch (err) {
-            formatErrorMessage(err).then((message) => setError(message));
         }
+    });
+
+    const submitHandler: SubmitHandler<UnitCategoryForm> = (data: UnitCategoryForm) => {
+        saveUnitCategory({
+            data,
+            unitCategoryId: params.id ? parseInt(params.id) : undefined
+        });
     };
 
     return (
@@ -110,7 +154,7 @@ const UnitCategory: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isSubmitting || isLoading) && <Spinner />}
+            {(isSubmitting || isLoading || isSaving) && <Spinner />}
         </div>
     );
 };
