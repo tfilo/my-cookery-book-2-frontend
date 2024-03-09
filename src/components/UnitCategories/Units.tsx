@@ -1,6 +1,6 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
@@ -8,31 +8,40 @@ import { AuthContext } from '../../store/auth-context';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Units: React.FC<{
     unitCategoryId: number;
     setIsLoading: (loading: boolean) => void;
 }> = (props) => {
-    const [listOfUnits, setListOfUnits] = useState<Api.SimpleUnit[]>([]);
     const [error, setError] = useState<string>();
     const [unit, setUnit] = useState<Api.SimpleUnit>();
     const navigate = useNavigate();
     const { unitCategoryId, setIsLoading } = props;
+    const queryClient = useQueryClient();
     const authCtx = useContext(AuthContext);
 
+    const {
+        data: listOfUnits,
+        isFetching: isFetchingListOfUnits,
+        error: listOfUnitsError
+    } = useQuery({
+        queryKey: ['unitcategories', unitCategoryId, 'units'] as const,
+        queryFn: ({ queryKey, signal }) =>
+            unitApi.getUnitsByUnitCategory(queryKey[1], { signal }).then((data) =>
+                data.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, {
+                        sensitivity: 'base'
+                    })
+                )
+            )
+    });
+
     useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const units = await unitApi.getUnitsByUnitCategory(unitCategoryId);
-                setListOfUnits(units);
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
-    }, [unitCategoryId, setIsLoading]);
+        if (listOfUnitsError) {
+            formatErrorMessage(listOfUnitsError).then((message) => setError(message));
+        }
+    }, [listOfUnitsError]);
 
     const editUnitHandler = (id: number) => {
         navigate(`/unit/${unitCategoryId}/${id}`);
@@ -42,35 +51,57 @@ const Units: React.FC<{
         setUnit(unit);
     };
 
-    const deleteUnitConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
+    const { mutate: deleteUnit, isPending: isDeleteingUnit } = useMutation({
+        mutationFn: (unitId: number) => unitApi.deleteUnit(unitId),
+        onMutate: async (unitId) => {
+            await queryClient.cancelQueries({ queryKey: ['unitcategories', unitCategoryId, 'units'] });
+            const units = queryClient.getQueryData<Api.SimpleUnit[]>(['unitcategories', unitCategoryId, 'units']);
+            queryClient.setQueryData<Api.SimpleUnit[]>(['unitcategories', unitCategoryId, 'units'], (old) =>
+                old?.filter((u) => u.id !== unitId)
+            );
+            const removed = units?.find((u) => u.id === unitId);
+            const index = units?.findIndex((u) => u.id === unitId);
+            return {
+                removed,
+                index
+            };
+        },
+        onSuccess: (data, unitId) => {
+            queryClient.removeQueries({
+                queryKey: ['unitcategories', unitCategoryId, 'units', unitId]
+            });
+        },
+        onError: (error, categoryId, context) => {
+            queryClient.setQueryData<Api.SimpleUnit[]>(['unitcategories', unitCategoryId, 'units'], (old) => {
+                if (old && context && context.index !== undefined && context.removed) {
+                    return [...old.slice(0, context.index), context.removed, ...old.slice(context.index)];
+                }
+                return undefined;
+            });
+            formatErrorMessage(error).then((message) => setError(message));
+        }
+    });
+
+    const deleteUnitConfirmHandler = useCallback(
+        (confirmed: boolean) => {
+            if (confirmed) {
                 if (unit) {
-                    try {
-                        setIsLoading(true);
-                        await unitApi.deleteUnit(unit.id);
-                        setListOfUnits((prev) => {
-                            return prev.filter((_unit) => _unit.id !== unit.id);
-                        });
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    } finally {
-                        setIsLoading(false);
-                    }
-                } else {
-                    setError('Neplatná jednotka!');
+                    deleteUnit(unit.id);
                 }
             }
             setUnit(undefined);
-        })();
-    };
+        },
+        [unit, deleteUnit]
+    );
+
+    useEffect(() => {
+        setIsLoading(isFetchingListOfUnits || isDeleteingUnit);
+    }, [setIsLoading, isFetchingListOfUnits, isDeleteingUnit]);
 
     return (
         <>
             <tbody>
-                {listOfUnits.map((unit) => (
+                {listOfUnits?.map((unit) => (
                     <tr key={unit.id}>
                         <td className='align-middle'>{unit.name}</td>
                         <td className='align-middle'>{unit.abbreviation}</td>

@@ -1,6 +1,6 @@
 import { faCirclePlus, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
@@ -10,29 +10,37 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
 import Units from './Units';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const UnitCategories: React.FC = () => {
-    const [listOfUnitCategories, setListOfUnitCategories] = useState<Api.SimpleUnitCategory[]>([]);
     const [error, setError] = useState<string>();
     const [unitCategory, setUnitCategory] = useState<Api.SimpleUnitCategory>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isUnitsLoading, setIsUnitsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const authCtx = useContext(AuthContext);
 
+    const {
+        data: listOfUnitCategories,
+        isFetching: isFetchingListOfUnitCategories,
+        error: listOfUnitCategoriesError
+    } = useQuery({
+        queryKey: ['unitcategories'],
+        queryFn: ({ signal }) =>
+            unitCategoryApi.getUnitCategories({ signal }).then((data) =>
+                data.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, {
+                        sensitivity: 'base'
+                    })
+                )
+            )
+    });
+
     useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const unitCategories = await unitCategoryApi.getUnitCategories();
-                setListOfUnitCategories(unitCategories);
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
-    }, []);
+        if (listOfUnitCategoriesError) {
+            formatErrorMessage(listOfUnitCategoriesError).then((message) => setError(message));
+        }
+    }, [listOfUnitCategoriesError]);
 
     const createUnitCategoryHandler = () => {
         navigate('/unitCategory');
@@ -50,30 +58,46 @@ const UnitCategories: React.FC = () => {
         setUnitCategory(unitCategory);
     };
 
-    const deleteUnitCategoryConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
+    const { mutate: deleteUnitCategory, isPending: isDeleteingUnitCategory } = useMutation({
+        mutationFn: (unitCategoryId: number) => unitCategoryApi.deleteUnitCategory(unitCategoryId),
+        onMutate: async (unitCategoryId) => {
+            await queryClient.cancelQueries({ queryKey: ['unitcategories'] });
+            const unitCategories = queryClient.getQueryData<Api.SimpleUnitCategory[]>(['unitcategories']);
+            queryClient.setQueryData<Api.SimpleUnitCategory[]>(['unitcategories'], (old) => old?.filter((uc) => uc.id !== unitCategoryId));
+            const removed = unitCategories?.find((uc) => uc.id === unitCategoryId);
+            const index = unitCategories?.findIndex((uc) => uc.id === unitCategoryId);
+            return {
+                removed,
+                index
+            };
+        },
+        onSuccess: (data, unitCategoryId) => {
+            queryClient.removeQueries({
+                queryKey: ['unitcategories', unitCategoryId]
+            });
+        },
+        onError: (error, unitCategoryId, context) => {
+            queryClient.setQueryData<Api.SimpleUnitCategory[]>(['unitcategories'], (old) => {
+                if (old && context && context.index !== undefined && context.removed) {
+                    return [...old.slice(0, context.index), context.removed, ...old.slice(context.index)];
+                }
+                return undefined;
+            });
+            formatErrorMessage(error).then((message) => setError(message));
+        }
+    });
+
+    const deleteUnitCategoryConfirmHandler = useCallback(
+        (confirmed: boolean) => {
+            if (confirmed) {
                 if (unitCategory) {
-                    try {
-                        setIsLoading(true);
-                        await unitCategoryApi.deleteUnitCategory(unitCategory.id);
-                        setListOfUnitCategories((prev) => {
-                            return prev.filter((_unitCategory) => _unitCategory.id !== unitCategory.id);
-                        });
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    } finally {
-                        setIsLoading(false);
-                    }
-                } else {
-                    setError('Neplatná kategória!');
+                    deleteUnitCategory(unitCategory.id);
                 }
             }
             setUnitCategory(undefined);
-        })();
-    };
+        },
+        [deleteUnitCategory, unitCategory]
+    );
 
     return (
         <>
@@ -89,7 +113,7 @@ const UnitCategories: React.FC = () => {
                 )}
             </div>
             <div>
-                {listOfUnitCategories.map((unitCategory) => (
+                {listOfUnitCategories?.map((unitCategory) => (
                     <Table
                         striped
                         responsive
@@ -152,6 +176,7 @@ const UnitCategories: React.FC = () => {
                     </Table>
                 ))}
             </div>
+            {(isDeleteingUnitCategory || isUnitsLoading || isFetchingListOfUnitCategories) && <Spinner />}
             <Modal
                 show={!!unitCategory}
                 type='question'
@@ -166,7 +191,6 @@ const UnitCategories: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isLoading || isUnitsLoading) && <Spinner />}
         </>
     );
 };

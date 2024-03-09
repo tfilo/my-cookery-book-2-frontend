@@ -7,16 +7,24 @@ import { faCirclePlus, faCircleMinus, faCircleChevronDown, faCircleChevronUp } f
 import Textarea from '../UI/Textarea';
 import { SelectGroupOptions } from '../UI/Select';
 import Ingredients from './Ingredients/Ingredients';
+import { RecipeForm } from './Recipe';
 
 type RecipeSectionsProps = {
     units: SelectGroupOptions[];
 };
 
+const actionButtonsStyle: React.CSSProperties = {
+    top: '0px',
+    right: '0px'
+};
+
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
-    const { register } = useFormContext();
+    const { register, control } = useFormContext<RecipeForm>();
 
     const { fields, append, remove, move } = useFieldArray({
-        name: 'recipeSections'
+        name: 'recipeSections',
+        keyName: '_id',
+        control
     });
 
     return (
@@ -39,9 +47,11 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                                 {
                                     name: '',
                                     value: null,
-                                    unitId: -1
+                                    unitId: -1,
+                                    sortNumber: 1
                                 }
-                            ]
+                            ],
+                            sortNumber: fields.length + 1
                         })
                     }
                 >
@@ -52,17 +62,14 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
             {fields.map((field, index, array) => {
                 return (
                     <Card
-                        key={field?.id}
+                        key={field._id}
                         className='mb-3'
                     >
                         <Card.Body className='pb-0'>
                             <section>
                                 <div
                                     className='position-absolute'
-                                    style={{
-                                        top: '0px',
-                                        right: '0px'
-                                    }}
+                                    style={actionButtonsStyle}
                                 >
                                     <Button
                                         variant='outline-light'

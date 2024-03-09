@@ -60,7 +60,6 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeProps> = (props) => {
                                                                 border: '1px solid transparent'
                                                             }}
                                                         >
-                                                            {/* Fix for correct <hr /> on safari */}
                                                             <hr />
                                                         </div>
                                                         <AuthorView recipe={props.associatedRecipes[index]} />

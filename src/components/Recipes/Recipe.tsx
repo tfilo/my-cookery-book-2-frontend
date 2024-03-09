@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useId, useState } from 'react';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
 import Modal from '../UI/Modal';
@@ -6,7 +6,7 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Spinner from '../UI/Spinner';
 import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { categoryApi, pictureApi, recipeApi, tagApi, unitApi, unitCategoryApi } from '../../utils/apiWrapper';
+import { categoryApi, recipeApi, tagApi, unitApi, unitCategoryApi } from '../../utils/apiWrapper';
 import Input from '../UI/Input';
 import { Button, Form, Stack } from 'react-bootstrap';
 import Select, { SelectGroupOptions } from '../UI/Select';
@@ -18,15 +18,11 @@ import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { recipesUrlWithCategory } from './Recipes';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-export interface RecipeForm extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'pictures' | 'associatedRecipes' | 'tags'> {
+export interface RecipeForm extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'associatedRecipes' | 'tags'> {
     sources: {
         value: string;
-    }[];
-    pictures: {
-        id: number;
-        name: string;
-        url: string;
     }[];
     associatedRecipes: {
         id: number;
@@ -147,88 +143,123 @@ const schema = yup
     })
     .required();
 
-const Recipe: React.FC = () => {
-    const defaultValues = useMemo(() => {
-        return {
+const defaultValues = {
+    name: '',
+    description: null,
+    serves: null,
+    method: null,
+    sources: [],
+    recipeSections: [
+        {
             name: '',
-            description: null,
-            serves: null,
+            sortNumber: 1,
             method: null,
-            sources: [],
-            recipeSections: [
-                {
-                    name: '',
-                    sortNumber: 1,
-                    method: null,
-                    ingredients: [{ name: '', sortNumber: 1, value: null, unitId: -1 }]
-                }
-            ],
-            tags: [],
-            associatedRecipes: [],
-            categoryId: -1,
-            pictures: []
-        };
-    }, []);
+            ingredients: [{ name: '', sortNumber: 1, value: null, unitId: -1 }]
+        }
+    ],
+    tags: [],
+    associatedRecipes: [],
+    categoryId: -1,
+    pictures: []
+};
 
-    const methods = useForm<RecipeForm>({
-        resolver: yupResolver(schema),
-        defaultValues
-    });
-
-    const {
-        formState: { isSubmitting },
-        control
-    } = methods;
-
+const Recipe: React.FC = () => {
     const [error, setError] = useState<string>();
+    const [units, setUnits] = useState<SelectGroupOptions[]>([]);
     const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
     const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
-    const [units, setUnits] = useState<SelectGroupOptions[]>([]);
     const [requiredUnits, setRequiredUnits] = useState<{ id: number; required: boolean }[]>([]);
     const [nameOfRecipe, setNameOfRecipe] = useState<string>();
     const [deleteModal, setDeleteModal] = useState<boolean>(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const params = useParams();
-    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { state } = useLocation();
+    const id = useId();
 
-    useEffect(() => {
-        (async () => {
+    const methods = useForm<RecipeForm>({
+        resolver: yupResolver(schema),
+        defaultValues: async () => {
             try {
-                setIsLoading(true);
-                const categories = await categoryApi.getCategories();
-                setListOfCategories(categories);
-
-                const tags = await tagApi.getTags();
-                setListOfTags(tags);
-
-                const unitCategories = await unitCategoryApi.getUnitCategories();
                 const units: SelectGroupOptions[] = [];
                 const requiredUnit: { id: number; required: boolean }[] = [];
-                for (let category of unitCategories) {
-                    const unitByCategoryId = await unitApi.getUnitsByUnitCategory(category.id);
 
-                    unitByCategoryId.forEach((unit) => {
+                const listOfCategories = await queryClient.fetchQuery({
+                    queryKey: ['categories'],
+                    queryFn: ({ signal }) =>
+                        categoryApi.getCategories({ signal }).then((data) =>
+                            data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            )
+                        )
+                });
+
+                const listOfTags = await queryClient.fetchQuery({
+                    queryKey: ['tags'],
+                    queryFn: ({ signal }) =>
+                        tagApi.getTags({ signal }).then((data) =>
+                            data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            )
+                        )
+                });
+
+                const listOfUnitCategories = await queryClient.fetchQuery({
+                    queryKey: ['unitcategories'],
+                    queryFn: ({ signal }) =>
+                        unitCategoryApi.getUnitCategories({ signal }).then((data) =>
+                            data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            )
+                        )
+                });
+
+                for (let category of listOfUnitCategories) {
+                    const unitsOfCategory = await queryClient.fetchQuery({
+                        queryKey: ['unitcategories', category.id, 'units'] as const,
+                        queryFn: async ({ queryKey }) => {
+                            const data = await unitApi.getUnitsByUnitCategory(queryKey[1]);
+                            return data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            );
+                        }
+                    });
+
+                    unitsOfCategory.forEach((unit) => {
                         requiredUnit.push({
                             id: unit.id,
                             required: unit.required
                         });
                     });
 
-                    const updatedUnits = unitByCategoryId.map((unit) => {
-                        return { value: unit.id, label: unit.name };
-                    });
                     units.push({
                         optGroupId: category.id,
                         optGroupName: category.name,
-                        options: updatedUnits
+                        options: unitsOfCategory.map((unit) => {
+                            return { value: unit.id, label: unit.name };
+                        })
                     });
                 }
+
+                setListOfCategories(listOfCategories);
+                setListOfTags(listOfTags);
                 setRequiredUnits(requiredUnit);
                 setUnits(units);
 
                 if (params.recipeId) {
-                    const data = await recipeApi.getRecipe(+params?.recipeId);
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ['recipes', +params?.recipeId] as const,
+                        queryFn: async ({ queryKey, signal }) => recipeApi.getRecipe(queryKey[1], { signal })
+                    });
+
                     const formattedData: RecipeForm = {
                         ...data,
                         sources: data.sources.map((s) => {
@@ -236,40 +267,56 @@ const Recipe: React.FC = () => {
                         }),
                         associatedRecipes: data.associatedRecipes.map((ar) => {
                             return { id: ar.id, name: ar.name };
-                        }),
-                        pictures: []
+                        })
                     };
 
-                    for (let pic of data.pictures) {
-                        const response = await pictureApi.getPictureThumbnail(pic.id);
-                        if (response instanceof Blob) {
-                            const url = URL.createObjectURL(response);
-                            formattedData.pictures.push({
-                                id: pic.id,
-                                name: pic.name,
-                                url: url
-                            });
-                        }
-                    }
-
-                    methods.reset(formattedData);
                     setNameOfRecipe(formattedData.name);
-                } else {
-                    methods.reset(defaultValues);
+                    return formattedData;
                 }
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
+            } catch (e) {
+                formatErrorMessage(e).then((message) => setError(message));
             }
-        })();
-    }, [params.recipeId, methods, defaultValues]);
+            return defaultValues;
+        }
+    });
+
+    const {
+        formState: { isSubmitting, isLoading },
+        control
+    } = methods;
 
     const cancelHandler = () => {
         navigate(recipesUrlWithCategory(state?.searchingCategory), {
             state
         });
     };
+
+    const { mutate: saveRecipe, isPending: isSavingRecipe } = useMutation({
+        mutationFn: async ({ data, recipeId }: { data: Api.UpdateRecipe | Api.CreateRecipe; recipeId?: number }) => {
+            if (recipeId) {
+                await recipeApi.updateRecipe(recipeId, data);
+                return { id: recipeId };
+            } else {
+                return recipeApi.createRecipe(data);
+            }
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['recipes'] });
+            queryClient.removeQueries({
+                queryKey: ['find']
+            });
+        },
+        onSettled: (data, error) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (data) {
+                queryClient.removeQueries({ queryKey: ['recipes', data.id] });
+                navigate(recipesUrlWithCategory(state?.searchingCategory), {
+                    state
+                });
+            }
+        }
+    });
 
     const submitHandler: SubmitHandler<RecipeForm> = async (data: RecipeForm) => {
         const sendData = {
@@ -286,6 +333,7 @@ const Recipe: React.FC = () => {
                         if (i.value === null) {
                             const unitById = requiredUnits.find((unit) => unit.id === i.unitId);
                             if (unitById?.required) {
+                                // TODO solve in yup
                                 methods.setError(`recipeSections.${rsIndex}.ingredients.${iIndex}.value`, {
                                     type: 'required',
                                     message: 'Pri danej jednotke musí byť zadané množstvo.'
@@ -300,69 +348,51 @@ const Recipe: React.FC = () => {
                         };
                     })
                 };
-            }),
-            pictures: data.pictures.map((p, pIndex) => {
-                return {
-                    id: p.id,
-                    name: p.name,
-                    sortNumber: pIndex + 1
-                };
             })
         };
-
-        try {
-            setIsLoading(true);
-            if (params.recipeId) {
-                await recipeApi.updateRecipe(+params.recipeId, sendData);
-            } else {
-                await recipeApi.createRecipe(sendData);
-            }
-
-            for (let pic of data.pictures) {
-                URL.revokeObjectURL(pic.url);
-            }
-
-            navigate(recipesUrlWithCategory(state?.searchingCategory), {
-                state
-            });
-        } catch (err) {
-            formatErrorMessage(err).then((message) => setError(message));
-        } finally {
-            setIsLoading(false);
-        }
+        saveRecipe({ data: sendData, recipeId: params.recipeId ? +params.recipeId : undefined });
     };
 
-    const deleteRecipeHandler = () => {
+    const deleteRecipeHandler = useCallback(() => {
         setDeleteModal(true);
-    };
+    }, []);
 
-    const deleteRecipeConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
-                if (params.recipeId) {
-                    try {
-                        setIsLoading(true);
-                        await recipeApi.deleteRecipe(+params.recipeId);
-                        navigate(recipesUrlWithCategory(state?.searchingCategory), {
-                            state: {
-                                ...state,
-                                currentPage: 1
-                            }
-                        });
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    } finally {
-                        setIsLoading(false);
+    const { mutate: deleteRecipe, isPending: isDeletingRecipe } = useMutation({
+        mutationFn: (recipeId: number) => recipeApi.deleteRecipe(recipeId),
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['recipes'] });
+            queryClient.removeQueries({
+                queryKey: ['find']
+            });
+        },
+        onSettled: (data, error, recipeId) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (recipeId) {
+                queryClient.removeQueries({ queryKey: ['recipes', recipeId] });
+                navigate(recipesUrlWithCategory(state?.searchingCategory), {
+                    state: {
+                        ...state,
+                        currentPage: 1
                     }
+                });
+            }
+        }
+    });
+
+    const deleteRecipeConfirmHandler = useCallback(
+        (confirmed: boolean) => {
+            if (confirmed) {
+                if (params.recipeId) {
+                    deleteRecipe(+params.recipeId);
                 } else {
                     setError('Neplatné používateľské ID!');
                 }
             }
             setDeleteModal(false);
-        })();
-    };
+        },
+        [deleteRecipe, params.recipeId]
+    );
 
     return (
         <div className='row justify-content-center'>
@@ -398,15 +428,17 @@ const Recipe: React.FC = () => {
                             name='categoryId'
                             label='Kategória receptu'
                             multiple={false}
-                            options={listOfCategories?.map((category) => ({
-                                value: category.id,
-                                label: category.name
-                            }))}
+                            options={
+                                listOfCategories.map((category) => ({
+                                    value: category.id,
+                                    label: category.name
+                                })) ?? []
+                            }
                         />
-                        {listOfCategories.length < 1 && (
+                        {listOfCategories.length === 0 && (
                             <p className='text-danger'>Nie je možné vybrať žiadnu kategóriu, nakoľko žiadna nie je zadefinovaná.</p>
                         )}
-                        <AssociatedRecipes></AssociatedRecipes>
+                        <AssociatedRecipes />
                         <Form.Group className='mb-3'>
                             <Form.Label htmlFor='tagsMultiselection'>Značky</Form.Label>
                             <Controller
@@ -414,10 +446,10 @@ const Recipe: React.FC = () => {
                                 name='tags'
                                 render={({ field: { onChange, value } }) => (
                                     <Typeahead
-                                        id='tags'
+                                        id={id + 'tags'}
                                         labelKey='name'
                                         onChange={onChange}
-                                        options={listOfTags}
+                                        options={listOfTags ?? []}
                                         placeholder='Vyberte ľubovoľný počet značiek'
                                         selected={value}
                                         multiple
@@ -425,7 +457,7 @@ const Recipe: React.FC = () => {
                                 )}
                             />
 
-                            {listOfTags.length < 1 && (
+                            {listOfTags.length === 0 && (
                                 <p className='text-danger'>Nie je možné vybrať žiadnu značku, nakoľko žiadna nie je zadefinovaná.</p>
                             )}
                         </Form.Group>
@@ -463,7 +495,7 @@ const Recipe: React.FC = () => {
                     </Form>
                 </FormProvider>
             </div>
-            {(isSubmitting || isLoading) && <Spinner />}
+            {(isSubmitting || isLoading || isSavingRecipe || isDeletingRecipe) && <Spinner />}
             <Modal
                 show={!!deleteModal}
                 type='question'

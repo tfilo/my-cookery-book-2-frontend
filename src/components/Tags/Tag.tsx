@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Stack } from 'react-bootstrap';
 import * as yup from 'yup';
 import { tagApi } from '../../utils/apiWrapper';
@@ -10,6 +10,7 @@ import Spinner from '../UI/Spinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 type TagForm = Api.CreateTag | Api.UpdateTag;
 
@@ -21,50 +22,94 @@ const schema = yup
 
 const Tag: React.FC = () => {
     const [error, setError] = useState<string>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const params = useParams();
+    const queryClient = useQueryClient();
 
     const methods = useForm<TagForm>({
-        resolver: yupResolver(schema)
+        resolver: yupResolver(schema),
+        defaultValues: async () => {
+            if (params.id) {
+                try {
+                    const data = await queryClient.fetchQuery({
+                        queryKey: ['tags', parseInt(params?.id)] as const,
+                        queryFn: ({ queryKey, signal }) => {
+                            return tagApi.getTag(queryKey[1], { signal });
+                        }
+                    });
+                    return data;
+                } catch (e) {
+                    formatErrorMessage(e).then((message) => setError(message));
+                }
+            }
+            return {
+                name: ''
+            };
+        }
     });
 
     const {
-        formState: { isSubmitting }
+        formState: { isSubmitting, isLoading }
     } = methods;
-
-    useEffect(() => {
-        if (params.id) {
-            const paramsNumber = params?.id;
-            (async () => {
-                try {
-                    setIsLoading(true);
-                    const data = await tagApi.getTag(parseInt(paramsNumber));
-                    methods.reset(data);
-                } catch (err) {
-                    formatErrorMessage(err).then((message) => setError(message));
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
-        }
-    }, [params.id, methods]);
 
     const cancelHandler = () => {
         navigate('/tags');
     };
 
-    const submitHandler: SubmitHandler<TagForm> = async (data: TagForm) => {
-        try {
-            if (params.id) {
-                await tagApi.updateTag(parseInt(params.id), data);
+    const { mutate: saveTag, isPending: isSaving } = useMutation({
+        mutationFn: ({ data, tagId }: { data: TagForm; tagId?: number }) => {
+            if (tagId) {
+                return tagApi.updateTag(tagId, data);
             } else {
-                await tagApi.createTag(data);
+                return tagApi.createTag(data);
             }
-            navigate('/tags');
-        } catch (err) {
-            formatErrorMessage(err).then((message) => setError(message));
+        },
+        onMutate: async () => {
+            await queryClient.cancelQueries({ queryKey: ['tags'] });
+        },
+        onSettled: async (data, error) => {
+            if (error) {
+                formatErrorMessage(error).then((message) => setError(message));
+            } else if (data) {
+                queryClient.setQueryData<Api.Tag>(['tags', data.id], () => data);
+                queryClient.setQueryData<Api.SimpleTag[]>(['tags'], (tags) => {
+                    const index = tags?.findIndex((t) => t.id === data.id) ?? -1;
+                    if (index > -1) {
+                        const result = [...(tags ?? [])];
+                        result[index] = {
+                            id: data.id,
+                            name: data.name
+                        };
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    } else {
+                        const result = [
+                            ...(tags ?? []),
+                            {
+                                id: data.id,
+                                name: data.name
+                            }
+                        ];
+                        return result.sort((a, b) =>
+                            a.name.localeCompare(b.name, undefined, {
+                                sensitivity: 'base'
+                            })
+                        );
+                    }
+                });
+                navigate('/tags');
+            }
         }
+    });
+
+    const submitHandler: SubmitHandler<TagForm> = (data: TagForm) => {
+        saveTag({
+            data,
+            tagId: params.id ? parseInt(params.id) : undefined
+        });
     };
 
     return (
@@ -109,7 +154,7 @@ const Tag: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isSubmitting || isLoading) && <Spinner />}
+            {(isSubmitting || isLoading || isSaving) && <Spinner />}
         </div>
     );
 };

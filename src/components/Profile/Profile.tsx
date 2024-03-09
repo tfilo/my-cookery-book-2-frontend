@@ -69,10 +69,11 @@ const Profile: React.FC = () => {
 
     useEffect(() => {
         if (isLoggedIn) {
+            const controller = new AbortController();
             (async () => {
                 try {
                     setIsLoading(true);
-                    const user = await userApi.getProfile();
+                    const user = await userApi.getProfile({ signal: controller.signal });
                     reset(user);
                     setUsername(user.username);
                 } catch (err) {
@@ -81,6 +82,7 @@ const Profile: React.FC = () => {
                     setIsLoading(false);
                 }
             })();
+            return () => controller.abort();
         }
     }, [isLoggedIn, reset]);
 

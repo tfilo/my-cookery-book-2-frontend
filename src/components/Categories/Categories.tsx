@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
-import React, { useEffect, useState, Fragment, useContext } from 'react';
+import React, { useEffect, useState, Fragment, useContext, useCallback } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
@@ -9,28 +9,36 @@ import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
 import { AuthContext } from '../../store/auth-context';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Categories: React.FC = () => {
-    const [listOfCategories, setListOfCategories] = useState<Api.SimpleCategory[]>([]);
     const [error, setError] = useState<string>();
     const [category, setCategory] = useState<Api.SimpleCategory>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const authCtx = useContext(AuthContext);
 
+    const {
+        data: listOfCategories,
+        isFetching: isFetchingListOfCategories,
+        error: listOfCategoriesError
+    } = useQuery({
+        queryKey: ['categories'],
+        queryFn: ({ signal }) =>
+            categoryApi.getCategories({ signal }).then((data) =>
+                data.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, {
+                        sensitivity: 'base'
+                    })
+                )
+            )
+    });
+
     useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const categories = await categoryApi.getCategories();
-                setListOfCategories(categories);
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
-    }, []);
+        if (listOfCategoriesError) {
+            formatErrorMessage(listOfCategoriesError).then((message) => setError(message));
+        }
+    }, [listOfCategoriesError]);
 
     const createCategoryHandler = () => {
         navigate('/category');
@@ -44,30 +52,46 @@ const Categories: React.FC = () => {
         setCategory(category);
     };
 
-    const deleteCategoryConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
+    const { mutate: deleteCategory, isPending: isDeleteingCategory } = useMutation({
+        mutationFn: (categoryId: number) => categoryApi.deleteCategory(categoryId),
+        onMutate: async (categoryId) => {
+            await queryClient.cancelQueries({ queryKey: ['categories'] });
+            const categories = queryClient.getQueryData<Api.SimpleCategory[]>(['categories']);
+            queryClient.setQueryData<Api.SimpleCategory[]>(['categories'], (old) => old?.filter((c) => c.id !== categoryId));
+            const removed = categories?.find((c) => c.id === categoryId);
+            const index = categories?.findIndex((c) => c.id === categoryId);
+            return {
+                removed,
+                index
+            };
+        },
+        onSuccess: (data, categoryId) => {
+            queryClient.removeQueries({
+                queryKey: ['categories', categoryId]
+            });
+        },
+        onError: (error, categoryId, context) => {
+            queryClient.setQueryData<Api.SimpleCategory[]>(['categories'], (old) => {
+                if (old && context && context.index !== undefined && context.removed) {
+                    return [...old.slice(0, context.index), context.removed, ...old.slice(context.index)];
+                }
+                return undefined;
+            });
+            formatErrorMessage(error).then((message) => setError(message));
+        }
+    });
+
+    const deleteCategoryConfirmHandler = useCallback(
+        (confirmed: boolean) => {
+            if (confirmed) {
                 if (category) {
-                    try {
-                        setIsLoading(true);
-                        await categoryApi.deleteCategory(category.id);
-                        setListOfCategories((prev) => {
-                            return prev.filter((cat) => cat.id !== category.id);
-                        });
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    } finally {
-                        setIsLoading(false);
-                    }
-                } else {
-                    setError('Neplatné používateľské ID!');
+                    deleteCategory(category.id);
                 }
             }
             setCategory(undefined);
-        })();
-    };
+        },
+        [category, deleteCategory]
+    );
 
     return (
         <Fragment>
@@ -88,12 +112,11 @@ const Categories: React.FC = () => {
             >
                 <thead>
                     <tr>
-                        <th>Názov kategórie</th>
-                        <th></th>
+                        <th colSpan={2}>Názov kategórie</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {listOfCategories.map((category) => (
+                    {listOfCategories?.map((category) => (
                         <tr key={category.id}>
                             <td className='align-middle'>{category.name}</td>
                             <td className='align-middle '>
@@ -129,7 +152,7 @@ const Categories: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            {isLoading && <Spinner />}
+            {(isFetchingListOfCategories || isDeleteingCategory) && <Spinner />}
             <Modal
                 show={!!category}
                 type='question'

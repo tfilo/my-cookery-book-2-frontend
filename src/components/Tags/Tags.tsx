@@ -1,6 +1,6 @@
 import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Stack, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
@@ -9,30 +9,38 @@ import { tagApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../UI/Modal';
 import Spinner from '../UI/Spinner';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Tags: React.FC = () => {
-    const [listOfTags, setListOfTags] = useState<Api.SimpleTag[]>([]);
     const [error, setError] = useState<string>();
     const [tag, setTag] = useState<Api.SimpleTag>();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const authCtx = useContext(AuthContext);
 
-    useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true);
-                const tags = await tagApi.getTags();
-                setListOfTags(tags);
-            } catch (err) {
-                formatErrorMessage(err).then((message) => setError(message));
-            } finally {
-                setIsLoading(false);
-            }
-        })();
-    }, []);
+    const {
+        data: listOfTags,
+        isFetching: isFetchingListOfTags,
+        error: listOfTagsError
+    } = useQuery({
+        queryKey: ['tags'],
+        queryFn: ({ signal }) =>
+            tagApi.getTags({ signal }).then((data) =>
+                data.sort((a, b) =>
+                    a.name.localeCompare(b.name, undefined, {
+                        sensitivity: 'base'
+                    })
+                )
+            )
+    });
 
-    const createCategoryHandler = () => {
+    useEffect(() => {
+        if (listOfTagsError) {
+            formatErrorMessage(listOfTagsError).then((message) => setError(message));
+        }
+    }, [listOfTagsError]);
+
+    const createTagHandler = () => {
         navigate('/tag');
     };
 
@@ -44,30 +52,46 @@ const Tags: React.FC = () => {
         setTag(tag);
     };
 
-    const deleteTagConfirmHandler = (status: boolean) => {
-        (async () => {
-            if (status === true) {
+    const { mutate: deleteTag, isPending: isDeleteingTag } = useMutation({
+        mutationFn: (tagId: number) => tagApi.deleteTag(tagId),
+        onMutate: async (tagId) => {
+            await queryClient.cancelQueries({ queryKey: ['tags'] });
+            const tags = queryClient.getQueryData<Api.SimpleTag[]>(['tags']);
+            queryClient.setQueryData<Api.SimpleTag[]>(['tags'], (old) => old?.filter((t) => t.id !== tagId));
+            const removed = tags?.find((t) => t.id === tagId);
+            const index = tags?.findIndex((t) => t.id === tagId);
+            return {
+                removed,
+                index
+            };
+        },
+        onSuccess: (data, tagId) => {
+            queryClient.removeQueries({
+                queryKey: ['tags', tagId]
+            });
+        },
+        onError: (error, tagId, context) => {
+            queryClient.setQueryData<Api.SimpleTag[]>(['tags'], (old) => {
+                if (old && context && context.index !== undefined && context.removed) {
+                    return [...old.slice(0, context.index), context.removed, ...old.slice(context.index)];
+                }
+                return undefined;
+            });
+            formatErrorMessage(error).then((message) => setError(message));
+        }
+    });
+
+    const deleteTagConfirmHandler = useCallback(
+        (confirmed: boolean) => {
+            if (confirmed) {
                 if (tag) {
-                    try {
-                        setIsLoading(true);
-                        await tagApi.deleteTag(tag.id);
-                        setListOfTags((prev) => {
-                            return prev.filter((_tag) => _tag.id !== tag.id);
-                        });
-                    } catch (err) {
-                        formatErrorMessage(err).then((message) => {
-                            setError(message);
-                        });
-                    } finally {
-                        setIsLoading(false);
-                    }
-                } else {
-                    setError('Neplatná značka!');
+                    deleteTag(tag.id);
                 }
             }
             setTag(undefined);
-        })();
-    };
+        },
+        [deleteTag, tag]
+    );
 
     return (
         <>
@@ -76,7 +100,7 @@ const Tags: React.FC = () => {
                 {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                     <Button
                         variant='primary'
-                        onClick={createCategoryHandler}
+                        onClick={createTagHandler}
                     >
                         Pridať značku
                     </Button>
@@ -92,7 +116,7 @@ const Tags: React.FC = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {listOfTags.map((tag) => (
+                    {listOfTags?.map((tag) => (
                         <tr key={tag.id}>
                             <td className='align-middle'>{tag.name}</td>
                             <td className='align-middle '>
@@ -127,6 +151,7 @@ const Tags: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
+            {(isFetchingListOfTags || isDeleteingTag) && <Spinner />}
             <Modal
                 show={!!tag}
                 type='question'
@@ -141,7 +166,6 @@ const Tags: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
         </>
     );
 };

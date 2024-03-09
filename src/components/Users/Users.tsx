@@ -18,10 +18,11 @@ const Users: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const controller = new AbortController();
         (async () => {
             try {
                 setIsLoading(true);
-                const users = await userApi.getUsers();
+                const users = await userApi.getUsers({ signal: controller.signal });
                 setListOfUsers(users);
             } catch (err) {
                 formatErrorMessage(err).then((message) => setError(message));
@@ -29,6 +30,7 @@ const Users: React.FC = () => {
                 setIsLoading(false);
             }
         })();
+        return () => controller.abort();
     }, []);
 
     const createUserHandler = () => {

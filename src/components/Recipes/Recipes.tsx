@@ -14,6 +14,7 @@ import { debounce } from 'lodash';
 import Spinner from '../UI/Spinner';
 import { orderByLabels } from '../../translate/orderByLabels';
 import { AuthContext } from '../../store/auth-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SimpleRecipeWithUrl extends Api.SimpleRecipe {
     url?: string;
@@ -61,6 +62,7 @@ const Recipes: React.FC = () => {
     const categoryId = params?.categoryId ? parseInt(params?.categoryId) : -1;
     const authCtx = useContext(AuthContext);
     const searchingTextInputRef = useRef(searchingText);
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         if (categoryId > 0 || selectedTags.length > 0) {
@@ -110,9 +112,29 @@ const Recipes: React.FC = () => {
         (async () => {
             try {
                 setIsLoading(true);
-                const categories = await categoryApi.getCategories();
+                const categories = await queryClient.fetchQuery({
+                    queryKey: ['categories'] as const,
+                    queryFn: ({ signal }) =>
+                        categoryApi.getCategories({ signal }).then((data) =>
+                            data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            )
+                        )
+                });
                 setListOfCategories(categories);
-                const tags = await tagApi.getTags();
+                const tags = await queryClient.fetchQuery({
+                    queryKey: ['tags'] as const,
+                    queryFn: ({ signal }) =>
+                        tagApi.getTags({ signal }).then((data) =>
+                            data.sort((a, b) =>
+                                a.name.localeCompare(b.name, undefined, {
+                                    sensitivity: 'base'
+                                })
+                            )
+                        )
+                });
                 setListOfTags(tags);
             } catch (err) {
                 formatErrorMessage(err).then((message) => {
@@ -122,14 +144,19 @@ const Recipes: React.FC = () => {
                 setIsLoading(false);
             }
         })();
-    }, []);
+    }, [queryClient]);
 
     useEffect(() => {
-        let abortController = new AbortController();
         (async () => {
             try {
                 setIsLoadingRecipes(true);
-                const recipes: RecipeWithUrl = await recipeApi.findRecipe(criteria, { signal: abortController.signal });
+                const recipes: RecipeWithUrl = await queryClient.fetchQuery({
+                    queryKey: ['find', criteria] as const,
+                    queryFn: async ({ queryKey, signal }) =>
+                        recipeApi.findRecipe(queryKey[1], {
+                            signal
+                        })
+                });
 
                 const formattedRecipe: RecipeWithUrl = {
                     page: recipes.page,
@@ -140,7 +167,13 @@ const Recipes: React.FC = () => {
 
                 for (let r of recipes.rows) {
                     if (r.pictures.length === 1) {
-                        const receivedData = await pictureApi.getPictureThumbnail(r.pictures[0].id, { signal: abortController.signal });
+                        const receivedData = await queryClient.fetchQuery({
+                            queryKey: ['thumbnails', r.pictures[0].id] as const,
+                            queryFn: async ({ queryKey, signal }) =>
+                                pictureApi.getPictureThumbnail(queryKey[1], {
+                                    signal
+                                })
+                        });
                         if (receivedData instanceof Blob) {
                             const url = URL.createObjectURL(receivedData);
                             r.url = url;
@@ -149,29 +182,27 @@ const Recipes: React.FC = () => {
                     formattedRecipe.rows.push(r);
                 }
 
-                if (!abortController.signal.aborted) {
-                    setRecipes((prev) => {
-                        if (prev) {
-                            prev.rows.forEach((r) => r.url && URL.revokeObjectURL(r.url));
-                        }
-                        return formattedRecipe;
-                    });
-                    setIsLoadingRecipes(false);
-                }
+                setRecipes((prev) => {
+                    if (prev) {
+                        const prevUrls = prev.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
+                        const currUrls = formattedRecipe.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
+                        prevUrls.forEach((prevUrl) => {
+                            !currUrls.includes(prevUrl) && URL.revokeObjectURL(prevUrl);
+                        });
+                    }
+                    return formattedRecipe;
+                });
+                setIsLoadingRecipes(false);
             } catch (err: any) {
-                if (err.name !== 'AbortError') {
-                    formatErrorMessage(err).then((message) => {
-                        setError(message);
-                    });
-                    setIsLoadingRecipes(false);
-                }
+                formatErrorMessage(err).then((message) => {
+                    setError(message);
+                    if (!!message) {
+                        setIsLoadingRecipes(false);
+                    }
+                });
             }
         })();
-        // clean up function:
-        return () => {
-            abortController.abort();
-        };
-    }, [criteria]);
+    }, [criteria, queryClient]);
 
     const navigationState: RecipeState = {
         searchingText: searchingText,

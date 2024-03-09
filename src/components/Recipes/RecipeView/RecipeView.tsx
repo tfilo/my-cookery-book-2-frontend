@@ -18,6 +18,7 @@ import AuthorView from './AuthorView';
 import Spinner from '../../UI/Spinner';
 import { recipesUrlWithCategory } from '../Recipes';
 import { useBookmarContext } from '../../../store/bookmark-context';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
@@ -42,6 +43,7 @@ const RecipeView: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const { state } = useLocation();
+    const queryClient = useQueryClient();
     const { contains, addRecipe, removeRecipe } = useBookmarContext();
 
     const isBookmarked = useMemo(() => {
@@ -66,10 +68,16 @@ const RecipeView: React.FC = () => {
             try {
                 if (params.recipeId) {
                     setIsLoading(true);
-                    const rec: RecipesWithUrlInPictures = await recipeApi.getRecipe(+params.recipeId);
+                    const rec: RecipesWithUrlInPictures = await queryClient.fetchQuery({
+                        queryKey: ['recipes', +params.recipeId] as const,
+                        queryFn: async ({ queryKey, signal }) => recipeApi.getRecipe(queryKey[1], { signal })
+                    });
 
                     for (let picture of rec.pictures) {
-                        const data = await pictureApi.getPictureThumbnail(picture.id);
+                        const data = await queryClient.fetchQuery({
+                            queryKey: ['thumbnails', picture.id] as const,
+                            queryFn: async ({ queryKey, signal }) => pictureApi.getPictureThumbnail(queryKey[1], { signal })
+                        });
                         if (data instanceof Blob) {
                             const url = URL.createObjectURL(data);
                             picture.url = url;
@@ -84,12 +92,18 @@ const RecipeView: React.FC = () => {
                         const associatedRecipesId = rec.associatedRecipes.map((a) => a.id);
                         const assRecipes: RecipesWithUrlInPictures[] = [];
                         for (let id of associatedRecipesId) {
-                            const assRec: RecipesWithUrlInPictures = await recipeApi.getRecipe(id);
+                            const assRec: RecipesWithUrlInPictures = await queryClient.fetchQuery({
+                                queryKey: ['recipes', id] as const,
+                                queryFn: async ({ queryKey, signal }) => recipeApi.getRecipe(queryKey[1], { signal })
+                            });
                             assRecipes.push(assRec);
                         }
                         for (let assRecipe of assRecipes) {
                             for (let picture of assRecipe.pictures) {
-                                const data = await pictureApi.getPictureThumbnail(picture.id);
+                                const data = await queryClient.fetchQuery({
+                                    queryKey: ['thumbnails', picture.id] as const,
+                                    queryFn: async ({ queryKey, signal }) => pictureApi.getPictureThumbnail(queryKey[1], { signal })
+                                });
                                 if (data instanceof Blob) {
                                     const url = URL.createObjectURL(data);
                                     picture.url = url;
@@ -98,10 +112,12 @@ const RecipeView: React.FC = () => {
                         }
                         setAssociatedRecipes((prev) => {
                             if (prev) {
-                                prev.forEach((assRecipe) => {
-                                    assRecipe.pictures.forEach((assRecipePicture) => {
-                                        assRecipePicture.url && URL.revokeObjectURL(assRecipePicture.url);
-                                    });
+                                const prevUrls = prev.map((ar) => ar.pictures.filter((apr) => !!apr.url).map((arp) => arp.url!)).flat();
+                                const currUrls = assRecipes
+                                    .map((ar) => ar.pictures.filter((apr) => !!apr.url).map((arp) => arp.url!))
+                                    .flat();
+                                prevUrls.forEach((prevUrl) => {
+                                    !currUrls.includes(prevUrl) && URL.revokeObjectURL(prevUrl);
                                 });
                             }
                             return assRecipes;
@@ -109,8 +125,10 @@ const RecipeView: React.FC = () => {
                     }
                     setRecipe((prev) => {
                         if (prev) {
-                            prev.pictures.forEach((p) => {
-                                p.url && URL.revokeObjectURL(p.url);
+                            const prevUrls = prev.pictures.filter((apr) => !!apr.url).map((arp) => arp.url!);
+                            const currUrls = rec.pictures.filter((apr) => !!apr.url).map((arp) => arp.url!);
+                            prevUrls.forEach((prevUrl) => {
+                                !currUrls.includes(prevUrl) && URL.revokeObjectURL(prevUrl);
                             });
                         }
                         return rec;
@@ -122,7 +140,7 @@ const RecipeView: React.FC = () => {
                 setIsLoading(false);
             }
         })();
-    }, [params.recipeId]);
+    }, [params.recipeId, queryClient]);
 
     return (
         <>
@@ -139,7 +157,7 @@ const RecipeView: React.FC = () => {
                 >
                     <FontAwesomeIcon icon={faCircleArrowLeft} />
                 </Button>
-                <div className='flex-grow-1 d-sm-block'></div>
+                <div className='flex-grow-1 d-sm-block' />
                 <Stack
                     direction='horizontal'
                     gap={2}
@@ -170,7 +188,7 @@ const RecipeView: React.FC = () => {
                     recipe={recipe}
                     serves={serves}
                     setServes={setServes}
-                ></ServeView>
+                />
                 <SectionView
                     recipe={recipe}
                     serves={serves}
@@ -189,7 +207,6 @@ const RecipeView: React.FC = () => {
                     serves={serves}
                 />
                 <div style={{ border: '1px solid transparent' }}>
-                    {/* Fix for correct <hr /> on safari */}
                     <hr />
                 </div>
                 <AuthorView recipe={recipe} />
