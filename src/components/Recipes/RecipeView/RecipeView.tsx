@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactToPrint from 'react-to-print';
@@ -7,7 +7,8 @@ import { pictureApi, recipeApi } from '../../../utils/apiWrapper';
 import { formatErrorMessage } from '../../../utils/errorMessages';
 import Modal from '../../UI/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleArrowLeft, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkSolid, faCircleArrowLeft, faPrint } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark } from '@fortawesome/free-regular-svg-icons';
 import AssociatedRecipeView from './AssociatedRecipeView';
 import SectionView from './SectionView';
 import PictureView from './PictureView';
@@ -16,6 +17,7 @@ import ServeView from './ServeView';
 import AuthorView from './AuthorView';
 import Spinner from '../../UI/Spinner';
 import { recipesUrlWithCategory } from '../Recipes';
+import { useBookmarContext } from '../../../store/bookmark-context';
 
 interface PicturesWithUrl extends Api.Recipe.Picture {
     url?: string;
@@ -40,6 +42,24 @@ const RecipeView: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const { state } = useLocation();
+    const { contains, addRecipe, removeRecipe } = useBookmarContext();
+
+    const isBookmarked = useMemo(() => {
+        if (params.recipeId) {
+            return contains(+params.recipeId);
+        }
+        return false;
+    }, [params.recipeId, contains]);
+
+    const onBookmarkHandler = useCallback(() => {
+        if (params.recipeId) {
+            if (isBookmarked) {
+                removeRecipe(+params.recipeId);
+            } else {
+                addRecipe(+params.recipeId);
+            }
+        }
+    }, [addRecipe, isBookmarked, params.recipeId, removeRecipe]);
 
     useEffect(() => {
         (async () => {
@@ -120,14 +140,28 @@ const RecipeView: React.FC = () => {
                     <FontAwesomeIcon icon={faCircleArrowLeft} />
                 </Button>
                 <div className='flex-grow-1 d-sm-block'></div>
-                <ReactToPrint
-                    trigger={() => (
-                        <Button variant='light'>
-                            <FontAwesomeIcon icon={faPrint} />
+                <Stack
+                    direction='horizontal'
+                    gap={2}
+                >
+                    {!!params.recipeId && (
+                        <Button
+                            variant='light'
+                            onClick={onBookmarkHandler}
+                            title={isBookmarked ? 'Odobrať záložku' : 'Pridať záložku'}
+                        >
+                            <FontAwesomeIcon icon={isBookmarked ? faBookmarkSolid : faBookmark} />
                         </Button>
                     )}
-                    content={() => componentRef.current}
-                ></ReactToPrint>
+                    <ReactToPrint
+                        trigger={() => (
+                            <Button variant='light'>
+                                <FontAwesomeIcon icon={faPrint} />
+                            </Button>
+                        )}
+                        content={() => componentRef.current}
+                    />
+                </Stack>
             </Stack>
             <div ref={componentRef}>
                 <style>{getPageMargins()}</style>
