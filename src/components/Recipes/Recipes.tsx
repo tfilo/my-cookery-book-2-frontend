@@ -147,6 +147,7 @@ const Recipes: React.FC = () => {
     }, [queryClient]);
 
     useEffect(() => {
+        let subscribed = true;
         (async () => {
             try {
                 setIsLoadingRecipes(true);
@@ -166,7 +167,7 @@ const Recipes: React.FC = () => {
                 };
 
                 for (let r of recipes.rows) {
-                    if (r.pictures.length === 1) {
+                    if (r.pictures.length === 1 && subscribed) {
                         const receivedData = await queryClient.fetchQuery({
                             queryKey: ['thumbnails', r.pictures[0].id] as const,
                             queryFn: async ({ queryKey, signal }) =>
@@ -182,17 +183,19 @@ const Recipes: React.FC = () => {
                     formattedRecipe.rows.push(r);
                 }
 
-                setRecipes((prev) => {
-                    if (prev) {
-                        const prevUrls = prev.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
-                        const currUrls = formattedRecipe.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
-                        prevUrls.forEach((prevUrl) => {
-                            !currUrls.includes(prevUrl) && URL.revokeObjectURL(prevUrl);
-                        });
-                    }
-                    return formattedRecipe;
-                });
-                setIsLoadingRecipes(false);
+                if (subscribed) {
+                    setRecipes((prev) => {
+                        if (prev) {
+                            const prevUrls = prev.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
+                            const currUrls = formattedRecipe.rows.filter((sr) => !!sr.url).map((sr) => sr.url!);
+                            prevUrls.forEach((prevUrl) => {
+                                !currUrls.includes(prevUrl) && URL.revokeObjectURL(prevUrl);
+                            });
+                        }
+                        return formattedRecipe;
+                    });
+                    setIsLoadingRecipes(false);
+                }
             } catch (err: any) {
                 formatErrorMessage(err).then((message) => {
                     setError(message);
@@ -202,6 +205,12 @@ const Recipes: React.FC = () => {
                 });
             }
         })();
+
+        return () => {
+            queryClient.cancelQueries({ queryKey: ['find', criteria] as const, type: 'active' });
+            queryClient.cancelQueries({ queryKey: ['thumbnails'] as const, type: 'active' });
+            subscribed = false;
+        };
     }, [criteria, queryClient]);
 
     const navigationState: RecipeState = {
