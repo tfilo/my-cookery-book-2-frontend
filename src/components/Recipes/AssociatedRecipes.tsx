@@ -90,7 +90,7 @@ const AssociatedRecipes: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            <Spinner show={isLoading} />
         </>
     );
 };

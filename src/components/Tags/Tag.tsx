@@ -154,7 +154,7 @@ const Tag: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isSubmitting || isLoading || isSaving) && <Spinner />}
+            <Spinner show={isSubmitting || isLoading || isSaving} />
         </div>
     );
 };

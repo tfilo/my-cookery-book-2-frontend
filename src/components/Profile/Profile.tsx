@@ -172,7 +172,7 @@ const Profile: React.FC = () => {
                     setShowModal(false);
                 }}
             />
-            {(isSubmitting || isLoading) && <Spinner />}
+            <Spinner show={isSubmitting || isLoading} />
         </div>
     );
 };

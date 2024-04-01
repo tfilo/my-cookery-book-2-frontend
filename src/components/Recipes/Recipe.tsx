@@ -495,7 +495,7 @@ const Recipe: React.FC = () => {
                     </Form>
                 </FormProvider>
             </div>
-            {(isSubmitting || isLoading || isSavingRecipe || isDeletingRecipe) && <Spinner />}
+            <Spinner show={isSubmitting || isLoading || isSavingRecipe || isDeletingRecipe} />
             <Modal
                 show={!!deleteModal}
                 type='question'

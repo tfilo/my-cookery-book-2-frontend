@@ -176,7 +176,7 @@ const UnitCategories: React.FC = () => {
                     </Table>
                 ))}
             </div>
-            {(isDeleteingUnitCategory || isUnitsLoading || isFetchingListOfUnitCategories) && <Spinner />}
+            <Spinner show={isDeleteingUnitCategory || isUnitsLoading || isFetchingListOfUnitCategories} />
             <Modal
                 show={!!unitCategory}
                 type='question'

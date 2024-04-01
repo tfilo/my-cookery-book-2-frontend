@@ -233,7 +233,7 @@ const Pictures: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {isUploadingImage && <Spinner />}
+            <Spinner show={isUploadingImage} />
         </>
     );
 };

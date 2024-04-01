@@ -274,7 +274,7 @@ const User: React.FC = () => {
                     setEmailWasSend(false);
                 }}
             />
-            {(isSubmitting || isLoading) && <Spinner />}
+            <Spinner show={isSubmitting || isLoading} />
         </div>
     );
 };

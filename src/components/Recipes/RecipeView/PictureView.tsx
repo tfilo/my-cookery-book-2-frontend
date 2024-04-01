@@ -191,7 +191,7 @@ const PictureView: React.FC<PictureProps> = (props) => {
                     setError(undefined);
                 }}
             />
-            {isLoading && <Spinner />}
+            <Spinner show={isLoading} />
         </>
     );
 };

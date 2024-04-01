@@ -1,6 +1,5 @@
 import React, { useState, useEffect, PropsWithChildren, useMemo, useCallback } from 'react';
-// eslint-disable-next-line camelcase
-import jwt_decode, { JwtPayload } from 'jwt-decode';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Modal from '../components/UI/Modal';
@@ -34,7 +33,7 @@ const tokenValidity = (token: string | null) => {
     if (token === null) {
         return -1;
     }
-    const decoded = jwt_decode<CustomToken>(token);
+    const decoded = jwtDecode<CustomToken>(token);
     if (!decoded.exp) {
         return -1;
     }
@@ -44,7 +43,6 @@ const tokenValidity = (token: string | null) => {
 
 const storedToken = localStorage.getItem('token');
 const storedRefreshToken = localStorage.getItem('refreshToken');
-// @ts-ignore
 window.token = storedToken;
 
 const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
@@ -56,7 +54,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
     const [error, setError] = useState<string>();
     const [userId, setUserId] = useState(() => {
         if (token) {
-            const decodedToken = jwt_decode<CustomToken>(token);
+            const decodedToken = jwtDecode<CustomToken>(token);
             return decodedToken.userId;
         } else {
             return null;
@@ -65,7 +63,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
     const userIsLoggedIn = !!token;
     const userRoles = useMemo(() => {
         if (token) {
-            return jwt_decode<CustomToken>(token).roles?.map((r) => r as Api.User.RoleEnum) ?? [];
+            return jwtDecode<CustomToken>(token).roles?.map((r) => r as Api.User.RoleEnum) ?? [];
         }
         return [];
     }, [token]);
@@ -76,7 +74,6 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         setUserId(null);
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
-        // @ts-ignore
         delete window.token;
         queryClient.removeQueries({
             queryKey: ['currentUser']
@@ -148,13 +145,12 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         setToken(token);
         setRefreshToken(refreshToken);
         setRememberMe(rememberMe);
-        const decodedToken = jwt_decode<CustomToken>(token);
+        const decodedToken = jwtDecode<CustomToken>(token);
         setUserId(decodedToken?.userId);
         if (rememberMe) {
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
         }
-        // @ts-ignore
         window.token = token;
     };
 

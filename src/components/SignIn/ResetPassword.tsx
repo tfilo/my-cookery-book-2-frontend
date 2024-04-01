@@ -111,7 +111,7 @@ const ResetPassword: React.FC = () => {
                         >
                             Potvrdiť
                         </Button>
-                        {isSubmitting && <Spinner />}
+                        <Spinner show={isSubmitting} />
                     </Form>
                 </FormProvider>
             </div>

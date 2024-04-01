@@ -279,7 +279,7 @@ const Recipes: React.FC = () => {
     );
 
     return (
-        <Fragment>
+        <>
             <div className='d-flex flex-column flex-md-row mb-3'>
                 <h1 className='flex-grow-1'>Recepty</h1>
                 {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN || role === Api.User.RoleEnum.CREATOR) && (
@@ -497,8 +497,8 @@ const Recipes: React.FC = () => {
                     setError(undefined);
                 }}
             />
-            {(isLoading || isLoadingRecipes) && <Spinner />}
-        </Fragment>
+            <Spinner show={isLoading || isLoadingRecipes} />
+        </>
     );
 };
 

@@ -86,7 +86,7 @@ const SignIn: React.FC = () => {
                         >
                             Prihlásiť sa
                         </Button>
-                        {isSubmitting && <Spinner />}
+                        <Spinner show={isSubmitting} />
                     </Form>
                 </FormProvider>
             </div>

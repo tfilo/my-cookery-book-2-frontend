@@ -94,7 +94,7 @@ const Categories: React.FC = () => {
     );
 
     return (
-        <Fragment>
+        <>
             <div className='d-flex flex-column flex-md-row'>
                 <h1 className='flex-grow-1'>Kategórie</h1>
                 {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
@@ -152,7 +152,7 @@ const Categories: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            {(isFetchingListOfCategories || isDeleteingCategory) && <Spinner />}
+            <Spinner show={isFetchingListOfCategories || isDeleteingCategory} />
             <Modal
                 show={!!category}
                 type='question'
@@ -167,7 +167,7 @@ const Categories: React.FC = () => {
                     setError(undefined);
                 }}
             />
-        </Fragment>
+        </>
     );
 };
 

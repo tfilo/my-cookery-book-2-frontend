@@ -151,7 +151,7 @@ const Tags: React.FC = () => {
                     ))}
                 </tbody>
             </Table>
-            {(isFetchingListOfTags || isDeleteingTag) && <Spinner />}
+            <Spinner show={isFetchingListOfTags || isDeleteingTag} />
             <Modal
                 show={!!tag}
                 type='question'

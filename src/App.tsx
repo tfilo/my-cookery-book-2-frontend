@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, Link } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import './App.scss';
@@ -37,39 +37,22 @@ import Modal from './components/UI/Modal';
 import ConfirmationPage from './pages/ConfirmationPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
-import { RecipeState } from './components/Recipes/Recipes';
 import { useQuery } from '@tanstack/react-query';
+import useRole from './hooks/useRole';
 
-function App() {
-    const authCtx = useContext(AuthContext);
-    const isLoggedIn = authCtx.isLoggedIn;
+const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLoggedIn, username }) => {
+    const { logout: logoutHandler } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
     const [error, setError] = useState<string>();
+    const { hasSome } = useRole();
 
-    const [resetValues, setResetValues] = useState<RecipeState>({
-        searchingText: '',
-        searchingCategory: undefined,
-        selectedTags: [],
-        currentPage: 1,
-        order: Api.RecipeSearchCriteria.OrderEnum.ASC,
-        orderBy: Api.RecipeSearchCriteria.OrderByEnum.Name
-    });
+    const openOffcanvas = useCallback(() => {
+        setExpanded(true);
+    }, []);
 
-    const {
-        data: userInfo,
-        isFetching: isFetchingUserInfo,
-        error: userInfoError
-    } = useQuery({
-        queryKey: ['currentUser'],
-        queryFn: ({ signal }) => authApi.user({ signal }),
-        enabled: isLoggedIn
-    });
-
-    useEffect(() => {
-        if (userInfoError) {
-            formatErrorMessage(userInfoError).then((message) => setError(message));
-        }
-    }, [userInfoError]);
+    const closeOffcanvas = useCallback(() => {
+        setExpanded(false);
+    }, []);
 
     const {
         data: listOfCategories,
@@ -94,29 +77,328 @@ function App() {
         }
     }, [listOfCategoriesError]);
 
+    if (!isLoggedIn) {
+        return null;
+    }
+
+    return (
+        <>
+            <Navbar
+                bg='primary'
+                variant='dark'
+                expand={false}
+                expanded={expanded}
+            >
+                <Container fluid>
+                    <Navbar.Toggle onClick={openOffcanvas} />
+                    <Navbar.Brand
+                        as={Link}
+                        to='/recipes'
+                    >
+                        Kuchárska kniha
+                    </Navbar.Brand>
+                    <Button
+                        onClick={logoutHandler}
+                        aria-label='Odhlásiť sa'
+                    >
+                        <FontAwesomeIcon
+                            className='d-lg-none'
+                            icon={faArrowRightFromBracket}
+                            title='Odhlásiť sa'
+                            aria-hidden='true'
+                        />
+                        <span className='d-none d-lg-inline'>Odhlásiť sa</span>
+                    </Button>
+                    <Navbar.Offcanvas
+                        placement='start'
+                        onHide={closeOffcanvas}
+                    >
+                        <Offcanvas.Header closeButton>
+                            <Offcanvas.Title>{username}</Offcanvas.Title>
+                        </Offcanvas.Header>
+                        <Offcanvas.Body>
+                            <Nav>
+                                <Nav.Link
+                                    to='/profile'
+                                    as={Link}
+                                    onClick={closeOffcanvas}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ width: 20, paddingRight: 8 }}
+                                        icon={faUser}
+                                    />
+                                    Profil
+                                </Nav.Link>
+                                {hasSome(Api.User.RoleEnum.ADMIN) && (
+                                    <Nav.Link
+                                        to='/users'
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                    >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20, paddingRight: 8 }}
+                                            icon={faUsers}
+                                        />
+                                        Používatelia
+                                    </Nav.Link>
+                                )}
+                                <Nav.Link
+                                    to='/categories'
+                                    as={Link}
+                                    onClick={closeOffcanvas}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ width: 20, paddingRight: 8 }}
+                                        icon={faList}
+                                    />
+                                    Kategórie
+                                </Nav.Link>
+                                <Nav.Link
+                                    to='/units'
+                                    as={Link}
+                                    onClick={closeOffcanvas}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ width: 20, paddingRight: 8 }}
+                                        icon={faScaleBalanced}
+                                    />
+                                    Jednotky
+                                </Nav.Link>
+                                <Nav.Link
+                                    to='/tags'
+                                    as={Link}
+                                    onClick={closeOffcanvas}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ width: 20, paddingRight: 8 }}
+                                        icon={faTags}
+                                    />
+                                    Značky
+                                </Nav.Link>
+                                {hasSome(Api.User.RoleEnum.ADMIN, Api.User.RoleEnum.CREATOR) && (
+                                    <Nav.Link
+                                        to='/recipe/create'
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                    >
+                                        <FontAwesomeIcon
+                                            style={{ width: 20, paddingRight: 8 }}
+                                            icon={faPizzaSlice}
+                                        />
+                                        Pridať recept
+                                    </Nav.Link>
+                                )}
+                                <hr />
+                                <Nav.Link
+                                    to='/recipes'
+                                    as={Link}
+                                    onClick={closeOffcanvas}
+                                >
+                                    <FontAwesomeIcon
+                                        style={{ width: 20, paddingRight: 8 }}
+                                        icon={faUtensils}
+                                    />
+                                    Všetky recepty
+                                </Nav.Link>
+                                <hr />
+                                {listOfCategories?.map((category) => (
+                                    <Nav.Link
+                                        to={`/recipes/${category.id}`}
+                                        as={Link}
+                                        onClick={closeOffcanvas}
+                                        key={category.id}
+                                    >
+                                        {category.name}
+                                    </Nav.Link>
+                                ))}
+                            </Nav>
+                        </Offcanvas.Body>
+                    </Navbar.Offcanvas>
+                </Container>
+            </Navbar>
+            <Modal
+                show={!!error}
+                message={error}
+                type='error'
+                onClose={() => {
+                    setError(undefined);
+                }}
+            />
+            <Spinner show={isFetchingListOfCategories} />
+        </>
+    );
+};
+
+const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn }) => {
+    const fallback = isLoggedIn ? '/recipes' : '/signIn';
+
+    const routes = useMemo(
+        () =>
+            isLoggedIn ? (
+                <>
+                    <Route
+                        path='/profile'
+                        element={<ProfilePage />}
+                    />
+                    <Route
+                        path='/users'
+                        element={<UsersPage />}
+                    />
+                    <Route
+                        path='/user'
+                        element={<UserPage />}
+                    />
+                    <Route
+                        path='/user/:id'
+                        element={<UserPage />}
+                    />
+                    <Route
+                        path='/categories'
+                        element={<CategoriesPage />}
+                    />
+                    <Route
+                        path='/category'
+                        element={<CategoryPage />}
+                    />
+                    <Route
+                        path='/category/:id'
+                        element={<CategoryPage />}
+                    />
+                    <Route
+                        path='/tags'
+                        element={<TagsPage />}
+                    />
+                    <Route
+                        path='/tag'
+                        element={<TagPage />}
+                    />
+                    <Route
+                        path='/tag/:id'
+                        element={<TagPage />}
+                    />
+                    <Route
+                        path='/units'
+                        element={<UnitsPage />}
+                    />
+                    <Route
+                        path='/unit/:categoryId/'
+                        element={<UnitPage />}
+                    />
+                    <Route
+                        path='/unit/:categoryId/:unitId'
+                        element={<UnitPage />}
+                    />
+                    <Route
+                        path='/unitCategory'
+                        element={<UnitCategoryPage />}
+                    />
+                    <Route
+                        path='/unitCategory/:id'
+                        element={<UnitCategoryPage />}
+                    />
+                    <Route
+                        path='/recipe/create'
+                        element={<RecipePage />}
+                    />
+                    <Route
+                        path='/recipe/:recipeId'
+                        element={<RecipePage />}
+                    />
+                    <Route
+                        path='/recipe/display/:recipeId'
+                        element={<RecipeViewPage />}
+                    />
+                    <Route
+                        path='/recipes'
+                        element={<RecipesPage />}
+                    />
+                    <Route
+                        path='/recipes/:categoryId/'
+                        element={<RecipesPage />}
+                    />
+                </>
+            ) : (
+                <Route
+                    path='/signIn'
+                    element={<SignInPage />}
+                />
+            ),
+        [isLoggedIn]
+    );
+
+    return (
+        <Container
+            as={'main'}
+            className='py-4'
+        >
+            <Routes>
+                <Route
+                    path='/confirm'
+                    element={<ConfirmationPage />}
+                />
+                <Route
+                    path='/confirm/:username/:key'
+                    element={<ConfirmationPage />}
+                />
+                <Route
+                    path='/resetRequest'
+                    element={<ResetPasswordRequestPage />}
+                />
+                <Route
+                    path='/reset'
+                    element={<ResetPasswordPage />}
+                />
+                <Route
+                    path='/reset/:username/:key'
+                    element={<ResetPasswordPage />}
+                />
+                {routes}
+                <Route
+                    path='*'
+                    element={
+                        <Navigate
+                            replace
+                            to={fallback}
+                        />
+                    }
+                />
+            </Routes>
+        </Container>
+    );
+});
+
+/*
+
+    TODO change routes of recipes to contain all search criteria in path or query (text, page, sort, category, tags)
+    then modify recipes pages to accept this criteria and remove local states with criteria, it will make ability to share not only link to recipe but link to specific criteria too.
+
+*/
+
+const App: React.FC = () => {
+    const { isLoggedIn } = useContext(AuthContext);
+
+    const [error, setError] = useState<string>();
+
+    const {
+        data: userInfo,
+        isFetching: isFetchingUserInfo,
+        error: userInfoError
+    } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: ({ signal }) => authApi.user({ signal }),
+        enabled: isLoggedIn
+    });
+
+    useEffect(() => {
+        if (userInfoError) {
+            formatErrorMessage(userInfoError).then((message) => setError(message));
+        }
+    }, [userInfoError]);
+
     let username = `${userInfo?.firstName ?? ''} ${userInfo?.lastName ?? ''}`.trim();
     if (!username) {
         username = userInfo?.username ?? '';
     }
-
-    const openOffcanvas = () => {
-        setExpanded(true);
-    };
-
-    const closeOffcanvas = () => {
-        setExpanded(false);
-    };
-
-    const logoutHandler = () => {
-        authCtx.logout();
-    };
-
-    const setStateHandler = (categoryId: number) => {
-        setResetValues((prev) => {
-            return { ...prev, searchingCategory: categoryId };
-        });
-        closeOffcanvas();
-    };
 
     return (
         <>
@@ -132,269 +414,11 @@ function App() {
                 Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača. Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
                 vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu záznamu v Local Storage o prihlásenom používateľovi.
             </CookieConsent>
-            {isLoggedIn && (
-                <Navbar
-                    bg='primary'
-                    variant='dark'
-                    expand={false}
-                    expanded={expanded}
-                >
-                    <Container fluid>
-                        <Navbar.Toggle onClick={openOffcanvas} />
-                        <Navbar.Brand
-                            as={Link}
-                            to='/recipes'
-                        >
-                            Kuchárska kniha
-                        </Navbar.Brand>
-                        <Button
-                            onClick={logoutHandler}
-                            aria-label='Odhlásiť sa'
-                        >
-                            <FontAwesomeIcon
-                                className='d-lg-none'
-                                icon={faArrowRightFromBracket}
-                                title='Odhlásiť sa'
-                                aria-hidden='true'
-                            />
-                            <span className='d-none d-lg-inline'>Odhlásiť sa</span>
-                        </Button>
-                        <Navbar.Offcanvas
-                            placement='start'
-                            onHide={closeOffcanvas}
-                        >
-                            <Offcanvas.Header closeButton>
-                                <Offcanvas.Title>{username}</Offcanvas.Title>
-                            </Offcanvas.Header>
-                            <Offcanvas.Body>
-                                <Nav>
-                                    <Nav.Link
-                                        to='/profile'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ width: 20 }}
-                                            icon={faUser}
-                                        />{' '}
-                                        Profil
-                                    </Nav.Link>
-                                    {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
-                                        <Nav.Link
-                                            to='/users'
-                                            as={Link}
-                                            onClick={closeOffcanvas}
-                                        >
-                                            <FontAwesomeIcon
-                                                style={{ width: 20 }}
-                                                icon={faUsers}
-                                            />{' '}
-                                            Používatelia
-                                        </Nav.Link>
-                                    )}
-                                    <Nav.Link
-                                        to='/categories'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ width: 20 }}
-                                            icon={faList}
-                                        />{' '}
-                                        Kategórie
-                                    </Nav.Link>
-                                    <Nav.Link
-                                        to='/units'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ width: 20 }}
-                                            icon={faScaleBalanced}
-                                        />{' '}
-                                        Jednotky
-                                    </Nav.Link>
-                                    <Nav.Link
-                                        to='/tags'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ width: 20 }}
-                                            icon={faTags}
-                                        />{' '}
-                                        Značky
-                                    </Nav.Link>
-                                    {authCtx.userRoles.find(
-                                        (role) => role === Api.User.RoleEnum.ADMIN || role === Api.User.RoleEnum.CREATOR
-                                    ) && (
-                                        <Nav.Link
-                                            to='/recipe/create'
-                                            as={Link}
-                                            onClick={closeOffcanvas}
-                                        >
-                                            <FontAwesomeIcon
-                                                style={{ width: 20 }}
-                                                icon={faPizzaSlice}
-                                            />{' '}
-                                            Pridať recept
-                                        </Nav.Link>
-                                    )}
-                                    <hr />
-                                    <Nav.Link
-                                        to='/recipes'
-                                        as={Link}
-                                        onClick={closeOffcanvas}
-                                    >
-                                        <FontAwesomeIcon
-                                            style={{ width: 20 }}
-                                            icon={faUtensils}
-                                        />{' '}
-                                        Všetky recepty
-                                    </Nav.Link>
-                                    <hr />
-                                    {listOfCategories?.map((category) => (
-                                        <Nav.Link
-                                            to={`/recipes/${category.id}`}
-                                            state={resetValues}
-                                            as={Link}
-                                            onClick={() => setStateHandler(category.id)}
-                                            key={category.id}
-                                        >
-                                            {category.name}
-                                        </Nav.Link>
-                                    ))}
-                                </Nav>
-                            </Offcanvas.Body>
-                        </Navbar.Offcanvas>
-                    </Container>
-                </Navbar>
-            )}
-            <Container
-                as={'main'}
-                className='py-4'
-            >
-                <Routes>
-                    {isLoggedIn ? (
-                        <Fragment>
-                            <Route
-                                path='/profile'
-                                element={<ProfilePage />}
-                            />
-                            <Route
-                                path='/users'
-                                element={<UsersPage />}
-                            />
-                            <Route
-                                path='/user'
-                                element={<UserPage />}
-                            />
-                            <Route
-                                path='/user/:id'
-                                element={<UserPage />}
-                            />
-                            <Route
-                                path='/categories'
-                                element={<CategoriesPage />}
-                            />
-                            <Route
-                                path='/category'
-                                element={<CategoryPage />}
-                            />
-                            <Route
-                                path='/category/:id'
-                                element={<CategoryPage />}
-                            />
-                            <Route
-                                path='/tags'
-                                element={<TagsPage />}
-                            />
-                            <Route
-                                path='/tag'
-                                element={<TagPage />}
-                            />
-                            <Route
-                                path='/tag/:id'
-                                element={<TagPage />}
-                            />
-                            <Route
-                                path='/units'
-                                element={<UnitsPage />}
-                            />
-                            <Route
-                                path='/unit/:categoryId/'
-                                element={<UnitPage />}
-                            />
-                            <Route
-                                path='/unit/:categoryId/:unitId'
-                                element={<UnitPage />}
-                            />
-                            <Route
-                                path='/unitCategory'
-                                element={<UnitCategoryPage />}
-                            />
-                            <Route
-                                path='/unitCategory/:id'
-                                element={<UnitCategoryPage />}
-                            />
-                            <Route
-                                path='/recipe/create'
-                                element={<RecipePage />}
-                            />
-                            <Route
-                                path='/recipe/:recipeId'
-                                element={<RecipePage />}
-                            />
-                            <Route
-                                path='/recipe/display/:recipeId'
-                                element={<RecipeViewPage />}
-                            />
-                            <Route
-                                path='/recipes'
-                                element={<RecipesPage />}
-                            />
-                            <Route
-                                path='/recipes/:categoryId/'
-                                element={<RecipesPage />}
-                            />
-                        </Fragment>
-                    ) : (
-                        <Route
-                            path='/signIn'
-                            element={<SignInPage />}
-                        />
-                    )}
-                    <Route
-                        path='/confirm'
-                        element={<ConfirmationPage />}
-                    />
-                    <Route
-                        path='/confirm/:username/:key'
-                        element={<ConfirmationPage />}
-                    />
-                    <Route
-                        path='/resetRequest'
-                        element={<ResetPasswordRequestPage />}
-                    />
-                    <Route
-                        path='/reset'
-                        element={<ResetPasswordPage />}
-                    />
-                    <Route
-                        path='/reset/:username/:key'
-                        element={<ResetPasswordPage />}
-                    />
-                    <Route
-                        path='*'
-                        element={
-                            <Navigate
-                                replace
-                                to={isLoggedIn ? '/recipes' : '/signIn'}
-                            />
-                        }
-                    />
-                </Routes>
-            </Container>
+            <Navigation
+                isLoggedIn={isLoggedIn}
+                username={username}
+            />
+            <AppRoutes isLoggedIn={isLoggedIn} />
             <Modal
                 show={!!error}
                 message={error}
@@ -403,9 +427,9 @@ function App() {
                     setError(undefined);
                 }}
             />
-            {(isFetchingListOfCategories || isFetchingUserInfo) && <Spinner />}
+            <Spinner show={isFetchingUserInfo} />
         </>
     );
-}
+};
 
 export default App;

@@ -3,7 +3,7 @@ import { pictureApi, recipeApi } from '../utils/apiWrapper';
 import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 type BookmarkContextObj = {
     addRecipe: (recipeId: number) => void;
@@ -26,40 +26,38 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     const match = useMatch('/recipe/display/:recipeId');
     const navigate = useNavigate();
     const [url, setUrl] = useState<string | undefined | null>(undefined);
-    const [title, setTitle] = useState<string>('');
-    const queryClient = useQueryClient();
-
     const isSelected = match?.params?.recipeId === recipeId.toString();
 
+    const { data: recipe, isLoading: isLoadingRecipe } = useQuery({
+        queryKey: ['recipes', recipeId] as const,
+        queryFn: ({ queryKey }) => recipeApi.getRecipe(queryKey[1])
+    });
+
+    const pictureId = recipe?.pictures[0]?.id;
+    const title = recipe?.name;
+
+    const { data: thumbnail, isLoading: isLoadingThumbnail } = useQuery({
+        queryKey: ['thumbnails', pictureId] as const,
+        queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1]!),
+        enabled: !!pictureId
+    });
+
     useEffect(() => {
-        let url: string | null = null;
-        (async () => {
-            try {
-                const recipe = await queryClient.fetchQuery({
-                    queryKey: ['recipes', recipeId] as const,
-                    queryFn: async ({ queryKey }) => recipeApi.getRecipe(queryKey[1])
-                });
-                if (recipe && recipe.pictures.length > 0) {
-                    const data = await queryClient.fetchQuery({
-                        queryKey: ['thumbnails', recipe.pictures[0].id] as const,
-                        queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1])
-                    });
-                    if (data instanceof Blob) {
-                        url = URL.createObjectURL(data);
-                        setUrl(url);
+        if (!isLoadingRecipe && !isLoadingThumbnail) {
+            if (!!thumbnail && thumbnail instanceof Blob) {
+                const url = URL.createObjectURL(thumbnail);
+                setUrl(url);
+
+                return () => {
+                    if (url) {
+                        URL.revokeObjectURL(url);
                     }
-                    setTitle(recipe.name);
-                } else {
-                    setUrl(null);
-                }
-            } catch (e) {}
-        })();
-        return () => {
-            if (url) {
-                URL.revokeObjectURL(url);
+                };
+            } else {
+                setUrl(null);
             }
-        };
-    }, [queryClient, recipeId]);
+        }
+    }, [thumbnail, isLoadingRecipe, isLoadingThumbnail]);
 
     const onClickHandler = useCallback(() => {
         navigate('/recipe/display/' + recipeId);
