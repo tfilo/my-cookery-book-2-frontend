@@ -17,8 +17,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 import { Typeahead } from 'react-bootstrap-typeahead';
-import { recipesUrlWithCategory } from './Recipes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { DEFAULT_PAGE } from '../../utils/constants';
 
 export interface RecipeForm extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'associatedRecipes' | 'tags'> {
     sources: {
@@ -174,7 +174,8 @@ const Recipe: React.FC = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const params = useParams();
-    const { state } = useLocation();
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
     const id = useId();
 
     const methods = useForm<RecipeForm>({
@@ -286,9 +287,7 @@ const Recipe: React.FC = () => {
     } = methods;
 
     const cancelHandler = () => {
-        navigate(recipesUrlWithCategory(state?.searchingCategory), {
-            state
-        });
+        navigate(`/recipes?${searchParams}`);
     };
 
     const { mutate: saveRecipe, isPending: isSavingRecipe } = useMutation({
@@ -311,9 +310,7 @@ const Recipe: React.FC = () => {
                 formatErrorMessage(error).then((message) => setError(message));
             } else if (data) {
                 queryClient.removeQueries({ queryKey: ['recipes', data.id] });
-                navigate(recipesUrlWithCategory(state?.searchingCategory), {
-                    state
-                });
+                navigate(`/recipes?${searchParams}`);
             }
         }
     });
@@ -370,12 +367,8 @@ const Recipe: React.FC = () => {
                 formatErrorMessage(error).then((message) => setError(message));
             } else if (recipeId) {
                 queryClient.removeQueries({ queryKey: ['recipes', recipeId] });
-                navigate(recipesUrlWithCategory(state?.searchingCategory), {
-                    state: {
-                        ...state,
-                        currentPage: 1
-                    }
-                });
+                searchParams.set('page', `${DEFAULT_PAGE}`);
+                navigate(`/recipes?${searchParams}`);
             }
         }
     });

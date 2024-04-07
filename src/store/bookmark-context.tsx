@@ -23,7 +23,7 @@ export const useBookmarContext = () => {
 };
 
 const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
-    const match = useMatch('/recipe/display/:recipeId');
+    const match = useMatch('/recipe/:recipeId');
     const navigate = useNavigate();
     const [url, setUrl] = useState<string | undefined | null>(undefined);
     const isSelected = match?.params?.recipeId === recipeId.toString();
@@ -60,7 +60,7 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     }, [thumbnail, isLoadingRecipe, isLoadingThumbnail]);
 
     const onClickHandler = useCallback(() => {
-        navigate('/recipe/display/' + recipeId);
+        navigate('/recipe/' + recipeId);
     }, [navigate, recipeId]);
 
     if (url === undefined) {
@@ -85,8 +85,8 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
 
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [bookmarks, setBookmars] = useState<number[]>([]);
-    const inRecipes = useMatch('/recipe/display/*');
-    const inSearch = useMatch('/recipes/*');
+    const inRecipes = useMatch('/recipe/:recipeId');
+    const inSearch = useMatch('/recipes');
 
     const showBookmarks = (inRecipes || inSearch) && bookmarks.length > 0;
 

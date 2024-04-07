@@ -5,9 +5,11 @@ const useRole = () => {
     const authCtx = useContext(AuthContext);
 
     const hasSome = useCallback((...roles: string[]) => authCtx.userRoles.some((role) => roles.includes(role)), [authCtx]);
+    const isOwner = useCallback((objectOwnerId: number) => objectOwnerId === authCtx.userId, [authCtx]);
 
     return {
-        hasSome
+        hasSome,
+        isOwner
     };
 };
 

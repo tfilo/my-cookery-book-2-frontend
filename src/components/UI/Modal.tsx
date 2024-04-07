@@ -6,7 +6,7 @@ export type ModalProps = {
     show: boolean;
     onClose: (confirm: boolean) => void;
     title?: string;
-    message?: string;
+    message?: string | string[];
     type?: 'question' | 'info' | 'error';
 };
 
@@ -20,7 +20,17 @@ const Modal: React.FC<ModalProps> = (props) => {
                 <BootstrapModal.Title>{title}</BootstrapModal.Title>
             </BootstrapModal.Header>
             <BootstrapModal.Body>
-                <p>{props.message}</p>
+                <p>
+                    {Array.isArray(props.message) ? (
+                        <ul>
+                            {props.message.map((m) => (
+                                <li>{m}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        props.message
+                    )}
+                </p>
             </BootstrapModal.Body>
             <BootstrapModal.Footer>
                 {type === 'question' ? (

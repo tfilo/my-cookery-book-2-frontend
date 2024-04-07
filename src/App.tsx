@@ -39,6 +39,9 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
 import { useQuery } from '@tanstack/react-query';
 import useRole from './hooks/useRole';
+import { getDefaultSearchParams } from './hooks/useCriteria';
+
+const DEFAULT_ICON_STYLE: React.CSSProperties = { width: 20, paddingRight: 8 } as const;
 
 const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLoggedIn, username }) => {
     const { logout: logoutHandler } = useContext(AuthContext);
@@ -124,7 +127,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={{ width: 20, paddingRight: 8 }}
+                                        style={DEFAULT_ICON_STYLE}
                                         icon={faUser}
                                     />
                                     Profil
@@ -136,7 +139,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                         onClick={closeOffcanvas}
                                     >
                                         <FontAwesomeIcon
-                                            style={{ width: 20, paddingRight: 8 }}
+                                            style={DEFAULT_ICON_STYLE}
                                             icon={faUsers}
                                         />
                                         Používatelia
@@ -148,7 +151,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={{ width: 20, paddingRight: 8 }}
+                                        style={DEFAULT_ICON_STYLE}
                                         icon={faList}
                                     />
                                     Kategórie
@@ -159,7 +162,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={{ width: 20, paddingRight: 8 }}
+                                        style={DEFAULT_ICON_STYLE}
                                         icon={faScaleBalanced}
                                     />
                                     Jednotky
@@ -170,7 +173,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={{ width: 20, paddingRight: 8 }}
+                                        style={DEFAULT_ICON_STYLE}
                                         icon={faTags}
                                     />
                                     Značky
@@ -182,7 +185,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                         onClick={closeOffcanvas}
                                     >
                                         <FontAwesomeIcon
-                                            style={{ width: 20, paddingRight: 8 }}
+                                            style={DEFAULT_ICON_STYLE}
                                             icon={faPizzaSlice}
                                         />
                                         Pridať recept
@@ -190,12 +193,12 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                 )}
                                 <hr />
                                 <Nav.Link
-                                    to='/recipes'
+                                    to={`/recipes?${getDefaultSearchParams()}`}
                                     as={Link}
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={{ width: 20, paddingRight: 8 }}
+                                        style={DEFAULT_ICON_STYLE}
                                         icon={faUtensils}
                                     />
                                     Všetky recepty
@@ -203,7 +206,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                 <hr />
                                 {listOfCategories?.map((category) => (
                                     <Nav.Link
-                                        to={`/recipes/${category.id}`}
+                                        to={`/recipes?${getDefaultSearchParams(category.id)}`}
                                         as={Link}
                                         onClick={closeOffcanvas}
                                         key={category.id}
@@ -301,19 +304,15 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
                         element={<RecipePage />}
                     />
                     <Route
-                        path='/recipe/:recipeId'
+                        path='/recipe/edit/:recipeId'
                         element={<RecipePage />}
                     />
                     <Route
-                        path='/recipe/display/:recipeId'
+                        path='/recipe/:recipeId'
                         element={<RecipeViewPage />}
                     />
                     <Route
                         path='/recipes'
-                        element={<RecipesPage />}
-                    />
-                    <Route
-                        path='/recipes/:categoryId/'
                         element={<RecipesPage />}
                     />
                 </>
@@ -366,13 +365,6 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
         </Container>
     );
 });
-
-/*
-
-    TODO change routes of recipes to contain all search criteria in path or query (text, page, sort, category, tags)
-    then modify recipes pages to accept this criteria and remove local states with criteria, it will make ability to share not only link to recipe but link to specific criteria too.
-
-*/
 
 const App: React.FC = () => {
     const { isLoggedIn } = useContext(AuthContext);

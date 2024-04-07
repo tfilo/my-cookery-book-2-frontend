@@ -16,7 +16,6 @@ import SourceView from './SourceView';
 import ServeView from './ServeView';
 import AuthorView from './AuthorView';
 import Spinner from '../../UI/Spinner';
-import { recipesUrlWithCategory } from '../Recipes';
 import { useBookmarContext } from '../../../store/bookmark-context';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -42,7 +41,8 @@ const RecipeView: React.FC = () => {
     const [associatedRecipes, setAssociatedRecipes] = useState<RecipesWithUrlInPictures[]>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
-    const { state } = useLocation();
+    const { search } = useLocation();
+    const searchParams = new URLSearchParams(search);
     const queryClient = useQueryClient();
     const { contains, addRecipe, removeRecipe } = useBookmarContext();
 
@@ -150,9 +150,7 @@ const RecipeView: React.FC = () => {
                     aria-label='späť'
                     type='button'
                     onClick={() => {
-                        navigate(recipesUrlWithCategory(state?.searchingCategory), {
-                            state
-                        });
+                        navigate(`/recipes?${searchParams}`);
                     }}
                 >
                     <FontAwesomeIcon icon={faCircleArrowLeft} />
