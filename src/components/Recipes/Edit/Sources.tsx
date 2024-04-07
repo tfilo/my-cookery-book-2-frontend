@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import InputWithBtn from '../UI/InputWithBtn';
+import InputWithBtn from '../../UI/InputWithBtn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { RecipeForm } from './Recipe';

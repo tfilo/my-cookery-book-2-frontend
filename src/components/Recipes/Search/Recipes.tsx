@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Api } from '../../openapi';
-import { categoryApi, recipeApi, tagApi } from '../../utils/apiWrapper';
-import Modal from '../UI/Modal';
-import { formatErrorMessage } from '../../utils/errorMessages';
+import { Api } from '../../../openapi';
+import { categoryApi, recipeApi, tagApi } from '../../../utils/apiWrapper';
+import Modal from '../../UI/Modal';
+import { formatErrorMessage } from '../../../utils/errorMessages';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
-import Spinner from '../UI/Spinner';
+import Spinner from '../../UI/Spinner';
 import { useQuery } from '@tanstack/react-query';
-import useRole from '../../hooks/useRole';
-import useCriteria from '../../hooks/useCriteria';
-import RecipesPagination from './RecipeView/RecipesPagination';
-import RecipesCriteria from './RecipeView/RecipesCriteria';
-import RecipesGrid from './RecipeView/RecipesGrid';
+import useRole from '../../../hooks/useRole';
+import useCriteria from '../../../hooks/useCriteria';
+import RecipesPagination from './RecipesPagination';
+import RecipesCriteria from './RecipesCriteria';
+import RecipesGrid from './RecipesGrid';
 
 const Recipes: React.FC = () => {
     const navigate = useNavigate();

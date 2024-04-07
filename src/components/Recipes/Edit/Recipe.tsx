@@ -1,24 +1,24 @@
 import React, { useCallback, useId, useState } from 'react';
 import * as yup from 'yup';
-import { Api } from '../../openapi';
-import Modal from '../UI/Modal';
-import { formatErrorMessage } from '../../utils/errorMessages';
-import Spinner from '../UI/Spinner';
+import { Api } from '../../../openapi';
+import Modal from '../../UI/Modal';
+import { formatErrorMessage } from '../../../utils/errorMessages';
+import Spinner from '../../UI/Spinner';
 import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { categoryApi, recipeApi, tagApi, unitApi, unitCategoryApi } from '../../utils/apiWrapper';
-import Input from '../UI/Input';
+import { categoryApi, recipeApi, tagApi, unitApi, unitCategoryApi } from '../../../utils/apiWrapper';
+import Input from '../../UI/Input';
 import { Button, Form, Stack } from 'react-bootstrap';
-import Select, { SelectGroupOptions } from '../UI/Select';
+import Select, { SelectGroupOptions } from '../../UI/Select';
 import RecipeSections from './RecipeSections';
 import Sources from './Sources';
-import Textarea from '../UI/Textarea';
+import Textarea from '../../UI/Textarea';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Pictures from './Pictures';
 import AssociatedRecipes from './AssociatedRecipes';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { DEFAULT_PAGE } from '../../utils/constants';
+import { DEFAULT_PAGE } from '../../../utils/constants';
 
 export interface RecipeForm extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'associatedRecipes' | 'tags'> {
     sources: {

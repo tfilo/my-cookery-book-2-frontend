@@ -8,6 +8,10 @@ export const EMPTY_CATEGORY_OPTION = -1 as const;
 export const DEFAULT_ORDER_BY = Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt as const;
 export const DEFAULT_ORDER = Api.RecipeSearchCriteria.OrderEnum.DESC as const;
 
+export const CARD_BASE_STYLE: React.CSSProperties = {
+    backgroundColor: 'rgba(0,0,0,0.5)'
+} as const;
+
 export enum CriteriaKeys {
     search = 'search',
     categoryId = 'categoryId',

@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { SelectGroupOptions } from '../../UI/Select';
 import Ingredient from './Ingredient';
-import { RecipeForm } from '../Recipe';
+import { RecipeForm } from '../Edit/Recipe';
 
 type IngredientsProps = {
     recipeSectionName: string;

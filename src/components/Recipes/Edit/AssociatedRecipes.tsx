@@ -1,15 +1,15 @@
 import React, { useState, useId } from 'react';
 import { Form } from 'react-bootstrap';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
-import { Api } from '../../openapi';
-import { recipeApi } from '../../utils/apiWrapper';
+import { Api } from '../../../openapi';
+import { recipeApi } from '../../../utils/apiWrapper';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RecipeForm } from './Recipe';
 import { get } from 'lodash';
-import Spinner from '../UI/Spinner';
-import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../UI/Modal';
+import Spinner from '../../UI/Spinner';
+import { formatErrorMessage } from '../../../utils/errorMessages';
+import Modal from '../../UI/Modal';
 import { useQueryClient } from '@tanstack/react-query';
 
 const AssociatedRecipes: React.FC = () => {

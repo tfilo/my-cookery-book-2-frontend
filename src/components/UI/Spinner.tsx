@@ -1,7 +1,12 @@
 import React from 'react';
 import { Spinner as BootstrapSpinner } from 'react-bootstrap';
 
-const Spinner: React.FC<{ show: boolean }> = React.memo(({ show }) => {
+type SpinnerProps = {
+    show: boolean;
+    light?: boolean;
+};
+
+const Spinner: React.FC<SpinnerProps> = React.memo(({ show, light = false }) => {
     if (!show) {
         return null;
     }
@@ -11,6 +16,7 @@ const Spinner: React.FC<{ show: boolean }> = React.memo(({ show }) => {
             <BootstrapSpinner
                 animation='border'
                 role='status'
+                style={light ? { color: 'white' } : undefined}
             >
                 <span className='visually-hidden'>Načítava sa...</span>
             </BootstrapSpinner>

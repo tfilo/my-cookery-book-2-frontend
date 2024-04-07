@@ -4,13 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { Api } from '../../../openapi';
-import RecipeThumbnail from './RecipeThumbnail';
+import RecipeThumbnail from '../RecipeThumbnail';
 import useRole from '../../../hooks/useRole';
 import useCriteria from '../../../hooks/useCriteria';
-
-const CARD_BASE_STYLE: React.CSSProperties = {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-} as const;
+import { CARD_BASE_STYLE } from '../../../utils/constants';
 
 type RecipeCardProps = {
     recipe: Api.SimpleRecipe;

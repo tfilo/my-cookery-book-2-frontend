@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import defImg from '../../../assets/defaultRecipe.jpg';
+import defImg from '../../assets/defaultRecipe.jpg';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from 'react-bootstrap';
-import { pictureApi } from '../../../utils/apiWrapper';
+import { pictureApi } from '../../utils/apiWrapper';
 
 const BASE_THUMBNAIL_STYLE: React.CSSProperties = {
     aspectRatio: 1,
