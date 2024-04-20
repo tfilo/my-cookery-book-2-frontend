@@ -6,7 +6,7 @@ import { faMagnifyingGlass, faFilter, faArrowDownZA, faArrowDownAZ, faGripVertic
 import { debounce } from 'lodash';
 import { Api } from '../../../openapi';
 import useCriteria from '../../../hooks/useCriteria';
-import { orderByLabels } from '../../../translate/orderByLabels';
+import { getOrderByLabel } from '../../../localisations/localisations';
 import { EMPTY_CATEGORY_OPTION } from '../../../utils/constants';
 
 type RecipesCriteriaProps = {
@@ -105,7 +105,7 @@ const RecipesCriteria: React.FC<RecipesCriteriaProps> = ({ tags, categories }) =
                                 }}
                                 active={criteria.orderBy === value}
                             >
-                                {orderByLabels[value]}
+                                {getOrderByLabel[value]}
                             </Dropdown.Item>
                         ))}
                     </Dropdown.Menu>

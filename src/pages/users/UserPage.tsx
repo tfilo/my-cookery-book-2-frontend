@@ -9,7 +9,7 @@ import { get } from 'lodash';
 import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import { roleLabels } from '../../translate/roleLabel';
+import { getRoleLabel } from '../../localisations/localisations';
 import Input from '../../components/UI/Input';
 import Modal from '../../components/UI/Modal';
 import Spinner from '../../components/UI/Spinner';
@@ -120,7 +120,7 @@ const UserPage: React.FC = () => {
                     const receivedRoles = data.roles.map((role) => {
                         return {
                             value: role,
-                            name: roleLabels[role]
+                            name: getRoleLabel[role]
                         };
                     });
 

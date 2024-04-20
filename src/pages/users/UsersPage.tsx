@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import { roleLabels } from '../../translate/roleLabel';
+import { getRoleLabel } from '../../localisations/localisations';
 import Modal from '../../components/UI/Modal';
 import Spinner from '../../components/UI/Spinner';
 
@@ -103,7 +103,7 @@ const UsersPage: React.FC = () => {
                             <td className='align-middle'>
                                 {user.roles
                                     .map((role) => {
-                                        return roleLabels[role];
+                                        return getRoleLabel[role];
                                     })
                                     .join(', ')}
                             </td>

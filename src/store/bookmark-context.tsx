@@ -4,6 +4,10 @@ import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+
+const BOOKMARKS_KEY = 'bookmarks' as const;
 
 type BookmarkContextObj = {
     addRecipe: (recipeId: number) => void;
@@ -20,6 +24,22 @@ export const useBookmarContext = () => {
         throw new Error('useBookmarContext must be used within BookmarkContextProvider');
     }
     return context;
+};
+
+const CleanBookmarksButton: React.FC<{ clear: () => void }> = ({ clear }) => {
+    return (
+        <button
+            className='btn btn-outline-danger rounded-circle p-0 m-0 pe-auto'
+            onClick={clear}
+            title='Odstrániť záložky'
+            style={{ width: '32px', height: '32px', alignSelf: 'center', display: 'flex', alignItems: 'center' }}
+        >
+            <FontAwesomeIcon
+                icon={faXmark}
+                style={{ fontSize: '1.5rem', marginLeft: 'auto', marginRight: 'auto' }}
+            />
+        </button>
+    );
 };
 
 const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
@@ -47,12 +67,7 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
             if (!!thumbnail && thumbnail instanceof Blob) {
                 const url = URL.createObjectURL(thumbnail);
                 setUrl(url);
-
-                return () => {
-                    if (url) {
-                        URL.revokeObjectURL(url);
-                    }
-                };
+                return () => URL.revokeObjectURL(url);
             } else {
                 setUrl(null);
             }
@@ -83,8 +98,19 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     );
 };
 
+const getStoredBookmarks = () => {
+    const storedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
+    if (storedBookmarks) {
+        const splittedStringIds = storedBookmarks.split(',');
+        const mappedIds = splittedStringIds.map((id) => +id);
+        const numericIds = mappedIds.filter((id) => !isNaN(id));
+        return numericIds;
+    }
+    return [];
+};
+
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-    const [bookmarks, setBookmars] = useState<number[]>([]);
+    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks());
     const inRecipes = useMatch('/recipe/:recipeId');
     const inSearch = useMatch('/recipes');
 
@@ -127,6 +153,10 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
         [addRecipe, removeRecipe, clear, contains]
     );
 
+    useEffect(() => {
+        localStorage.setItem(BOOKMARKS_KEY, bookmarks.join(','));
+    }, [bookmarks]);
+
     return (
         <>
             <BookmarkContext.Provider value={contextValue}>
@@ -137,6 +167,7 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
                     direction='horizontal'
                     className='container-fluid position-fixed bottom-0 end-0 start-0 p-3 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto pe-none'
                 >
+                    <CleanBookmarksButton clear={clear} />
                     {bookmarks.map((recipeId) => {
                         return (
                             <Bookmark
