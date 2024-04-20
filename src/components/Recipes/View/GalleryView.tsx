@@ -51,32 +51,36 @@ const GalleryView: React.FC<GalleryViewProps> = ({ pictureId, pictures, onClose 
     const currentPicture = pictures[currentPictureIdx];
 
     const nextPictureHandler = useCallback(() => {
-        const next = currentPictureIdx + 1;
-        if (next >= pictures.length) {
-            setPicture({
-                id: pictures[0].id,
-                url: null
-            });
-        } else {
-            setPicture({
-                id: pictures[next].id,
-                url: null
-            });
+        if (pictures.length > 1) {
+            const next = currentPictureIdx + 1;
+            if (next >= pictures.length) {
+                setPicture({
+                    id: pictures[0].id,
+                    url: null
+                });
+            } else {
+                setPicture({
+                    id: pictures[next].id,
+                    url: null
+                });
+            }
         }
     }, [currentPictureIdx, pictures]);
 
     const prevPictureHandler = useCallback(() => {
-        const prev = currentPictureIdx - 1;
-        if (prev < 0) {
-            setPicture({
-                id: pictures[pictures.length - 1].id,
-                url: null
-            });
-        } else {
-            setPicture({
-                id: pictures[prev].id,
-                url: null
-            });
+        if (pictures.length > 1) {
+            const prev = currentPictureIdx - 1;
+            if (prev < 0) {
+                setPicture({
+                    id: pictures[pictures.length - 1].id,
+                    url: null
+                });
+            } else {
+                setPicture({
+                    id: pictures[prev].id,
+                    url: null
+                });
+            }
         }
     }, [currentPictureIdx, pictures]);
 

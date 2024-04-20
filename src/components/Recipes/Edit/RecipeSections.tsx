@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus, faCircleMinus, faCircleChevronDown, faCircleChevronUp } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../../UI/Textarea';
 import { SelectGroupOptions } from '../../UI/Select';
-import Ingredients from '../Ingredients/Ingredients';
-import { RecipeForm } from './Recipe';
+import Ingredients from './Ingredients/Ingredients';
+import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 
 type RecipeSectionsProps = {
     units: SelectGroupOptions[];

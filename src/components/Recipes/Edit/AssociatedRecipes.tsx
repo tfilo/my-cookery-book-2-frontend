@@ -5,7 +5,7 @@ import { Api } from '../../../openapi';
 import { recipeApi } from '../../../utils/apiWrapper';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
-import { RecipeForm } from './Recipe';
+import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 import { get } from 'lodash';
 import Spinner from '../../UI/Spinner';
 import { formatErrorMessage } from '../../../utils/errorMessages';

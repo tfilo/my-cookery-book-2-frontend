@@ -3,22 +3,22 @@ import { Navigate, Route, Routes, Link } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import './App.scss';
 import { AuthContext } from './store/auth-context';
-import SignInPage from './pages/SignInPage';
-import UsersPage from './pages/UsersPage';
-import UnitsPage from './pages/UnitsPage';
-import TagsPage from './pages/TagsPage';
-import ProfilePage from './pages/ProfilePage';
-import CategoryPage from './pages/CategoryPage';
-import RecipePage from './pages/RecipePage';
+import SignInPage from './pages/signIn/SignInPage';
+import UsersPage from './pages/users/UsersPage';
+import UnitCategoriesPage from './pages/unitCategories/UnitCategoriesPage';
+import TagsPage from './pages/tags/TagsPage';
+import ProfilePage from './pages/profile/ProfilePage';
+import CategoryPage from './pages/categories/CategoryPage';
+import RecipeEditPage from './pages/recipes/RecipeEditPage';
 import { authApi, categoryApi } from './utils/apiWrapper';
 import { Api } from './openapi';
-import UserPage from './pages/UserPage';
-import CategoriesPage from './pages/CategoriesPage';
-import TagPage from './pages/TagPage';
-import UnitCategoryPage from './pages/UnitCategoryPage';
-import UnitPage from './pages/UnitPage';
-import RecipesPage from './pages/RecipesPage';
-import RecipeViewPage from './pages/RecipeViewPage';
+import UserPage from './pages/users/UserPage';
+import CategoriesPage from './pages/categories/CategoriesPage';
+import TagPage from './pages/tags/TagPage';
+import UnitCategoryPage from './pages/unitCategories/UnitCategoryPage';
+import UnitPage from './pages/unitCategories/UnitPage';
+import RecipeSearchPage from './pages/recipes/RecipeSearchPage';
+import RecipeViewPage from './pages/recipes/RecipeViewPage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faArrowRightFromBracket,
@@ -34,9 +34,9 @@ import CookieConsent from 'react-cookie-consent';
 import { formatErrorMessage } from './utils/errorMessages';
 import Spinner from './components/UI/Spinner';
 import Modal from './components/UI/Modal';
-import ConfirmationPage from './pages/ConfirmationPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import ResetPasswordRequestPage from './pages/ResetPasswordRequestPage';
+import ConfirmationPage from './pages/signIn/ConfirmationPage';
+import ResetPasswordPage from './pages/signIn/ResetPasswordPage';
+import ResetPasswordRequestPage from './pages/signIn/ResetPasswordRequestPage';
 import { useQuery } from '@tanstack/react-query';
 import useRole from './hooks/useRole';
 import { getDefaultSearchParams } from './hooks/useCriteria';
@@ -281,7 +281,7 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
                     />
                     <Route
                         path='/units'
-                        element={<UnitsPage />}
+                        element={<UnitCategoriesPage />}
                     />
                     <Route
                         path='/unit/:categoryId/'
@@ -301,11 +301,11 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
                     />
                     <Route
                         path='/recipe/create'
-                        element={<RecipePage />}
+                        element={<RecipeEditPage />}
                     />
                     <Route
                         path='/recipe/edit/:recipeId'
-                        element={<RecipePage />}
+                        element={<RecipeEditPage />}
                     />
                     <Route
                         path='/recipe/:recipeId'
@@ -313,7 +313,7 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
                     />
                     <Route
                         path='/recipes'
-                        element={<RecipesPage />}
+                        element={<RecipeSearchPage />}
                     />
                 </>
             ) : (
