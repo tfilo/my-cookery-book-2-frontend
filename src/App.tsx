@@ -405,6 +405,8 @@ const App: React.FC = () => {
                 Aplikácia pre svoju funkčnosť vyžaduje uložiť v Local Storage prehliadača informáciu o aktuálne prihlásenom používateľovi.
                 Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača. Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
                 vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu záznamu v Local Storage o prihlásenom používateľovi.
+                Prihlásený používateľ si môže uložiť záložky na recepty, tie sa ukladajú do Local Storage prehliadača. Pri odhlásení dôjde k
+                ich odstráneniu.
             </CookieConsent>
             <Navigation
                 isLoggedIn={isLoggedIn}

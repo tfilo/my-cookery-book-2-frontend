@@ -72,8 +72,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
         setToken(null);
         setRefreshToken(null);
         setUserId(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
+        localStorage.clear();
         delete window.token;
         queryClient.removeQueries({
             queryKey: ['currentUser']

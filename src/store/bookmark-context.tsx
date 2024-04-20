@@ -6,6 +6,7 @@ import { useMatch, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { AuthContext } from './auth-context';
 
 const BOOKMARKS_KEY = 'bookmarks' as const;
 
@@ -98,8 +99,11 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     );
 };
 
-const getStoredBookmarks = () => {
-    const storedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
+const getStoredBookmarks = (userId: number | null) => {
+    if (userId === null) {
+        return [];
+    }
+    const storedBookmarks = localStorage.getItem(`${BOOKMARKS_KEY}_${userId}`);
     if (storedBookmarks) {
         const splittedStringIds = storedBookmarks.split(',');
         const mappedIds = splittedStringIds.map((id) => +id);
@@ -109,8 +113,17 @@ const getStoredBookmarks = () => {
     return [];
 };
 
+const setStoredBookmarks = (userId: number, bookmarks: number[]) => {
+    if (bookmarks.length === 0) {
+        localStorage.removeItem(`${BOOKMARKS_KEY}_${userId}`);
+    } else {
+        localStorage.setItem(`${BOOKMARKS_KEY}_${userId}`, bookmarks.join(','));
+    }
+};
+
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks());
+    const { userId } = useContext(AuthContext);
+    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks(userId));
     const inRecipes = useMatch('/recipe/:recipeId');
     const inSearch = useMatch('/recipes');
 
@@ -154,8 +167,16 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
     );
 
     useEffect(() => {
-        localStorage.setItem(BOOKMARKS_KEY, bookmarks.join(','));
-    }, [bookmarks]);
+        if (userId) {
+            setBookmars(getStoredBookmarks(userId));
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) {
+            setStoredBookmarks(userId, bookmarks);
+        }
+    }, [bookmarks, userId]);
 
     return (
         <>
