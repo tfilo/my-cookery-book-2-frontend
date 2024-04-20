@@ -6,7 +6,6 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.scss';
 import App from './App';
 import AuthContextProvider from './store/auth-context';
-import { BookmarkContextProvider } from './store/bookmark-context';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -22,9 +21,7 @@ root.render(
         <QueryClientProvider client={queryClient}>
             <AuthContextProvider>
                 <BrowserRouter>
-                    <BookmarkContextProvider>
-                        <App />
-                    </BookmarkContextProvider>
+                    <App />
                 </BrowserRouter>
             </AuthContextProvider>
             <ReactQueryDevtools initialIsOpen={false} />

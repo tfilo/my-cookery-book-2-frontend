@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Navigate, Route, Routes, Link } from 'react-router-dom';
+import { Navigate, Route, Routes, Link, Outlet } from 'react-router-dom';
 import { Button, Container, Nav, Navbar, Offcanvas } from 'react-bootstrap';
 import './App.scss';
 import { AuthContext } from './store/auth-context';
@@ -40,6 +40,8 @@ import ResetPasswordRequestPage from './pages/signIn/ResetPasswordRequestPage';
 import { useQuery } from '@tanstack/react-query';
 import useRole from './hooks/useRole';
 import { getDefaultSearchParams } from './hooks/useCriteria';
+import { BookmarkContextProvider } from './store/bookmark-context';
+import ConsentPage from './pages/consent/ConsentPage';
 
 const DEFAULT_ICON_STYLE: React.CSSProperties = { width: 20, paddingRight: 8 } as const;
 
@@ -238,84 +240,100 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
     const routes = useMemo(
         () =>
             isLoggedIn ? (
-                <>
+                <Route
+                    path='/'
+                    element={
+                        <BookmarkContextProvider>
+                            <Outlet />
+                        </BookmarkContextProvider>
+                    }
+                >
                     <Route
-                        path='/profile'
+                        index={true}
+                        element={
+                            <Navigate
+                                replace
+                                to={'recipes'}
+                            />
+                        }
+                    />
+                    <Route
+                        path='profile'
                         element={<ProfilePage />}
                     />
                     <Route
-                        path='/users'
+                        path='users'
                         element={<UsersPage />}
                     />
                     <Route
-                        path='/user'
+                        path='user'
                         element={<UserPage />}
                     />
                     <Route
-                        path='/user/:id'
+                        path='user/:id'
                         element={<UserPage />}
                     />
                     <Route
-                        path='/categories'
+                        path='categories'
                         element={<CategoriesPage />}
                     />
                     <Route
-                        path='/category'
+                        path='category'
                         element={<CategoryPage />}
                     />
                     <Route
-                        path='/category/:id'
+                        path='category/:id'
                         element={<CategoryPage />}
                     />
                     <Route
-                        path='/tags'
+                        path='tags'
                         element={<TagsPage />}
                     />
                     <Route
-                        path='/tag'
+                        path='tag'
                         element={<TagPage />}
                     />
                     <Route
-                        path='/tag/:id'
+                        path='tag/:id'
                         element={<TagPage />}
                     />
                     <Route
-                        path='/units'
+                        path='units'
                         element={<UnitCategoriesPage />}
                     />
                     <Route
-                        path='/unit/:categoryId/'
+                        path='unit/:categoryId/'
                         element={<UnitPage />}
                     />
                     <Route
-                        path='/unit/:categoryId/:unitId'
+                        path='unit/:categoryId/:unitId'
                         element={<UnitPage />}
                     />
                     <Route
-                        path='/unitCategory'
+                        path='unitCategory'
                         element={<UnitCategoryPage />}
                     />
                     <Route
-                        path='/unitCategory/:id'
+                        path='unitCategory/:id'
                         element={<UnitCategoryPage />}
                     />
                     <Route
-                        path='/recipe/create'
+                        path='recipe/create'
                         element={<RecipeEditPage />}
                     />
                     <Route
-                        path='/recipe/edit/:recipeId'
+                        path='recipe/edit/:recipeId'
                         element={<RecipeEditPage />}
                     />
                     <Route
-                        path='/recipe/:recipeId'
+                        path='recipe/:recipeId'
                         element={<RecipeViewPage />}
                     />
                     <Route
-                        path='/recipes'
+                        path='recipes'
                         element={<RecipeSearchPage />}
                     />
-                </>
+                </Route>
             ) : (
                 <Route
                     path='/signIn'
@@ -351,6 +369,10 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
                     path='/reset/:username/:key'
                     element={<ResetPasswordPage />}
                 />
+                <Route
+                    path='/consent'
+                    element={<ConsentPage />}
+                />
                 {routes}
                 <Route
                     path='*'
@@ -367,7 +389,7 @@ const AppRoutes: React.FC<{ isLoggedIn: boolean }> = React.memo(({ isLoggedIn })
 });
 
 const App: React.FC = () => {
-    const { isLoggedIn } = useContext(AuthContext);
+    const { isLoggedIn, setHasCookieConsent } = useContext(AuthContext);
 
     const [error, setError] = useState<string>();
 
@@ -392,21 +414,52 @@ const App: React.FC = () => {
         username = userInfo?.username ?? '';
     }
 
+    const onAcceptHandler = useCallback(() => {
+        setHasCookieConsent(true);
+    }, [setHasCookieConsent]);
+
+    const onDeclineHandler = useCallback(() => {
+        setHasCookieConsent(false);
+    }, [setHasCookieConsent]);
+
     return (
         <>
             <CookieConsent
                 location='bottom'
                 buttonText='Súhlasím'
+                declineButtonText='Nesúhlasím'
                 containerClasses='bg-primary'
                 buttonClasses='btn btn-warning rounded m-2'
+                declineButtonClasses='btn btn-danger rounded m-2'
+                buttonWrapperClasses='d-flex flex-column'
+                sameSite='Lax'
+                cookieSecurity={false}
+                enableDeclineButton={true}
                 disableButtonStyles={true}
+                setDeclineCookie={false}
+                flipButtons={true}
                 overlay={true}
+                onAccept={onAcceptHandler}
+                onDecline={onDeclineHandler}
             >
-                Aplikácia pre svoju funkčnosť vyžaduje uložiť v Local Storage prehliadača informáciu o aktuálne prihlásenom používateľovi.
-                Zapamätanie súhlasu aplikácia ukladá do Cookies prehliadača. Používaním aplikácie súhlasíte s ukladaním týchto informácií vo
-                vašom internetovom prehliadači. Pri odhlásení dôjde k vymazaniu záznamu v Local Storage o prihlásenom používateľovi.
-                Prihlásený používateľ si môže uložiť záložky na recepty, tie sa ukladajú do Local Storage prehliadača. Pri odhlásení dôjde k
-                ich odstráneniu.
+                <h2>Cookies</h2>
+                <p>
+                    Udelením súhlasu umožníte aplikácií ukladať informácie do lokálneho úložiska (localStorage) prehliadača. Aplikácia po
+                    udelení súhlasu umožňuje zapamätať si práve prihláseného používateľa. Vďaka tomu sa nebudete musieť pri opätovnej
+                    návšteve prihlasovať. Lokálne úložisko sa zároveň môže používať na uloženie "záložiek" na recepty. Uložené záložky sa
+                    viažú na prehliadač a nie používateľské konto. Po odhlásení budú tieto údaje odstránené.
+                </p>
+                <p>Informácia o udelenom súhlase sa ukladá do cookies prehliadača a je platná na 1 rok od udelenia súhlasu.</p>
+                <p>
+                    Svoje rozhodnutie môžete zmeniť v{' '}
+                    <Link
+                        to={'/consent'}
+                        className='text-white text-decoration-underline'
+                    >
+                        nastaveniach cookies
+                    </Link>{' '}
+                    alebo po prihlásení v profile používateľa.
+                </p>
             </CookieConsent>
             <Navigation
                 isLoggedIn={isLoggedIn}

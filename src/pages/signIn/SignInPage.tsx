@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,6 +12,8 @@ import Input from '../../components/UI/Input';
 import Checkbox from '../../components/UI/Checkbox';
 import Modal from '../../components/UI/Modal';
 import Spinner from '../../components/UI/Spinner';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCookieBite } from '@fortawesome/free-solid-svg-icons';
 
 type SignInForm = Api.LoginRequest & {
     rememberMe: boolean;
@@ -21,11 +23,13 @@ const schema = yup
     .object({
         username: yup.string().trim().max(50, 'Musí byť maximálne 50 znakov').required('Povinná položka'),
         password: yup.string().trim().max(255, 'Musí byť maximálne 255 znakov').required('Povinná položka'),
-        rememberMe: yup.boolean().required('Povinná položka')
+        rememberMe: yup.boolean().default(false).required('Povinná položka')
     })
     .required();
 
 const SignInPage: React.FC = () => {
+    const navigate = useNavigate();
+
     const methods = useForm<SignInForm>({
         resolver: yupResolver(schema)
     });
@@ -72,6 +76,7 @@ const SignInPage: React.FC = () => {
                             <Checkbox
                                 name='rememberMe'
                                 label='Zapamätať prihlásenie'
+                                disabled={!authCtx.hasCookieConsent}
                             />
                             <Link
                                 to={'/resetRequest'}
@@ -80,12 +85,21 @@ const SignInPage: React.FC = () => {
                                 <p style={{ color: '#b4b4b4' }}>Zabudol si heslo?</p>
                             </Link>
                         </div>
-                        <Button
-                            variant='primary'
-                            type='submit'
-                        >
-                            Prihlásiť sa
-                        </Button>
+                        <div className='d-flex flex-column flex-md-row justify-content-between'>
+                            <Button
+                                variant='primary'
+                                type='submit'
+                            >
+                                Prihlásiť sa
+                            </Button>
+                            <Button
+                                variant='secondary'
+                                type='button'
+                                onClick={() => navigate('/consent')}
+                            >
+                                <FontAwesomeIcon icon={faCookieBite} /> Cookies
+                            </Button>
+                        </div>
                         <Spinner show={isSubmitting} />
                     </Form>
                 </FormProvider>

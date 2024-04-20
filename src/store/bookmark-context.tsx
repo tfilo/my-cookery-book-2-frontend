@@ -99,11 +99,8 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     );
 };
 
-const getStoredBookmarks = (userId: number | null) => {
-    if (userId === null) {
-        return [];
-    }
-    const storedBookmarks = localStorage.getItem(`${BOOKMARKS_KEY}_${userId}`);
+const getStoredBookmarks = () => {
+    const storedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
     if (storedBookmarks) {
         const splittedStringIds = storedBookmarks.split(',');
         const mappedIds = splittedStringIds.map((id) => +id);
@@ -113,17 +110,17 @@ const getStoredBookmarks = (userId: number | null) => {
     return [];
 };
 
-const setStoredBookmarks = (userId: number, bookmarks: number[]) => {
+const setStoredBookmarks = (bookmarks: number[], hasCookieConsent: boolean) => {
     if (bookmarks.length === 0) {
-        localStorage.removeItem(`${BOOKMARKS_KEY}_${userId}`);
-    } else {
-        localStorage.setItem(`${BOOKMARKS_KEY}_${userId}`, bookmarks.join(','));
+        localStorage.removeItem(BOOKMARKS_KEY);
+    } else if (hasCookieConsent) {
+        localStorage.setItem(BOOKMARKS_KEY, bookmarks.join(','));
     }
 };
 
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-    const { userId } = useContext(AuthContext);
-    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks(userId));
+    const { userId, hasCookieConsent } = useContext(AuthContext);
+    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks());
     const inRecipes = useMatch('/recipe/:recipeId');
     const inSearch = useMatch('/recipes');
 
@@ -167,16 +164,8 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
     );
 
     useEffect(() => {
-        if (userId) {
-            setBookmars(getStoredBookmarks(userId));
-        }
-    }, [userId]);
-
-    useEffect(() => {
-        if (userId) {
-            setStoredBookmarks(userId, bookmarks);
-        }
-    }, [bookmarks, userId]);
+        setStoredBookmarks(bookmarks, hasCookieConsent);
+    }, [bookmarks, hasCookieConsent, userId]);
 
     return (
         <>

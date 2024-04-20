@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { Button, Form } from 'react-bootstrap';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -11,6 +11,8 @@ import Modal from '../../components/UI/Modal';
 import Spinner from '../../components/UI/Spinner';
 import Input from '../../components/UI/Input';
 import Checkbox from '../../components/UI/Checkbox';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCookieBite } from '@fortawesome/free-solid-svg-icons';
 
 type UpdateProfileForm = Api.UpdateProfileRequest;
 
@@ -53,8 +55,7 @@ const schema = yup
 const ProfilePage: React.FC = () => {
     const [error, setError] = useState<string>();
     const [showModal, setShowModal] = useState<boolean>(false);
-    const authCtx = useContext(AuthContext);
-    const isLoggedIn = authCtx.isLoggedIn;
+    const { isLoggedIn, hasCookieConsent, setHasCookieConsent } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -66,6 +67,26 @@ const ProfilePage: React.FC = () => {
         formState: { isSubmitting },
         reset
     } = methods;
+
+    const onChangeConsentHandler = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            setHasCookieConsent(e.target.checked);
+        },
+        [setHasCookieConsent]
+    );
+
+    const submitHandler: SubmitHandler<UpdateProfileForm> = async (data: UpdateProfileForm) => {
+        try {
+            await userApi.updateProfile(data);
+            setShowModal(true);
+        } catch (err) {
+            if (err instanceof Response && err.statusText === 'Unauthorized') {
+                setError('Zadané heslo nebolo platné');
+            } else {
+                formatErrorMessage(err).then((message) => setError(message));
+            }
+        }
+    };
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -86,37 +107,23 @@ const ProfilePage: React.FC = () => {
         }
     }, [isLoggedIn, reset]);
 
-    const submitHandler: SubmitHandler<UpdateProfileForm> = async (data: UpdateProfileForm) => {
-        try {
-            await userApi.updateProfile(data);
-            setShowModal(true);
-        } catch (err) {
-            if (err instanceof Response && err.statusText === 'Unauthorized') {
-                setError('Zadané heslo nebolo platné');
-            } else {
-                formatErrorMessage(err).then((message) => setError(message));
-            }
-        }
-    };
-
     return (
         <div className='row justify-content-center'>
             <div className='col-lg-6 pt-3'>
                 <h1>Profil používateľa</h1>
-                <Form>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Používateľské meno</Form.Label>
-                        <Form.Control
-                            type='text'
-                            value={username ?? ''}
-                            readOnly
-                        />
-                    </Form.Group>
-                </Form>
+                <Form.Group className='mb-3'>
+                    <Form.Label>Používateľské meno</Form.Label>
+                    <Form.Control
+                        type='text'
+                        value={username ?? ''}
+                        readOnly
+                    />
+                </Form.Group>
                 <FormProvider {...methods}>
                     <Form
                         onSubmit={methods.handleSubmit(submitHandler)}
                         noValidate
+                        className='pb-4'
                     >
                         <Input
                             name='firstName'
@@ -155,6 +162,25 @@ const ProfilePage: React.FC = () => {
                         </Button>
                     </Form>
                 </FormProvider>
+                <h2>
+                    <FontAwesomeIcon icon={faCookieBite} /> Nastavenia cookies
+                </h2>
+                <p>
+                    Udelením súhlasu umožníte aplikácií ukladať informácie do lokálneho úložiska (localStorage) prehliadača. Aplikácia po
+                    udelení súhlasu umožňuje zapamätať si práve prihláseného používateľa. Vďaka tomu sa nebudete musieť pri opätovnej
+                    návšteve prihlasovať. Lokálne úložisko sa zároveň môže používať na uloženie "záložiek" na recepty. Uložené záložky sa
+                    viažú na prehliadač a nie používateľské konto. Po odhlásení budú tieto údaje odstránené.
+                </p>
+                <p>Informácia o udelenom súhlase sa ukladá do cookies prehliadača a je platná na 1 rok od udelenia súhlasu.</p>
+                <h3>Vaše preferencie cookies</h3>
+                <Form.Group className='mb-3'>
+                    <Form.Check
+                        type='switch'
+                        label='Udelenie súhlasu'
+                        checked={hasCookieConsent}
+                        onChange={onChangeConsentHandler}
+                    />
+                </Form.Group>
             </div>
             <Modal
                 show={!!error}

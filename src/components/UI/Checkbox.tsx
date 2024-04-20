@@ -28,6 +28,7 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
                 feedback={errorMessage?.toString()}
                 feedbackType='invalid'
                 isInvalid={!!errorMessage}
+                disabled={props.disabled}
             />
         </Form.Group>
     );
