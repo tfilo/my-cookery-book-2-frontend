@@ -8,10 +8,10 @@ import * as yup from 'yup';
 import { Api } from '../../openapi';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Input from '../../components/UI/Input';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
-import Checkbox from '../../components/UI/Checkbox';
+import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
+import Checkbox from '../../components/ui/Checkbox';
 
 type UnitForm = Api.CreateUnit | Api.UpdateUnit;
 

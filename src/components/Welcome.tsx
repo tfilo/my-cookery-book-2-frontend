@@ -13,17 +13,18 @@ const Welcome: React.FC<{
         <div
             className={`${
                 show ? 'opacity-100' : 'opacity-0'
-            } z-3 position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-white pe-none`}
+            } position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-white pe-none`}
             style={{
                 transition: 'opacity 2s',
-                transitionDelay: '1s'
+                transitionDelay: '1s',
+                zIndex: 9999
             }}
             onTransitionEnd={() => setIsVisible(false)}
         >
             <div className='w-100 text-center'>
                 <img
                     src='/logo512.png'
-                    alt='obrázok'
+                    alt=''
                     style={{
                         aspectRatio: 1,
                         maxWidth: show ? '512px' : '1024px',

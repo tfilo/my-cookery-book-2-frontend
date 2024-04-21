@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { FieldArrayWithId, UseFieldArrayMove, UseFieldArrayRemove, useFieldArray, useFormContext } from 'react-hook-form';
 import { pictureApi } from '../../../utils/apiWrapper';
-import Input from '../../UI/Input';
+import Input from '../../ui/Input';
 import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { formatErrorMessage } from '../../../utils/errorMessages';
-import Modal from '../../UI/Modal';
-import Spinner from '../../UI/Spinner';
+import Modal from '../../ui/Modal';
+import Spinner from '../../ui/Spinner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Api } from '../../../openapi';
 

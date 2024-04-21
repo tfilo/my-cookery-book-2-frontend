@@ -7,9 +7,9 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
 import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 import { get } from 'lodash';
-import Spinner from '../../UI/Spinner';
+import Spinner from '../../ui/Spinner';
 import { formatErrorMessage } from '../../../utils/errorMessages';
-import Modal from '../../UI/Modal';
+import Modal from '../../ui/Modal';
 import { useQueryClient } from '@tanstack/react-query';
 
 const AssociatedRecipes: React.FC = () => {

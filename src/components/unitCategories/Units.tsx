@@ -7,7 +7,7 @@ import { Api } from '../../openapi';
 import { AuthContext } from '../../store/auth-context';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../UI/Modal';
+import Modal from '../ui/Modal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const Units: React.FC<{

@@ -7,8 +7,8 @@ import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import { getRoleLabel } from '../../localisations/localisations';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
 
 const UsersPage: React.FC = () => {
     const [listOfUsers, setListOfUsers] = useState<Api.SimpleUser[]>([]);

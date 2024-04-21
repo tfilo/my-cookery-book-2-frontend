@@ -9,15 +9,15 @@ import { useQuery } from '@tanstack/react-query';
 import { useBookmarContext } from '../../store/bookmark-context';
 import { recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
-import AssociatedRecipeView from '../../components/Recipes/View/AssociatedRecipesView';
-import SectionView from '../../components/Recipes/View/SectionView';
-import PictureView from '../../components/Recipes/View/PictureView';
-import SourceView from '../../components/Recipes/View/SourceView';
-import ServeView from '../../components/Recipes/View/ServeView';
-import AuthorView from '../../components/Recipes/View/AuthorView';
-import MethodView from '../../components/Recipes/View/MethodView';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
+import AssociatedRecipeView from '../../components/recipes/view/AssociatedRecipesView';
+import SectionView from '../../components/recipes/view/SectionView';
+import PictureView from '../../components/recipes/view/PictureView';
+import SourceView from '../../components/recipes/view/SourceView';
+import ServeView from '../../components/recipes/view/ServeView';
+import AuthorView from '../../components/recipes/view/AuthorView';
+import MethodView from '../../components/recipes/view/MethodView';
 
 const INLINE_STYLE_FOR_PRINT = '@page { margin: 40px !important; }' as const;
 

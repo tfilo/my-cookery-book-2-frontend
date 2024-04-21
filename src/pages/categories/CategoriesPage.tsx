@@ -8,8 +8,8 @@ import { Api } from '../../openapi';
 import { AuthContext } from '../../store/auth-context';
 import { categoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
 
 const CategoriesPage: React.FC = () => {
     const [error, setError] = useState<string>();

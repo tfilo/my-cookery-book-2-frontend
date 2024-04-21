@@ -6,7 +6,7 @@ import BootstrapModal from 'react-bootstrap/Modal';
 import { Api } from '../../../openapi';
 import { useQuery } from '@tanstack/react-query';
 import { pictureApi } from '../../../utils/apiWrapper';
-import Spinner from '../../UI/Spinner';
+import Spinner from '../../ui/Spinner';
 
 const FULLSCREEN_IMG_STYLE: React.CSSProperties = {
     flex: '1 1',

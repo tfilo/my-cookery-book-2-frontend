@@ -10,10 +10,10 @@ import { Api } from '../../openapi';
 import { userApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import { getRoleLabel } from '../../localisations/localisations';
-import Input from '../../components/UI/Input';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
-import Checkbox from '../../components/UI/Checkbox';
+import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
+import Checkbox from '../../components/ui/Checkbox';
 
 type Roles = { value: Api.User.RoleEnum; name: string }[];
 

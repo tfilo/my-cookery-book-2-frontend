@@ -8,9 +8,9 @@ import { AuthContext } from '../../store/auth-context';
 import { Api } from '../../openapi';
 import { unitCategoryApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
-import Units from '../../components/UnitCategories/Units';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
+import Units from '../../components/unitCategories/Units';
 
 const UnitCategoriesPage: React.FC = () => {
     const [error, setError] = useState<string>();

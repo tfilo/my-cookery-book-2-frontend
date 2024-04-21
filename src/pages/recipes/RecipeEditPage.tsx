@@ -7,18 +7,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { Api } from '../../openapi';
-import Modal from '../../components/UI/Modal';
+import Modal from '../../components/ui/Modal';
 import { categoryApi, recipeApi, tagApi, unitApi, unitCategoryApi } from '../../utils/apiWrapper';
 import { DEFAULT_PAGE } from '../../utils/constants';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Spinner from '../../components/UI/Spinner';
-import Input from '../../components/UI/Input';
-import Textarea from '../../components/UI/Textarea';
-import Select, { SelectGroupOptions } from '../../components/UI/Select';
-import RecipeSections from '../../components/Recipes/Edit/RecipeSections';
-import Sources from '../../components/Recipes/Edit/Sources';
-import Pictures from '../../components/Recipes/Edit/Pictures';
-import AssociatedRecipes from '../../components/Recipes/Edit/AssociatedRecipes';
+import Spinner from '../../components/ui/Spinner';
+import Input from '../../components/ui/Input';
+import Textarea from '../../components/ui/Textarea';
+import Select, { SelectGroupOptions } from '../../components/ui/Select';
+import RecipeSections from '../../components/recipes/edit/RecipeSections';
+import Sources from '../../components/recipes/edit/Sources';
+import Pictures from '../../components/recipes/edit/Pictures';
+import AssociatedRecipes from '../../components/recipes/edit/AssociatedRecipes';
 
 export interface RecipeForm extends Omit<Api.CreateRecipe | Api.UpdateRecipe, 'sources' | 'associatedRecipes' | 'tags'> {
     sources: {

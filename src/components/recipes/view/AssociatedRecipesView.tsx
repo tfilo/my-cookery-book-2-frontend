@@ -8,7 +8,7 @@ import { Api } from '../../../openapi';
 import { useQuery } from '@tanstack/react-query';
 import { recipeApi } from '../../../utils/apiWrapper';
 import { Link, useLocation } from 'react-router-dom';
-import Spinner from '../../UI/Spinner';
+import Spinner from '../../ui/Spinner';
 
 type AssociatedRecipeViewProps = {
     recipeId: number;

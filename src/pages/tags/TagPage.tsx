@@ -8,9 +8,9 @@ import * as yup from 'yup';
 import { Api } from '../../openapi';
 import { tagApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Input from '../../components/UI/Input';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
+import Input from '../../components/ui/Input';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
 
 type TagForm = Api.CreateTag | Api.UpdateTag;
 

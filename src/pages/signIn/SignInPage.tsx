@@ -8,10 +8,10 @@ import { Api } from '../../openapi';
 import { AuthContext } from '../../store/auth-context';
 import { authApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Input from '../../components/UI/Input';
-import Checkbox from '../../components/UI/Checkbox';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
+import Input from '../../components/ui/Input';
+import Checkbox from '../../components/ui/Checkbox';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCookieBite } from '@fortawesome/free-solid-svg-icons';
 

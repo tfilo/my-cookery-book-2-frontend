@@ -8,11 +8,11 @@ import useRole from '../../hooks/useRole';
 import useCriteria from '../../hooks/useCriteria';
 import { categoryApi, recipeApi, tagApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
-import Modal from '../../components/UI/Modal';
-import Spinner from '../../components/UI/Spinner';
-import RecipesPagination from '../../components/Recipes/Search/RecipesPagination';
-import RecipesCriteria from '../../components/Recipes/Search/RecipesCriteria';
-import RecipesGrid from '../../components/Recipes/Search/RecipesGrid';
+import Modal from '../../components/ui/Modal';
+import Spinner from '../../components/ui/Spinner';
+import RecipesPagination from '../../components/recipes/search/RecipesPagination';
+import RecipesCriteria from '../../components/recipes/search/RecipesCriteria';
+import RecipesGrid from '../../components/recipes/search/RecipesGrid';
 
 const RecipeSearchPage: React.FC = () => {
     const navigate = useNavigate();

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import Input from '../../UI/Input';
+import Input from '../../ui/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus, faCircleMinus, faCircleChevronDown, faCircleChevronUp } from '@fortawesome/free-solid-svg-icons';
-import Textarea from '../../UI/Textarea';
-import { SelectGroupOptions } from '../../UI/Select';
+import Textarea from '../../ui/Textarea';
+import { SelectGroupOptions } from '../../ui/Select';
 import Ingredients from './Ingredients/Ingredients';
 import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, PropsWithChildren, useMemo, useCallback } f
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
-import Modal from '../components/UI/Modal';
+import Modal from '../components/ui/Modal';
 import { Api } from '../openapi';
 import Welcome from '../components/Welcome';
 import { useQueryClient } from '@tanstack/react-query';
