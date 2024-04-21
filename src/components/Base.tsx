@@ -1,14 +1,14 @@
+import React, { useContext, useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import CookieConsent from './cookieConsent/CookieConsent';
-import Navigation from './navigation/Navigation';
-import Modal from './ui/Modal';
-import Spinner from './ui/Spinner';
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../store/auth-context';
+import { Container } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
+import { AuthContext } from '../store/auth-context';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
-import { Container } from 'react-bootstrap';
+import Navigation from './navigation/Navigation';
+import CookieConsent from './cookieConsent/CookieConsent';
+import Spinner from './ui/Spinner';
+import Modal from './ui/Modal';
 
 const Base: React.FC = () => {
     const { isLoggedIn } = useContext(AuthContext);
@@ -43,12 +43,15 @@ const Base: React.FC = () => {
                 isLoggedIn={isLoggedIn}
                 username={username}
             />
-            <Container
-                as={'main'}
-                className='py-4'
-            >
-                <Outlet />
-            </Container>
+
+            <React.Suspense fallback={<Spinner show={true} />}>
+                <Container
+                    as={'main'}
+                    className='py-4'
+                >
+                    <Outlet />
+                </Container>
+            </React.Suspense>
             <Modal
                 show={!!error}
                 message={error}
