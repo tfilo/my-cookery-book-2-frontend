@@ -131,7 +131,7 @@ const TagsPage: React.FC = () => {
                                             aria-label='Upraviť'
                                             variant='outline-secondary'
                                             onClick={editTagHandler.bind(null, tag.id)}
-                                            style={{ border: 'none' }}
+                                            className='border-0'
                                         >
                                             <FontAwesomeIcon icon={faPencil} />
                                         </Button>
@@ -140,7 +140,7 @@ const TagsPage: React.FC = () => {
                                             aria-label='Vymazať'
                                             variant='outline-danger'
                                             onClick={deleteTagHandler.bind(null, tag)}
-                                            style={{ border: 'none' }}
+                                            className='border-0'
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </Button>

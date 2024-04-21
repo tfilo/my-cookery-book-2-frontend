@@ -1,4 +1,4 @@
-.search-button {
+.mcb-search-button {
     border-right-color: #ced4da;
     border-top-color: #ced4da;
     border-bottom-color: #ced4da;
@@ -7,16 +7,11 @@
     color: #212529;
 }
 
-.search-button.dropdown {
+.mcb-search-button.dropdown {
     border-top-right-radius: 0.375rem;
     border-bottom-right-radius: 0.375rem;
     border-top-left-radius: 0rem;
     border-bottom-left-radius: 0rem;
-}
-
-.fullScreenPic {
-    max-width: 100vw;
-    max-height: 93vh;
 }
 
 @keyframes pulse {
@@ -28,7 +23,7 @@
     }
 }
 
-.pulse {
+.mcb-pulse {
     animation-name: pulse;
     animation-duration: 0.6s;
     animation-iteration-count: infinite;
@@ -45,9 +40,128 @@
     }
 }
 
-.fadeIn {
+.mcb-fade-in {
     animation-name: fadeIn;
     animation-duration: 0.6s;
     animation-iteration-count: 1;
     animation-timing-function: ease-in;
+}
+
+.mcb-bookmark-clear-btn {
+    width: 32px;
+    height: 32px;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+}
+
+.mcb-bookmark-clear-btn:hover {
+    opacity: 1;
+}
+
+.mcb-bookmark-thumbnail {
+    max-width: 64px;
+}
+
+.mcb-bookmark-clear-btn > .mcb-bookmark-clear-btn_icon {
+    font-size: 1.5rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.mcb-nav-icon {
+    width: 20px;
+    padding-right: 8px;
+}
+
+.mcb-welcome-logo {
+    aspect-ratio: 1;
+    transition: all 2s;
+    transition-delay: 1s;
+}
+
+.mcb-welcome-overlay {
+    transition: opacity 2s;
+    transition-delay: 1s;
+    z-index: 9999;
+}
+
+.mcb-welcome-title {
+    transition: opacity 2s;
+    transition-delay: 1s;
+}
+
+.mcb-thumbnail {
+    aspect-ratio: 1;
+    object-fit: cover;
+}
+
+.mcb-thumbnail.mcb-thumbnail_transparent {
+    opacity: 0.3;
+}
+
+.mcb-card {
+    background-color: rgba(0,0,0,0.5)
+}
+
+.mcb-card-img {
+    aspect-ratio: 1.33;
+    object-fit: cover;
+}
+
+.mcb-card-action-btn {
+    top: 0;
+    right: 0;
+}
+
+.mcb-card-handle {
+    top: 0;
+    left: 0;
+}
+
+.mcb-ingredient-handle {
+    border-left-color: rgba(0, 0, 0, 0.175);
+    border-top-color: rgba(0, 0, 0, 0.175);
+    border-bottom-color: rgba(0, 0, 0, 0.175);
+    border-right-color: rgba(0, 0, 0, 0);
+}
+
+.mcb-ingredient-delete {
+    border-left-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0.175);
+    border-bottom-color: rgba(0, 0, 0, 0.175);
+    border-right-color: rgba(0, 0, 0, 0.175);
+}
+
+.mcb-ingredient-name {
+    flex: 10
+}
+
+.mcb-ingredient-volume {
+    flex: 3.5
+}
+
+.mcb-ingredient-unit {
+    flex: 5
+}
+
+.mcb-transparent-border {
+    border: 1px solid transparent;
+}
+
+.mcb-fullscreen-img {
+    flex: 1 1;
+    object-fit: contain;
+    max-width: 100vw;
+}
+
+.mcb-serve-input {
+    width: 50;
+    font-size: 1.3rem;
+}
+
+.mcb-light-link {
+    color: #b4b4b4;
+    text-decoration: none;
 }

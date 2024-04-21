@@ -8,12 +8,6 @@ import { useQuery } from '@tanstack/react-query';
 import { pictureApi } from '../../../utils/apiWrapper';
 import Spinner from '../../ui/Spinner';
 
-const FULLSCREEN_IMG_STYLE: React.CSSProperties = {
-    flex: '1 1',
-    objectFit: 'contain',
-    maxWidth: '100vw'
-} as const;
-
 type GalleryViewProps = {
     pictureId: number;
     pictures: Api.Recipe.Picture[];
@@ -92,8 +86,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({ pictureId, pictures, onClose 
         >
             <BootstrapModal.Header className='bg-dark border-dark'>
                 <div
-                    className='position-absolute'
-                    style={{ top: 0, right: 0 }}
+                    className='position-absolute mcb-card-action-btn'
                 >
                     <Button
                         size='lg'
@@ -133,7 +126,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({ pictureId, pictures, onClose 
                     <img
                         src={picture.url}
                         alt={`Obrázok ${currentPicture?.name}`}
-                        style={FULLSCREEN_IMG_STYLE}
+                        className='mcb-fullscreen-img'
                     />
                 )}
             </BootstrapModal.Body>

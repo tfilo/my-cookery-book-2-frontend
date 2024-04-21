@@ -118,7 +118,7 @@ const UsersPage: React.FC = () => {
                                         aria-label='Upraviť'
                                         variant='outline-secondary'
                                         onClick={editUserHandler.bind(null, user.id)}
-                                        style={{ border: 'none' }}
+                                        className='border-0'
                                     >
                                         <FontAwesomeIcon icon={faPencil} />
                                     </Button>
@@ -127,7 +127,7 @@ const UsersPage: React.FC = () => {
                                         aria-label='Vymazať'
                                         variant='outline-danger'
                                         onClick={deleteUserHandler.bind(null, user)}
-                                        style={{ border: 'none' }}
+                                        className='border-0'
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </Button>

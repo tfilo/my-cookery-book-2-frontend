@@ -4,16 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Card } from 'react-bootstrap';
 import { pictureApi } from '../../utils/apiWrapper';
 
-const BASE_THUMBNAIL_STYLE: React.CSSProperties = {
-    aspectRatio: 1,
-    objectFit: 'cover'
-} as const;
-
-const TRANSPARENT_THUMBNAIL_STYLE: React.CSSProperties = {
-    ...BASE_THUMBNAIL_STYLE,
-    opacity: 0.3
-} as const;
-
 type RecipeThumbnailProps = {
     pictureId?: number;
 };
@@ -44,7 +34,7 @@ const RecipeThumbnail: React.FC<RecipeThumbnailProps> = React.memo(({ pictureId 
                 variant='top'
                 src={defImg}
                 alt='obrázok receptu'
-                style={TRANSPARENT_THUMBNAIL_STYLE}
+                className='mcb-thumbnail mcb-thumbnail_transparent'
             />
         );
     }
@@ -53,9 +43,8 @@ const RecipeThumbnail: React.FC<RecipeThumbnailProps> = React.memo(({ pictureId 
         <Card.Img
             variant='top'
             src={url}
-            className={isFetching ? 'pulse' : 'fadeIn'}
+            className={`${isFetching ? 'mcb-pulse' : 'mcb-fade-in'} mcb-thumbnail`}
             alt='obrázok receptu'
-            style={BASE_THUMBNAIL_STYLE}
         />
     );
 });

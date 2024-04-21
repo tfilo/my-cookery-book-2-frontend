@@ -77,7 +77,7 @@ const RecipesCriteria: React.FC<RecipesCriteriaProps> = ({ tags, categories }) =
                     onClick={() => setShowFilter(!showFilter)}
                     aria-controls='collapse'
                     aria-expanded={showFilter}
-                    className='search-button'
+                    className='mcb-search-button'
                 >
                     <FontAwesomeIcon icon={faFilter} />
                 </Button>
@@ -85,14 +85,14 @@ const RecipesCriteria: React.FC<RecipesCriteriaProps> = ({ tags, categories }) =
                     variant='outline-secondary'
                     title={criteria.order === Api.RecipeSearchCriteria.OrderEnum.ASC ? 'Zoradiť zostupne' : 'Zoradiť vzostupne'}
                     onClick={onToggleOrderHandler}
-                    className='search-button'
+                    className='mcb-search-button'
                 >
                     <FontAwesomeIcon icon={criteria.order === Api.RecipeSearchCriteria.OrderEnum.ASC ? faArrowDownZA : faArrowDownAZ} />
                 </Button>
                 <Dropdown>
                     <Dropdown.Toggle
                         variant='outline-secondary'
-                        className='search-button dropdown'
+                        className='mcb-search-button dropdown'
                     >
                         <FontAwesomeIcon icon={faGripVertical} />
                     </Dropdown.Toggle>

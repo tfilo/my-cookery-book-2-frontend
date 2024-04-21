@@ -1,6 +1,6 @@
 import React, { useCallback, useContext } from 'react';
 import ReactCookieConsent from 'react-cookie-consent';
-import { AuthContext } from '../../store/auth-context';
+import { AuthContext } from '../store/auth-context';
 import { Link } from 'react-router-dom';
 
 const CookieConsent: React.FC = () => {

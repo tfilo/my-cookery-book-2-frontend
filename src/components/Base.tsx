@@ -5,8 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { AuthContext } from '../store/auth-context';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
-import Navigation from './navigation/Navigation';
-import CookieConsent from './cookieConsent/CookieConsent';
+import Navigation from './Navigation';
+import CookieConsent from './CookieConsent';
 import Spinner from './ui/Spinner';
 import Modal from './ui/Modal';
 

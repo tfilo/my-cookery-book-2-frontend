@@ -123,7 +123,7 @@ const UnitCategoriesPage: React.FC = () => {
                             <tr>
                                 <Stack
                                     as={'th'}
-                                    style={{ border: 'none' }}
+                                    className='border-0'
                                     colSpan={3}
                                     direction='horizontal'
                                     gap={2}
@@ -131,7 +131,7 @@ const UnitCategoriesPage: React.FC = () => {
                                     {unitCategory.name}
                                     {authCtx.userRoles.find((role) => role === Api.User.RoleEnum.ADMIN) && (
                                         <Stack
-                                            style={{ border: 'none' }}
+                                            className='border-0'
                                             direction='horizontal'
                                             gap={2}
                                         >

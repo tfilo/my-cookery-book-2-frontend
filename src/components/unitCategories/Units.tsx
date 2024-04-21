@@ -117,7 +117,7 @@ const Units: React.FC<{
                                     aria-label='Upraviť'
                                     variant='outline-secondary'
                                     onClick={editUnitHandler.bind(null, unit.id)}
-                                    style={{ border: 'none' }}
+                                    className='border-0'
                                 >
                                     <FontAwesomeIcon icon={faPencil} />
                                 </Button>
@@ -126,7 +126,7 @@ const Units: React.FC<{
                                     aria-label='Vymazať'
                                     variant='outline-danger'
                                     onClick={deleteUnitHandler.bind(null, unit)}
-                                    style={{ border: 'none' }}
+                                    className='border-0'
                                 >
                                     <FontAwesomeIcon icon={faTrash} />
                                 </Button>

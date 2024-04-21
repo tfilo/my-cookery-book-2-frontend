@@ -132,7 +132,7 @@ const RecipeViewPage: React.FC = () => {
                         parentRecipe={recipe}
                         serves={serves}
                     />
-                    <div style={{ border: '1px solid transparent' }}>
+                    <div className='mcb-transparent-border'>
                         <hr />
                     </div>
                     <AuthorView recipe={recipe} />

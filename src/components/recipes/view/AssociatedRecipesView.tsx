@@ -60,11 +60,7 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeViewProps> = ({ recipeId, r
                                 );
                             })}
 
-                            <div
-                                style={{
-                                    border: '1px solid transparent'
-                                }}
-                            >
+                            <div className='mcb-transparent-border'>
                                 <hr />
                             </div>
                             <AuthorView recipe={recipe} />

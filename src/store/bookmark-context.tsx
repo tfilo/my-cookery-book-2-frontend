@@ -30,14 +30,13 @@ export const useBookmarContext = () => {
 const CleanBookmarksButton: React.FC<{ clear: () => void }> = ({ clear }) => {
     return (
         <button
-            className='btn btn-outline-danger rounded-circle p-0 m-0 pe-auto'
+            className='btn btn-outline-danger rounded-circle p-0 m-0 pe-auto mcb-bookmark-clear-btn'
             onClick={clear}
             title='Odstrániť záložky'
-            style={{ width: '32px', height: '32px', alignSelf: 'center', display: 'flex', alignItems: 'center' }}
         >
             <FontAwesomeIcon
                 icon={faXmark}
-                style={{ fontSize: '1.5rem', marginLeft: 'auto', marginRight: 'auto' }}
+                className='mcb-bookmark-clear-btn_icon'
             />
         </button>
     );
@@ -90,8 +89,8 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
             title={title}
         >
             <img
-                className='rounded-circle border border-light'
-                style={{ maxWidth: '64px', opacity: isSelected ? 1 : 0.5 }}
+                className='rounded-circle border border-light mcb-bookmark-thumbnail'
+                style={{ opacity: isSelected ? 1 : 0.5 }}
                 alt='Založka'
                 src={url ?? defImg}
             />

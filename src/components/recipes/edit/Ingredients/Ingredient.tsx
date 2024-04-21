@@ -14,20 +14,6 @@ type IngredientProps = {
     remove: UseFieldArrayRemove;
 };
 
-const handleStyles: React.CSSProperties = {
-    borderLeftColor: 'rgba(0, 0, 0, 0.175)',
-    borderTopColor: 'rgba(0, 0, 0, 0.175)',
-    borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-    borderRightColor: 'rgba(0, 0, 0, 0)'
-};
-
-const deleteStyles: React.CSSProperties = {
-    borderRightColor: 'rgba(0, 0, 0, 0.175)',
-    borderTopColor: 'rgba(0, 0, 0, 0.175)',
-    borderBottomColor: 'rgba(0, 0, 0, 0.175)',
-    borderLeftColor: 'rgba(0, 0, 0, 0)'
-};
-
 const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, units }) => {
     const {
         register,
@@ -89,7 +75,7 @@ const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, unit
                     variant='outline-secondary'
                     title='Presunúť ingredienciu'
                     type='button'
-                    style={handleStyles}
+                    className='mcb-ingredient-handle'
                     onMouseOver={onEnableDrag}
                     onMouseOut={onDisableDrag}
                     onTouchStart={onEnableDrag}
@@ -102,7 +88,7 @@ const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, unit
                     aria-label='Názov suroviny'
                     placeholder='Názov'
                     type='text'
-                    style={{ flex: 10 }}
+                    className='mcb-ingredient-name'
                     isInvalid={!!nameErrorMessage}
                     id={`${id}_name`}
                 />
@@ -112,7 +98,7 @@ const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, unit
                     aria-label='Množstvo suroviny'
                     placeholder='Množstvo'
                     type='number'
-                    style={{ flex: 3.5 }}
+                    className='mcb-ingredient-volume'
                     isInvalid={!!valueErrorMessage}
                     id={`${id}_value`}
                     min={0}
@@ -121,7 +107,7 @@ const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, unit
                     {...register(`${name}.unitId`)}
                     aria-label='Jednotka'
                     name={`${name}.unitId`}
-                    style={{ flex: 5 }}
+                    className='mcb-ingredient-unit'
                     isInvalid={!!unitErrorMessage}
                     id={`${id}_unitId`}
                 >
@@ -154,7 +140,7 @@ const Ingredient: React.FC<IngredientProps> = ({ index, move, name, remove, unit
                     aria-label='vymazať ingredienciu'
                     type='button'
                     onClick={() => remove(index)}
-                    style={deleteStyles}
+                    className='mcb-ingredient-delete'
                 >
                     <FontAwesomeIcon icon={faCircleMinus} />
                 </Button>

@@ -131,7 +131,7 @@ const CategoriesPage: React.FC = () => {
                                             aria-label='Upraviť'
                                             variant='outline-secondary'
                                             onClick={editCategoryHandler.bind(null, category.id)}
-                                            style={{ border: 'none' }}
+                                            className='border-0'
                                         >
                                             <FontAwesomeIcon icon={faPencil} />
                                         </Button>
@@ -141,7 +141,7 @@ const CategoriesPage: React.FC = () => {
                                             aria-label='Vymazať'
                                             variant='outline-danger'
                                             onClick={deleteCategoryHandler.bind(null, category)}
-                                            style={{ border: 'none' }}
+                                            className='border-0'
                                         >
                                             <FontAwesomeIcon icon={faTrash} />
                                         </Button>

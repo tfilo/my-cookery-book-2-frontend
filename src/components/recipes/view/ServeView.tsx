@@ -2,11 +2,6 @@ import React, { useCallback } from 'react';
 import { Stack } from 'react-bootstrap';
 import { Api } from '../../../openapi';
 
-const DEFAULT_INPUT_STYLE: React.CSSProperties = {
-    width: 50,
-    fontSize: '1.3rem'
-} as const;
-
 type ServeProps = {
     recipe: Api.Recipe;
     serves: number;
@@ -37,8 +32,7 @@ const ServeView: React.FC<ServeProps> = ({ recipe, serves, setServes }) => {
                 type='number'
                 defaultValue={defaultValue}
                 onChange={changeServesHandler}
-                style={DEFAULT_INPUT_STYLE}
-                className='border-0 pb-2'
+                className='border-0 pb-2 mcb-serve-input'
                 min={1}
                 max={99}
             />

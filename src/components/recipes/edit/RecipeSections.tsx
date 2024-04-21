@@ -13,11 +13,6 @@ type RecipeSectionsProps = {
     units: SelectGroupOptions[];
 };
 
-const actionButtonsStyle: React.CSSProperties = {
-    top: '0px',
-    right: '0px'
-};
-
 const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
     const { register, control } = useFormContext<RecipeForm>();
 
@@ -68,8 +63,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                         <Card.Body className='pb-0'>
                             <section>
                                 <div
-                                    className='position-absolute'
-                                    style={actionButtonsStyle}
+                                    className='position-absolute mcb-card-action-btn'
                                 >
                                     <Button
                                         variant='outline-light'

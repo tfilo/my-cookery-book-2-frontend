@@ -13,16 +13,14 @@ import {
     faUsers,
     faUtensils
 } from '@fortawesome/free-solid-svg-icons';
-import { Api } from '../../openapi';
-import { AuthContext } from '../../store/auth-context';
-import useRole from '../../hooks/useRole';
-import { getDefaultSearchParams } from '../../hooks/useCriteria';
-import { categoryApi } from '../../utils/apiWrapper';
-import { formatErrorMessage } from '../../utils/errorMessages';
-import Spinner from '../ui/Spinner';
-import Modal from '../ui/Modal';
-
-const DEFAULT_ICON_STYLE: React.CSSProperties = { width: 20, paddingRight: 8 } as const;
+import { Api } from '../openapi';
+import { AuthContext } from '../store/auth-context';
+import useRole from '../hooks/useRole';
+import { getDefaultSearchParams } from '../hooks/useCriteria';
+import { categoryApi } from '../utils/apiWrapper';
+import { formatErrorMessage } from '../utils/errorMessages';
+import Spinner from './ui/Spinner';
+import Modal from './ui/Modal';
 
 const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLoggedIn, username }) => {
     const { logout: logoutHandler } = useContext(AuthContext);
@@ -108,7 +106,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={DEFAULT_ICON_STYLE}
+                                        className='mcb-nav-icon'
                                         icon={faUser}
                                     />
                                     Profil
@@ -120,7 +118,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                         onClick={closeOffcanvas}
                                     >
                                         <FontAwesomeIcon
-                                            style={DEFAULT_ICON_STYLE}
+                                            className='mcb-nav-icon'
                                             icon={faUsers}
                                         />
                                         Používatelia
@@ -132,7 +130,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={DEFAULT_ICON_STYLE}
+                                        className='mcb-nav-icon'
                                         icon={faList}
                                     />
                                     Kategórie
@@ -143,7 +141,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={DEFAULT_ICON_STYLE}
+                                        className='mcb-nav-icon'
                                         icon={faScaleBalanced}
                                     />
                                     Jednotky
@@ -154,7 +152,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={DEFAULT_ICON_STYLE}
+                                        className='mcb-nav-icon'
                                         icon={faTags}
                                     />
                                     Značky
@@ -166,7 +164,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                         onClick={closeOffcanvas}
                                     >
                                         <FontAwesomeIcon
-                                            style={DEFAULT_ICON_STYLE}
+                                            className='mcb-nav-icon'
                                             icon={faPizzaSlice}
                                         />
                                         Pridať recept
@@ -179,7 +177,7 @@ const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLog
                                     onClick={closeOffcanvas}
                                 >
                                     <FontAwesomeIcon
-                                        style={DEFAULT_ICON_STYLE}
+                                        className='mcb-nav-icon'
                                         icon={faUtensils}
                                     />
                                     Všetky recepty

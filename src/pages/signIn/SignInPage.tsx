@@ -80,9 +80,9 @@ const SignInPage: React.FC = () => {
                             />
                             <Link
                                 to={'/resetRequest'}
-                                style={{ textDecoration: 'none' }}
+                                className='mcb-light-link'
                             >
-                                <p style={{ color: '#b4b4b4' }}>Zabudol si heslo?</p>
+                                <p>Zabudol si heslo?</p>
                             </Link>
                         </div>
                         <div className='d-flex flex-column flex-md-row justify-content-between'>

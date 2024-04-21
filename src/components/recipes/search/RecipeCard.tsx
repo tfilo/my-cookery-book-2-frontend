@@ -7,7 +7,6 @@ import { Api } from '../../../openapi';
 import RecipeThumbnail from '../RecipeThumbnail';
 import useRole from '../../../hooks/useRole';
 import useCriteria from '../../../hooks/useCriteria';
-import { CARD_BASE_STYLE } from '../../../utils/constants';
 
 type RecipeCardProps = {
     recipe: Api.SimpleRecipe;
@@ -43,14 +42,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
             <RecipeThumbnail pictureId={pictureId} />
             <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
                 <Card.Text
-                    className='m-0 p-2'
-                    style={CARD_BASE_STYLE}
+                    className='m-0 p-2 mcb-card'
                 >
                     <span className='text-white'>{recipe.description}</span>
                 </Card.Text>
                 <Card.Title
-                    className='m-0 p-2'
-                    style={CARD_BASE_STYLE}
+                    className='m-0 p-2 mcb-card'
                 >
                     <span className='text-white'>{recipe.name}</span>
                 </Card.Title>

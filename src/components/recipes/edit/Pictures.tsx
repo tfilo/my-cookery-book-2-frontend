@@ -19,13 +19,6 @@ type PictureProps = {
     index: number;
 };
 
-const imageStyle: React.CSSProperties = {
-    aspectRatio: 1.33,
-    objectFit: 'cover'
-};
-
-const handleStyle: React.CSSProperties = { top: 0, left: 0 };
-
 const Picture: React.FC<PictureProps> = ({ remove, move, field, index }) => {
     const [dragable, setDragable] = useState<boolean>(false);
     const [url, setUrl] = useState<string>();
@@ -110,15 +103,14 @@ const Picture: React.FC<PictureProps> = ({ remove, move, field, index }) => {
                     variant='top'
                     src={url}
                     alt={field.name}
-                    style={imageStyle}
+                    className='mcb-card-img'
                 />
                 <Button
                     title='Vymazať obrázok'
                     variant='outline-danger'
                     type='button'
                     onClick={removePictureHandler.bind(null, index, url)}
-                    className='position-absolute border-0'
-                    style={{ top: 0, right: 0 }}
+                    className='position-absolute border-0 mcb-card-action-btn'
                 >
                     <FontAwesomeIcon icon={faTrash} />
                 </Button>
@@ -126,8 +118,7 @@ const Picture: React.FC<PictureProps> = ({ remove, move, field, index }) => {
                     title='Presunúť obrázok'
                     variant='outline-secondary'
                     type='button'
-                    className='position-absolute border-0'
-                    style={handleStyle}
+                    className='position-absolute border-0 mcb-card-handle'
                     onMouseOver={onEnableDrag}
                     onMouseOut={onDisableDrag}
                     onTouchStart={onEnableDrag}
