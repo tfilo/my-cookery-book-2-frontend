@@ -85,7 +85,7 @@ const SignInPage: React.FC = () => {
                                 <p>Zabudol si heslo?</p>
                             </Link>
                         </div>
-                        <div className='d-flex flex-column flex-md-row justify-content-between'>
+                        <div className='d-flex flex-column flex-md-row justify-content-between mcb-gap'>
                             <Button
                                 variant='primary'
                                 type='submit'

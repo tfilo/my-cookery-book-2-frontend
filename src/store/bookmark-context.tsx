@@ -30,7 +30,7 @@ export const useBookmarContext = () => {
 const CleanBookmarksButton: React.FC<{ clear: () => void }> = ({ clear }) => {
     return (
         <button
-            className='btn btn-outline-danger rounded-circle p-0 m-0 pe-auto mcb-bookmark-clear-btn'
+            className='btn btn-danger rounded-circle p-0 m-0 pe-auto mcb-bookmark-clear-btn'
             onClick={clear}
             title='Odstrániť záložky'
         >
@@ -89,7 +89,7 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
             title={title}
         >
             <img
-                className='rounded-circle border border-light mcb-bookmark-thumbnail'
+                className='rounded-circle mcb-bookmark-thumbnail'
                 style={{ opacity: isSelected ? 1 : 0.5 }}
                 alt='Založka'
                 src={url ?? defImg}
@@ -174,7 +174,7 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
             {showBookmarks && (
                 <Stack
                     direction='horizontal'
-                    className='container-fluid position-fixed bottom-0 end-0 start-0 p-3 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto pe-none'
+                    className='position-fixed bottom-0 end-0 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto p-3 mw-100 rounded'
                 >
                     <CleanBookmarksButton clear={clear} />
                     {bookmarks.map((recipeId) => {

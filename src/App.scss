@@ -50,6 +50,8 @@
 .mcb-bookmark-clear-btn {
     width: 32px;
     height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     align-self: center;
     display: flex;
     align-items: center;
@@ -164,4 +166,8 @@
 .mcb-light-link {
     color: #b4b4b4;
     text-decoration: none;
+}
+
+.mcb-gap {
+    gap: 16px;
 }
