@@ -3,7 +3,12 @@ import { pictureApi, recipeApi } from '../utils/apiWrapper';
 import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';
 import { useMatch, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { AuthContext } from './auth-context';
+
+const BOOKMARKS_KEY = 'bookmarks' as const;
 
 type BookmarkContextObj = {
     addRecipe: (recipeId: number) => void;
@@ -22,47 +27,55 @@ export const useBookmarContext = () => {
     return context;
 };
 
+const CleanBookmarksButton: React.FC<{ clear: () => void }> = ({ clear }) => {
+    return (
+        <button
+            className='btn btn-danger rounded-circle p-0 m-0 pe-auto mcb-bookmark-clear-btn'
+            onClick={clear}
+            title='Odstrániť záložky'
+        >
+            <FontAwesomeIcon
+                icon={faXmark}
+                className='mcb-bookmark-clear-btn_icon'
+            />
+        </button>
+    );
+};
+
 const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
-    const match = useMatch('/recipe/display/:recipeId');
+    const match = useMatch('/recipe/:recipeId');
     const navigate = useNavigate();
     const [url, setUrl] = useState<string | undefined | null>(undefined);
-    const [title, setTitle] = useState<string>('');
-    const queryClient = useQueryClient();
-
     const isSelected = match?.params?.recipeId === recipeId.toString();
 
+    const { data: recipe, isLoading: isLoadingRecipe } = useQuery({
+        queryKey: ['recipes', recipeId] as const,
+        queryFn: ({ queryKey }) => recipeApi.getRecipe(queryKey[1])
+    });
+
+    const pictureId = recipe?.pictures[0]?.id;
+    const title = recipe?.name;
+
+    const { data: thumbnail, isLoading: isLoadingThumbnail } = useQuery({
+        queryKey: ['thumbnails', pictureId] as const,
+        queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1]!),
+        enabled: !!pictureId
+    });
+
     useEffect(() => {
-        let url: string | null = null;
-        (async () => {
-            try {
-                const recipe = await queryClient.fetchQuery({
-                    queryKey: ['recipes', recipeId] as const,
-                    queryFn: async ({ queryKey }) => recipeApi.getRecipe(queryKey[1])
-                });
-                if (recipe && recipe.pictures.length > 0) {
-                    const data = await queryClient.fetchQuery({
-                        queryKey: ['thumbnails', recipe.pictures[0].id] as const,
-                        queryFn: async ({ queryKey }) => pictureApi.getPictureThumbnail(queryKey[1])
-                    });
-                    if (data instanceof Blob) {
-                        url = URL.createObjectURL(data);
-                        setUrl(url);
-                    }
-                    setTitle(recipe.name);
-                } else {
-                    setUrl(null);
-                }
-            } catch (e) {}
-        })();
-        return () => {
-            if (url) {
-                URL.revokeObjectURL(url);
+        if (!isLoadingRecipe && !isLoadingThumbnail) {
+            if (!!thumbnail && thumbnail instanceof Blob) {
+                const url = URL.createObjectURL(thumbnail);
+                setUrl(url);
+                return () => URL.revokeObjectURL(url);
+            } else {
+                setUrl(null);
             }
-        };
-    }, [queryClient, recipeId]);
+        }
+    }, [thumbnail, isLoadingRecipe, isLoadingThumbnail]);
 
     const onClickHandler = useCallback(() => {
-        navigate('/recipe/display/' + recipeId);
+        navigate('/recipe/' + recipeId);
     }, [navigate, recipeId]);
 
     if (url === undefined) {
@@ -76,8 +89,8 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
             title={title}
         >
             <img
-                className='rounded-circle border border-light'
-                style={{ maxWidth: '64px', opacity: isSelected ? 1 : 0.5 }}
+                className='rounded-circle mcb-bookmark-thumbnail'
+                style={{ opacity: isSelected ? 1 : 0.5 }}
                 alt='Založka'
                 src={url ?? defImg}
             />
@@ -85,10 +98,30 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
     );
 };
 
+const getStoredBookmarks = () => {
+    const storedBookmarks = localStorage.getItem(BOOKMARKS_KEY);
+    if (storedBookmarks) {
+        const splittedStringIds = storedBookmarks.split(',');
+        const mappedIds = splittedStringIds.map((id) => +id);
+        const numericIds = mappedIds.filter((id) => !isNaN(id));
+        return numericIds;
+    }
+    return [];
+};
+
+const setStoredBookmarks = (bookmarks: number[], hasCookieConsent: boolean) => {
+    if (bookmarks.length === 0) {
+        localStorage.removeItem(BOOKMARKS_KEY);
+    } else if (hasCookieConsent) {
+        localStorage.setItem(BOOKMARKS_KEY, bookmarks.join(','));
+    }
+};
+
 export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
-    const [bookmarks, setBookmars] = useState<number[]>([]);
-    const inRecipes = useMatch('/recipe/display/*');
-    const inSearch = useMatch('/recipes/*');
+    const { userId, hasCookieConsent } = useContext(AuthContext);
+    const [bookmarks, setBookmars] = useState<number[]>(getStoredBookmarks());
+    const inRecipes = useMatch('/recipe/:recipeId');
+    const inSearch = useMatch('/recipes');
 
     const showBookmarks = (inRecipes || inSearch) && bookmarks.length > 0;
 
@@ -129,6 +162,10 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
         [addRecipe, removeRecipe, clear, contains]
     );
 
+    useEffect(() => {
+        setStoredBookmarks(bookmarks, hasCookieConsent);
+    }, [bookmarks, hasCookieConsent, userId]);
+
     return (
         <>
             <BookmarkContext.Provider value={contextValue}>
@@ -137,8 +174,9 @@ export const BookmarkContextProvider: React.FC<PropsWithChildren> = ({ children 
             {showBookmarks && (
                 <Stack
                     direction='horizontal'
-                    className='container-fluid position-fixed bottom-0 end-0 start-0 p-3 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto pe-none'
+                    className='position-fixed bottom-0 end-0 gap-3 zindex-tooltip align-items-end flex-row-reverse overflow-auto p-3 mw-100 rounded'
                 >
+                    <CleanBookmarksButton clear={clear} />
                     {bookmarks.map((recipeId) => {
                         return (
                             <Bookmark

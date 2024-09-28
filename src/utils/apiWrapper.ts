@@ -15,8 +15,7 @@ import { Environment } from './env';
 declare const env: Environment;
 
 const config = new Configuration({
-    // @ts-ignore
-    authorization: () => window.token,
+    authorization: () => window.token ?? null,
     basePath: env.baseApiUrl ?? '/api'
 });
 

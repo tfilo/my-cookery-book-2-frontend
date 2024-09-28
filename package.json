@@ -1,45 +1,24 @@
 {
     "name": "my-cookery-book-2-frontend",
-    "version": "1.2.1",
-    "author": "Petra Filová",
+    "version": "1.3.0",
+    "description": "Personal cookery book",
+    "homepage": "https://recepty.ddns.net",
+    "repository": {
+        "url": "https://github.com/tfilo/my-cookery-book-2-frontend",
+        "type": "github"
+    },
+    "author": {
+        "name": "Petra Filová",
+        "url": "https://github.com/petrafilova"
+    },
+    "contributors": [
+        {
+            "name": "Tomáš Filo",
+            "url": "https://github.com/tfilo"
+        }
+    ],
     "license": "MIT",
     "proxy": "http://localhost:8080/",
-    "dependencies": {
-        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-        "@fortawesome/fontawesome-svg-core": "^6.5.1",
-        "@fortawesome/free-regular-svg-icons": "^6.5.1",
-        "@fortawesome/free-solid-svg-icons": "^6.5.1",
-        "@fortawesome/react-fontawesome": "^0.2.0",
-        "@hookform/resolvers": "^2.9.11",
-        "@openapi-generator-plus/typescript-fetch-client-generator": "^1.6.0",
-        "@tanstack/react-query": "^5.25.0",
-        "@tanstack/react-query-devtools": "^5.25.0",
-        "@testing-library/jest-dom": "^5.17.0",
-        "@testing-library/react": "^13.4.0",
-        "@testing-library/user-event": "^13.5.0",
-        "@types/jest": "^27.5.2",
-        "@types/lodash": "^4.14.202",
-        "@types/node": "^16.18.86",
-        "@types/react": "^18.2.61",
-        "@types/react-dom": "^18.2.19",
-        "@types/react-router-dom": "^5.3.3",
-        "bootstrap": "^5.3.3",
-        "jwt-decode": "^3.1.2",
-        "lodash": "^4.17.21",
-        "openapi-generator-plus": "^2.14.2",
-        "react": "^18.2.0",
-        "react-bootstrap": "^2.10.1",
-        "react-bootstrap-typeahead": "^6.3.2",
-        "react-cookie-consent": "^8.0.1",
-        "react-dom": "^18.2.0",
-        "react-hook-form": "^7.50.1",
-        "react-router-dom": "^6.22.2",
-        "react-scripts": "5.0.1",
-        "react-to-print": "^2.15.1",
-        "sass": "^1.71.1",
-        "typescript": "^4.9.5",
-        "yup": "^0.32.11"
-    },
     "scripts": {
         "start": "npm run generate-openapi && react-scripts start",
         "build": "npm run generate-openapi && react-scripts build",
@@ -49,6 +28,48 @@
         "prettier": "prettier . --check",
         "prettier:fix": "prettier . --write",
         "licenseReport": "license-report --package=./package.json --output=table --config license-report.json > ./LIBRARIES"
+    },
+    "dependencies": {
+        "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "@fortawesome/fontawesome-svg-core": "^6.6.0",
+        "@fortawesome/free-regular-svg-icons": "^6.6.0",
+        "@fortawesome/free-solid-svg-icons": "^6.6.0",
+        "@fortawesome/react-fontawesome": "^0.2.2",
+        "@hookform/resolvers": "^2.9.11",
+        "@openapi-generator-plus/typescript-fetch-client-generator": "1.6.1",
+        "@tanstack/react-query": "^5.56.2",
+        "@tanstack/react-query-devtools": "^5.58.0",
+        "@testing-library/jest-dom": "^5.17.0",
+        "@testing-library/react": "^13.4.0",
+        "@testing-library/user-event": "^13.5.0",
+        "@types/jest": "^27.5.2",
+        "@types/lodash": "^4.17.9",
+        "@types/node": "^16.18.112",
+        "@types/react": "^18.3.10",
+        "@types/react-dom": "^18.3.0",
+        "bootstrap": "^5.3.3",
+        "jwt-decode": "^3.1.2",
+        "lodash": "^4.17.21",
+        "openapi-generator-plus": "2.14.2",
+        "react": "^18.3.1",
+        "react-bootstrap": "^2.10.5",
+        "react-bootstrap-typeahead": "^6.3.2",
+        "react-cookie-consent": "^8.0.1",
+        "react-dom": "^18.3.1",
+        "react-hook-form": "^7.53.0",
+        "react-router-dom": "^6.26.2",
+        "react-scripts": "5.0.1",
+        "react-to-print": "^2.15.1",
+        "sass": "^1.79.4",
+        "typescript": "^4.9.5",
+        "yup": "^0.32.11"
+    },
+    "devDependencies": {
+        "del-cli": "^5.1.0",
+        "eslint-config-prettier": "^9.1.0",
+        "license-report": "^6.7.0",
+        "prettier": "^3.3.3",
+        "replace-in-file": "^6.3.5"
     },
     "eslintConfig": {
         "extends": [
@@ -80,12 +101,5 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
-    },
-    "devDependencies": {
-        "del-cli": "^5.1.0",
-        "eslint-config-prettier": "^9.1.0",
-        "license-report": "^6.5.0",
-        "prettier": "^3.2.5",
-        "replace-in-file": "^6.3.5"
     }
 }
