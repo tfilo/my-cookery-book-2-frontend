@@ -18,7 +18,7 @@
         }
     ],
     "license": "MIT",
-    "proxy": "https://recepty.tope.sk/",
+    "proxy": "http://localhost:8080/",
     "scripts": {
         "start": "npm run generate-openapi && react-scripts start",
         "build": "npm run generate-openapi && react-scripts build",
