@@ -21,5 +21,3 @@ export const formatErrorMessage = async (err: any) => {
         return 'Nastala neočakávana chyba.';
     }
 };
-
-

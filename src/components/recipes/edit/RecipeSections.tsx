@@ -62,9 +62,7 @@ const RecipeSections: React.FC<RecipeSectionsProps> = (props) => {
                     >
                         <Card.Body className='pb-0'>
                             <section>
-                                <div
-                                    className='position-absolute mcb-card-action-btn'
-                                >
+                                <div className='position-absolute mcb-card-action-btn'>
                                     <Button
                                         variant='outline-light'
                                         aria-label='presunúť sekciu nahor'

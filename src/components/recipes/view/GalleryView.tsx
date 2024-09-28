@@ -85,9 +85,7 @@ const GalleryView: React.FC<GalleryViewProps> = ({ pictureId, pictures, onClose 
             onHide={onClose}
         >
             <BootstrapModal.Header className='bg-dark border-dark'>
-                <div
-                    className='position-absolute mcb-card-action-btn'
-                >
+                <div className='position-absolute mcb-card-action-btn'>
                     <Button
                         size='lg'
                         title='Predchádzajúci'

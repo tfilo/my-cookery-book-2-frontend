@@ -36,9 +36,7 @@ const PictureView: React.FC<PictureProps> = ({ recipe }) => {
                         >
                             <RecipeThumbnail pictureId={picture.id} />
                             <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                                <Card.Title
-                                    className='m-0 p-2 mcb-card'
-                                >
+                                <Card.Title className='m-0 p-2 mcb-card'>
                                     <span className='text-white'>{picture.name}</span>
                                 </Card.Title>
                             </Card.ImgOverlay>
