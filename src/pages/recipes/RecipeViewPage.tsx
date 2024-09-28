@@ -18,11 +18,65 @@ import SourceView from '../../components/recipes/view/SourceView';
 import ServeView from '../../components/recipes/view/ServeView';
 import AuthorView from '../../components/recipes/view/AuthorView';
 import MethodView from '../../components/recipes/view/MethodView';
+import { Api } from '../../openapi';
 
 const INLINE_STYLE_FOR_PRINT = '@page { margin: 40px !important; }' as const;
 
+const prevState: {
+    [id: number]: { serves: number | null } | undefined;
+} = {};
+
+const Recipe: React.FC<{
+    recipe: Api.Recipe;
+    componentRef: React.RefObject<HTMLDivElement>;
+}> = ({ recipe, componentRef }) => {
+    const { state } = useLocation();
+    if (state && state.reset) {
+        delete prevState[recipe.id];
+    }
+    const [serves, setServes] = useState<number>(prevState[recipe.id]?.serves ?? recipe.serves ?? 1);
+
+    useEffect(() => {
+        const _prevState = prevState[recipe.id];
+        if (_prevState === undefined) {
+            prevState[recipe.id] = {
+                serves
+            };
+        } else {
+            _prevState.serves = serves;
+        }
+    }, [recipe.id, serves]);
+
+    return (
+        <div ref={componentRef}>
+            <style>{INLINE_STYLE_FOR_PRINT}</style>
+            <h1 className='pt-2'>{recipe.name}</h1>
+            <ServeView
+                key={recipe.id}
+                recipe={recipe}
+                serves={serves}
+                setServes={setServes}
+            />
+            <SectionView
+                recipe={recipe}
+                serves={serves}
+            />
+            <MethodView method={recipe.method} />
+            <PictureView recipe={recipe} />
+            <SourceView recipe={recipe} />
+            <AssociatedRecipeView
+                parentRecipe={recipe}
+                serves={serves}
+            />
+            <div className='mcb-transparent-border'>
+                <hr />
+            </div>
+            <AuthorView recipe={recipe} />
+        </div>
+    );
+};
+
 const RecipeViewPage: React.FC = () => {
-    const [error, setError] = useState<string>();
     const params = useParams();
 
     const recipeId = !!params.recipeId ? parseInt(params.recipeId) : NaN;
@@ -31,29 +85,14 @@ const RecipeViewPage: React.FC = () => {
         throw new Error('Parameter "recipeId" is required numeric parameter!');
     }
 
-    const [serves, setServes] = useState<number>(1);
-    const componentRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const { search } = useLocation();
+    const [error, setError] = useState<string>();
+    const componentRef = useRef<HTMLDivElement>(null);
+
     const searchParams = useMemo(() => new URLSearchParams(search), [search]);
 
     const { contains, addRecipe, removeRecipe } = useBookmarContext();
-
-    const {
-        data: recipe,
-        isFetching,
-        isError: isErrorRecipe,
-        error: errorRecipe
-    } = useQuery({
-        queryKey: ['recipes', recipeId] as const,
-        queryFn: async ({ queryKey, signal }) =>
-            recipeApi.getRecipe(queryKey[1], { signal }).then((recipe) => {
-                if (recipe.serves) {
-                    setServes(recipe.serves);
-                }
-                return recipe;
-            })
-    });
 
     const isBookmarked = useMemo(() => contains(recipeId), [recipeId, contains]);
 
@@ -68,6 +107,16 @@ const RecipeViewPage: React.FC = () => {
     const onNavBackHandler = useCallback(() => {
         navigate(`/recipes?${searchParams}`);
     }, [navigate, searchParams]);
+
+    const {
+        data: recipe,
+        isFetching,
+        isError: isErrorRecipe,
+        error: errorRecipe
+    } = useQuery({
+        queryKey: ['recipes', recipeId] as const,
+        queryFn: async ({ queryKey, signal }) => recipeApi.getRecipe(queryKey[1], { signal })
+    });
 
     useEffect(() => {
         (async () => {
@@ -113,30 +162,11 @@ const RecipeViewPage: React.FC = () => {
                 </Stack>
             </Stack>
             {!!recipe && (
-                <div ref={componentRef}>
-                    <style>{INLINE_STYLE_FOR_PRINT}</style>
-                    <h1 className='pt-2'>{recipe.name}</h1>
-                    <ServeView
-                        recipe={recipe}
-                        serves={serves}
-                        setServes={setServes}
-                    />
-                    <SectionView
-                        recipe={recipe}
-                        serves={serves}
-                    />
-                    <MethodView method={recipe.method} />
-                    <PictureView recipe={recipe} />
-                    <SourceView recipe={recipe} />
-                    <AssociatedRecipeView
-                        parentRecipe={recipe}
-                        serves={serves}
-                    />
-                    <div className='mcb-transparent-border'>
-                        <hr />
-                    </div>
-                    <AuthorView recipe={recipe} />
-                </div>
+                <Recipe
+                    key={recipe.id}
+                    recipe={recipe}
+                    componentRef={componentRef}
+                />
             )}
             <Modal
                 show={!!error}

@@ -20,8 +20,6 @@ const ServeView: React.FC<ServeProps> = ({ recipe, serves, setServes }) => {
         return null;
     }
 
-    const defaultValue = recipe.serves ?? serves;
-
     return (
         <Stack
             direction='horizontal'
@@ -30,7 +28,7 @@ const ServeView: React.FC<ServeProps> = ({ recipe, serves, setServes }) => {
             <h2>Počet porcií:</h2>
             <input
                 type='number'
-                defaultValue={defaultValue}
+                value={serves}
                 onChange={changeServesHandler}
                 className='border-0 pb-2 mcb-serve-input'
                 min={1}

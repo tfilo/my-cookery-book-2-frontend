@@ -27,7 +27,11 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
     );
 
     const onShowRecipeHandler = useCallback(() => {
-        navigate(`/recipe/${recipe.id}?${searchParams}`);
+        navigate(`/recipe/${recipe.id}?${searchParams}`, {
+            state: {
+                reset: true
+            }
+        });
     }, [navigate, recipe.id, searchParams]);
 
     const pictureId = recipe.pictures[0]?.id;
@@ -41,14 +45,10 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
         >
             <RecipeThumbnail pictureId={pictureId} />
             <Card.ImgOverlay className='d-flex flex-column-reverse p-0'>
-                <Card.Text
-                    className='m-0 p-2 mcb-card'
-                >
+                <Card.Text className='m-0 p-2 mcb-card'>
                     <span className='text-white'>{recipe.description}</span>
                 </Card.Text>
-                <Card.Title
-                    className='m-0 p-2 mcb-card'
-                >
+                <Card.Title className='m-0 p-2 mcb-card'>
                     <span className='text-white'>{recipe.name}</span>
                 </Card.Title>
                 {canEdit && (
