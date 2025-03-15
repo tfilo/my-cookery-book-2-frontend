@@ -8,7 +8,12 @@ const App: React.FC = () => {
     const { isLoggedIn } = useContext(AuthContext);
     const router = useRouter(isLoggedIn);
 
-    return <RouterProvider router={router} key={isLoggedIn.toString()} />;
+    return (
+        <RouterProvider
+            router={router}
+            key={isLoggedIn.toString()}
+        />
+    );
 };
 
 export default App;
