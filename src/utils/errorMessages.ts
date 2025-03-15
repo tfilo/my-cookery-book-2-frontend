@@ -1,7 +1,12 @@
 import { getErrorMessageLabel } from '../localisations/localisations';
 
-export const formatErrorMessage = async (err: any) => {
-    if (('name' in err && err.name === 'AbortError') || ('revert' in err && 'silent' in err)) {
+export const formatErrorMessage = async (err: unknown) => {
+    if (
+        err !== undefined &&
+        err !== null &&
+        typeof err === 'object' &&
+        (('name' in err && err.name === 'AbortError') || ('revert' in err && 'silent' in err))
+    ) {
         return undefined;
     }
     if (err instanceof Response) {

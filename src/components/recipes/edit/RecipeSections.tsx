@@ -5,9 +5,9 @@ import Input from '../../ui/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus, faCircleMinus, faCircleChevronDown, faCircleChevronUp } from '@fortawesome/free-solid-svg-icons';
 import Textarea from '../../ui/Textarea';
-import { SelectGroupOptions } from '../../ui/Select';
+import type { SelectGroupOptions } from '../../ui/Select';
 import Ingredients from './Ingredients/Ingredients';
-import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
+import type { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 
 type RecipeSectionsProps = {
     units: SelectGroupOptions[];

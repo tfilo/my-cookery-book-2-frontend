@@ -4,11 +4,11 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Api } from '../../openapi';
-import { AuthContext } from '../../store/auth-context';
 import { unitApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../ui/Modal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AuthContext } from '../../store/auth-context';
 
 const Units: React.FC<{
     unitCategoryId: number;

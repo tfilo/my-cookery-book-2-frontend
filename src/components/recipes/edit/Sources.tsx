@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { type JSX } from 'react';
 import { Button, Card, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import InputWithBtn from '../../ui/InputWithBtn';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleMinus, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
-import { ButtonVariant } from 'react-bootstrap/esm/types';
+import type { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
+import type { ButtonVariant } from 'react-bootstrap/esm/types';
 
 const buttonConfig: {
     variant?: ButtonVariant;

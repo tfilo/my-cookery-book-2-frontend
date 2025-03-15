@@ -101,10 +101,12 @@ const schema = yup
                                     .default(null)
                                     .nullable()
                                     .transform((val) => (isNaN(val) ? null : val)),
-                                unitId: yup.number().integer().min(1, 'Povinná položka').required()
+                                unitId: yup.number().integer().min(1, 'Povinná položka').required(),
+                                sortNumber: yup.number().defined().default(0).label('Poradové číslo')
                             })
                         )
-                        .required()
+                        .required(),
+                    sortNumber: yup.number().defined().default(0).label('Poradové číslo')
                 })
             )
             .required(),
@@ -135,7 +137,8 @@ const schema = yup
             .of(
                 yup.object({
                     id: yup.number().integer().min(1).required(),
-                    name: yup.string().trim().min(1, 'Povinná položka').max(80, 'Musí byť maximálne 80 znakov').required()
+                    name: yup.string().trim().min(1, 'Povinná položka').max(80, 'Musí byť maximálne 80 znakov').required(),
+                    sortNumber: yup.number().defined().default(0).label('Poradové číslo')
                 })
             )
             .transform((val) => (val === '' ? [] : val))
@@ -189,7 +192,7 @@ const RecipeEditPage: React.FC = () => {
                     queryKey: ['categories'],
                     queryFn: ({ signal }) =>
                         categoryApi.getCategories({ signal }).then((data) =>
-                            data.sort((a, b) =>
+                            [...data].sort((a, b) =>
                                 a.name.localeCompare(b.name, undefined, {
                                     sensitivity: 'base'
                                 })
@@ -201,7 +204,7 @@ const RecipeEditPage: React.FC = () => {
                     queryKey: ['tags'],
                     queryFn: ({ signal }) =>
                         tagApi.getTags({ signal }).then((data) =>
-                            data.sort((a, b) =>
+                            [...data].sort((a, b) =>
                                 a.name.localeCompare(b.name, undefined, {
                                     sensitivity: 'base'
                                 })
@@ -213,7 +216,7 @@ const RecipeEditPage: React.FC = () => {
                     queryKey: ['unitcategories'],
                     queryFn: ({ signal }) =>
                         unitCategoryApi.getUnitCategories({ signal }).then((data) =>
-                            data.sort((a, b) =>
+                            [...data].sort((a, b) =>
                                 a.name.localeCompare(b.name, undefined, {
                                     sensitivity: 'base'
                                 })
@@ -221,7 +224,7 @@ const RecipeEditPage: React.FC = () => {
                         )
                 });
 
-                for (let category of listOfUnitCategories) {
+                for (const category of listOfUnitCategories) {
                     const unitsOfCategory = await queryClient.fetchQuery({
                         queryKey: ['unitcategories', category.id, 'units'] as const,
                         queryFn: async ({ queryKey }) => {
@@ -316,7 +319,7 @@ const RecipeEditPage: React.FC = () => {
     });
 
     const submitHandler: SubmitHandler<RecipeForm> = async (data: RecipeForm) => {
-        const sendData = {
+        const sendData: Api.UpdateRecipe | Api.CreateRecipe = {
             ...data,
             tags: data.tags.map((tag) => tag.id),
             sources: data.sources.map((s) => s.value),
@@ -344,6 +347,12 @@ const RecipeEditPage: React.FC = () => {
                             id: 'id' in i && i.id ? i.id : undefined
                         };
                     })
+                };
+            }),
+            pictures: data.pictures.map((p, idx) => {
+                return {
+                    ...p,
+                    sortNumber: idx + 1
                 };
             })
         };

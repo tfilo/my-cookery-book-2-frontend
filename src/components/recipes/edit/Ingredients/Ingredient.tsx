@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { get } from 'lodash';
 import React, { useCallback, useId, useState } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-import { UseFieldArrayMove, UseFieldArrayRemove, useFormContext } from 'react-hook-form';
-import { SelectGroupOptions } from '../../../ui/Select';
+import { type UseFieldArrayMove, type UseFieldArrayRemove, useFormContext } from 'react-hook-form';
+import type { SelectGroupOptions } from '../../../ui/Select';
 
 type IngredientProps = {
     name: string;

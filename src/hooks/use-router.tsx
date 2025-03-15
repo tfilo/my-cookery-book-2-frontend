@@ -1,6 +1,6 @@
 import React, { useMemo, lazy } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
-import { BookmarkContextProvider } from '../store/bookmark-context';
+import { BookmarkContextProvider } from '../store/bookmark-context-provider';
 
 import SignInPage from '../pages/signIn/SignInPage';
 import RecipeSearchPage from '../pages/recipes/RecipeSearchPage';

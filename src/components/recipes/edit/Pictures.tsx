@@ -1,16 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
-import { FieldArrayWithId, UseFieldArrayMove, UseFieldArrayRemove, useFieldArray, useFormContext } from 'react-hook-form';
+import { type FieldArrayWithId, type UseFieldArrayMove, type UseFieldArrayRemove, useFieldArray, useFormContext } from 'react-hook-form';
 import { pictureApi } from '../../../utils/apiWrapper';
 import Input from '../../ui/Input';
-import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
+import type { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGripVertical, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { formatErrorMessage } from '../../../utils/errorMessages';
 import Modal from '../../ui/Modal';
 import Spinner from '../../ui/Spinner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Api } from '../../../openapi';
 
 type PictureProps = {
     field: FieldArrayWithId<RecipeForm, 'pictures', '_id'>;
@@ -151,20 +150,20 @@ const Pictures: React.FC = () => {
     const queryClient = useQueryClient();
 
     const { mutate: uploadImage, isPending: isUploadingImage } = useMutation({
-        mutationFn: (image: Api.UploadPictureRequest.MultipartFormData) => {
+        mutationFn: (image: string | Blob) => {
             return pictureApi.uploadPicture(image);
         },
         onMutate: async () => {
             await queryClient.cancelQueries({ queryKey: ['thumbnails'] });
             await queryClient.cancelQueries({ queryKey: ['pictures'] });
         },
-        onSettled: (data, error, image) => {
+        onSettled: (data, error) => {
             if (error) {
                 formatErrorMessage(error).then((message) => setError(message));
             } else if (data) {
                 queryClient.removeQueries({ queryKey: ['thumbnails', data.id] });
                 queryClient.removeQueries({ queryKey: ['pictures', data.id] });
-                append({ id: data.id, name: image.file!.filename!, sortNumber: fields.length + 1 });
+                append({ id: data.id, name: 'fotografia', sortNumber: fields.length + 1 });
                 if (imageInputRef.current) {
                     imageInputRef.current.value = '';
                 }
@@ -174,13 +173,7 @@ const Pictures: React.FC = () => {
 
     const pictureHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files.length === 1) {
-            const pictureName = event.target.files[0]?.name;
-            uploadImage({
-                file: {
-                    value: event.target.files[0],
-                    filename: pictureName
-                }
-            });
+            uploadImage(event.target.files[0]);
         }
     };
 

@@ -1,10 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import './index.scss';
-import AuthContextProvider from './store/auth-context';
+
+import './main.scss';
 import App from './App';
+import AuthContextProvider from './store/auth-context-provider';
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -14,9 +15,9 @@ const queryClient = new QueryClient({
     }
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-root.render(
-    <React.StrictMode>
+const rootElement = document.getElementById('root')!;
+createRoot(rootElement).render(
+    <StrictMode>
         <QueryClientProvider client={queryClient}>
             <AuthContextProvider>
                 <App />
@@ -26,5 +27,5 @@ root.render(
                 buttonPosition='bottom-left'
             />
         </QueryClientProvider>
-    </React.StrictMode>
+    </StrictMode>
 );

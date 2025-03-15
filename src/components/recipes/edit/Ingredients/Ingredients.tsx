@@ -3,9 +3,9 @@ import { Button, Form, Stack } from 'react-bootstrap';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { SelectGroupOptions } from '../../../ui/Select';
+import type { SelectGroupOptions } from '../../../ui/Select';
 import Ingredient from './Ingredient';
-import { RecipeForm } from '../../../../pages/recipes/RecipeEditPage';
+import type { RecipeForm } from '../../../../pages/recipes/RecipeEditPage';
 
 type IngredientsProps = {
     recipeSectionName: string;

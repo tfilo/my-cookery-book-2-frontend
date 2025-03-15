@@ -7,6 +7,8 @@ on:
 jobs:
 
   docker:
+    permissions:
+      actions: read
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4

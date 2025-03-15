@@ -2,13 +2,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { useQuery } from '@tanstack/react-query';
-import { AuthContext } from '../store/auth-context';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Navigation from './Navigation';
 import CookieConsent from './CookieConsent';
 import Spinner from './ui/Spinner';
 import Modal from './ui/Modal';
+import { AuthContext } from '../store/auth-context';
 
 const Base: React.FC = () => {
     const { isLoggedIn } = useContext(AuthContext);
