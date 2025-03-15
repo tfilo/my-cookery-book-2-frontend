@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faFilter, faArrowDownZA, faArrowDownAZ, faGripVertical } from '@fortawesome/free-solid-svg-icons';
 import { debounce } from 'lodash';
 import { Api } from '../../../openapi';
-import useCriteria from '../../../hooks/useCriteria';
+import useCriteria from '../../../hooks/use-criteria';
 import { getOrderByLabel } from '../../../localisations/localisations';
 import { EMPTY_CATEGORY_OPTION } from '../../../utils/constants';
 

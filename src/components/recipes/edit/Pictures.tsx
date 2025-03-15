@@ -10,7 +10,6 @@ import { formatErrorMessage } from '../../../utils/errorMessages';
 import Modal from '../../ui/Modal';
 import Spinner from '../../ui/Spinner';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Api } from '../../../openapi';
 
 type PictureProps = {
     field: FieldArrayWithId<RecipeForm, 'pictures', '_id'>;

@@ -319,7 +319,7 @@ const RecipeEditPage: React.FC = () => {
     });
 
     const submitHandler: SubmitHandler<RecipeForm> = async (data: RecipeForm) => {
-        const sendData = {
+        const sendData: Api.UpdateRecipe | Api.CreateRecipe = {
             ...data,
             tags: data.tags.map((tag) => tag.id),
             sources: data.sources.map((s) => s.value),
@@ -347,6 +347,12 @@ const RecipeEditPage: React.FC = () => {
                             id: 'id' in i && i.id ? i.id : undefined
                         };
                     })
+                };
+            }),
+            pictures: data.pictures.map((p, idx) => {
+                return {
+                    ...p,
+                    sortNumber: idx + 1
                 };
             })
         };

@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark as faBookmarkSolid, faCircleArrowLeft, faPrint } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark } from '@fortawesome/free-regular-svg-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useBookmarContext } from '../../store/bookmark-context';
 import { recipeApi } from '../../utils/apiWrapper';
 import { formatErrorMessage } from '../../utils/errorMessages';
 import Modal from '../../components/ui/Modal';
@@ -19,6 +18,7 @@ import ServeView from '../../components/recipes/view/ServeView';
 import AuthorView from '../../components/recipes/view/AuthorView';
 import MethodView from '../../components/recipes/view/MethodView';
 import { Api } from '../../openapi';
+import { useBookmarContext } from '../../hooks/use-bookmark-context';
 
 const INLINE_STYLE_FOR_PRINT = '@page { margin: 40px !important; }';
 

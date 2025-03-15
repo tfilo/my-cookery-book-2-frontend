@@ -5,8 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import { Api } from '../../../openapi';
 import RecipeThumbnail from '../RecipeThumbnail';
-import useRole from '../../../hooks/useRole';
-import useCriteria from '../../../hooks/useCriteria';
+import useRole from '../../../hooks/use-role';
+import useCriteria from '../../../hooks/use-criteria';
 
 type RecipeCardProps = {
     recipe: Api.SimpleRecipe;

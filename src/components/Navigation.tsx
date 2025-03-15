@@ -14,13 +14,13 @@ import {
     faUtensils
 } from '@fortawesome/free-solid-svg-icons';
 import { Api } from '../openapi';
-import { AuthContext } from '../store/auth-context';
-import useRole from '../hooks/useRole';
-import { getDefaultSearchParams } from '../hooks/useCriteria';
+import useRole from '../hooks/use-role';
+import { getDefaultSearchParams } from '../hooks/use-criteria';
 import { categoryApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Spinner from './ui/Spinner';
 import Modal from './ui/Modal';
+import { AuthContext } from '../store/auth-context';
 
 const Navigation: React.FC<{ isLoggedIn: boolean; username: string }> = ({ isLoggedIn, username }) => {
     const { logout: logoutHandler } = useContext(AuthContext);

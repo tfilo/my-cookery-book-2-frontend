@@ -34,8 +34,6 @@ const UnitPage: React.FC = () => {
     const categoryId = parseInt(params.categoryId);
     const queryClient = useQueryClient();
 
-    console.log(params);
-
     const methods = useForm<UnitForm>({
         resolver: yupResolver(schema),
         defaultValues: async () => {
@@ -47,7 +45,6 @@ const UnitPage: React.FC = () => {
                             return unitApi.getUnit(queryKey[3], { signal });
                         }
                     });
-                    console.log(data);
                     return data;
                 } catch (e) {
                     formatErrorMessage(e).then((message) => setError(message));
