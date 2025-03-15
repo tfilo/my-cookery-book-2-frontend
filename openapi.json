@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "My Cookery Book 2 - backend",
-        "version": "0.0.2",
+        "version": "1.2.0",
         "license": {
             "name": "MIT"
         },
@@ -615,15 +615,10 @@
                 "tags": ["picture"],
                 "requestBody": {
                     "content": {
-                        "multipart/form-data": {
+                        "application/octet-stream": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "file": {
-                                        "type": "string",
-                                        "format": "binary"
-                                    }
-                                }
+                                "type": "string",
+                                "format": "binary"
                             }
                         }
                     },

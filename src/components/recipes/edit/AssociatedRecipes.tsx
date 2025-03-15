@@ -5,7 +5,7 @@ import { Api } from '../../../openapi';
 import { recipeApi } from '../../../utils/apiWrapper';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { Controller, useFormContext } from 'react-hook-form';
-import { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
+import type { RecipeForm } from '../../../pages/recipes/RecipeEditPage';
 import { get } from 'lodash';
 import Spinner from '../../ui/Spinner';
 import { formatErrorMessage } from '../../../utils/errorMessages';
@@ -16,7 +16,12 @@ const AssociatedRecipes: React.FC = () => {
     const id = useId();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string>();
-    const [list, setList] = useState<{}[]>([]);
+    const [list, setList] = useState<
+        {
+            name: string;
+            id: number;
+        }[]
+    >([]);
     const queryClient = useQueryClient();
 
     const {

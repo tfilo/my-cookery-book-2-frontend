@@ -61,13 +61,14 @@ const schema = yup
         password: yup
             .string()
             .trim()
+            .defined()
             .min(8, 'Musí byť minimálne 8 znakov')
             .max(255, 'Musí byť maximálne 255 znakov')
             .matches(
                 /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/,
                 'Musí obsahovať aspoň jedno malé písmeno, jedno veľké písmeno a jedno číslo'
             )
-            .required('Povinná položka'),
+            .nullable(),
         confirmPassword: yup
             .string()
             .trim()
@@ -75,10 +76,11 @@ const schema = yup
             .required('Povinná položka'),
         roles: yup
             .array()
+            .defined()
             .of(
                 yup.object({
-                    value: yup.string().oneOf(['ADMIN', 'CREATOR']),
-                    name: yup.string()
+                    value: yup.mixed<Api.CreateUser.RoleEnum>().defined().oneOf(Object.values(Api.CreateUser.RoleEnum)),
+                    name: yup.string().defined()
                 })
             )
             .min(1, 'Musí byť minimálne jedna rola')

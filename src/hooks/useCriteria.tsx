@@ -9,7 +9,7 @@ export const getDefaultSearchParams = (categoryId?: number): string => {
     params.set(CriteriaKeys.pageSize, DEFAULT_PAGESIZE.toString());
     params.set(CriteriaKeys.orderBy, Api.RecipeSearchCriteria.OrderByEnum.Name);
     params.set(CriteriaKeys.order, Api.RecipeSearchCriteria.OrderEnum.ASC);
-    if (!!categoryId) {
+    if (categoryId !== undefined) {
         params.set(CriteriaKeys.orderBy, Api.RecipeSearchCriteria.OrderByEnum.Name);
         params.set(CriteriaKeys.order, Api.RecipeSearchCriteria.OrderEnum.ASC);
         params.set(CriteriaKeys.categoryId, categoryId.toString());
@@ -24,24 +24,25 @@ const searchParamsToCriteria = (searchParams: URLSearchParams): Api.RecipeSearch
     const categoryIdParam = searchParams.get(CriteriaKeys.categoryId);
     const categoryId = !!categoryIdParam && !isNaN(parseInt(categoryIdParam)) ? parseInt(categoryIdParam) : null;
     const tagsParam = searchParams.get(CriteriaKeys.tags);
-    const tags = !!tagsParam
-        ? tagsParam
-              .split(',')
-              .filter((t) => !isNaN(parseInt(t)))
-              .map((t) => +t)
-        : [];
+    const tags =
+        tagsParam !== null
+            ? tagsParam
+                  .split(',')
+                  .filter((t) => !isNaN(parseInt(t)))
+                  .map((t) => +t)
+            : [];
     const pageParam = searchParams.get(CriteriaKeys.page);
     const page = !!pageParam && !isNaN(parseInt(pageParam)) ? parseInt(pageParam) : DEFAULT_PAGE;
     const pageSizeParam = searchParams.get(CriteriaKeys.pageSize);
     const pageSize = !!pageSizeParam && !isNaN(parseInt(pageSizeParam)) ? parseInt(pageSizeParam) : DEFAULT_PAGESIZE;
     const orderByParam = searchParams.get(CriteriaKeys.orderBy);
     const orderBy =
-        !!orderByParam && Object.values<any>(Api.RecipeSearchCriteria.OrderByEnum).includes(orderByParam)
+        !!orderByParam && Object.values<string>(Api.RecipeSearchCriteria.OrderByEnum).includes(orderByParam)
             ? (orderByParam as Api.RecipeSearchCriteria.OrderByEnum)
             : Api.RecipeSearchCriteria.OrderByEnum.UpdatedAt;
     const orderParam = searchParams.get(CriteriaKeys.order);
     const order =
-        !!orderParam && Object.values<any>(Api.RecipeSearchCriteria.OrderEnum).includes(orderParam)
+        !!orderParam && Object.values<string>(Api.RecipeSearchCriteria.OrderEnum).includes(orderParam)
             ? (orderParam as Api.RecipeSearchCriteria.OrderEnum)
             : Api.RecipeSearchCriteria.OrderEnum.DESC;
 

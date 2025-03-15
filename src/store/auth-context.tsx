@@ -1,5 +1,5 @@
-import React, { useState, useEffect, PropsWithChildren, useMemo, useCallback } from 'react';
-import jwtDecode, { JwtPayload } from 'jwt-decode';
+import React, { useState, useEffect, type PropsWithChildren, useMemo, useCallback } from 'react';
+import { jwtDecode, type JwtPayload } from 'jwt-decode';
 import { authApi } from '../utils/apiWrapper';
 import { formatErrorMessage } from '../utils/errorMessages';
 import Modal from '../components/ui/Modal';
@@ -57,7 +57,7 @@ const hasCookieConsentStored = () => {
                 .find((cookie) => cookie.startsWith('CookieConsent'))
                 ?.split('=')[1] === 'true'
         );
-    } catch (e) {
+    } catch {
         console.error('Pri čítaní cookies nastala chyba.');
     }
     return false;

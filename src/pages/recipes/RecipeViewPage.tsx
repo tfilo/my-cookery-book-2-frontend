@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import ReactToPrint from 'react-to-print';
+import { useReactToPrint } from 'react-to-print';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBookmark as faBookmarkSolid, faCircleArrowLeft, faPrint } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark } from '@fortawesome/free-regular-svg-icons';
@@ -20,35 +20,54 @@ import AuthorView from '../../components/recipes/view/AuthorView';
 import MethodView from '../../components/recipes/view/MethodView';
 import { Api } from '../../openapi';
 
-const INLINE_STYLE_FOR_PRINT = '@page { margin: 40px !important; }' as const;
+const INLINE_STYLE_FOR_PRINT = '@page { margin: 40px !important; }';
 
-const prevState: {
-    [id: number]: { serves: number | null } | undefined;
-} = {};
+class PrevState {
+    private state: {
+        [id: number]: { serves: number | null } | undefined;
+    };
+
+    constructor() {
+        this.state = {};
+    }
+
+    setState = (recipeId: number, serves: number | null) => {
+        this.state[recipeId] = { serves };
+    };
+
+    getState = (recipeId: number) => {
+        return this.state[recipeId];
+    };
+
+    removeState = (recipeId: number) => {
+        delete this.state[recipeId];
+    };
+
+    clearState = () => {
+        this.state = {};
+    };
+}
+
+const prevState = new PrevState();
 
 const Recipe: React.FC<{
     recipe: Api.Recipe;
-    componentRef: React.RefObject<HTMLDivElement>;
-}> = ({ recipe, componentRef }) => {
+    ref: React.RefObject<HTMLDivElement | null>;
+}> = ({ recipe, ref }) => {
     const { state } = useLocation();
-    if (state && state.reset) {
-        delete prevState[recipe.id];
+    if (state?.reset) {
+        prevState.removeState(recipe.id);
     }
-    const [serves, setServes] = useState<number>(prevState[recipe.id]?.serves ?? recipe.serves ?? 1);
+    const [serves, setServes] = useState<number>(prevState.getState(recipe.id)?.serves ?? recipe.serves ?? 1);
 
     useEffect(() => {
-        const _prevState = prevState[recipe.id];
-        if (_prevState === undefined) {
-            prevState[recipe.id] = {
-                serves
-            };
-        } else {
-            _prevState.serves = serves;
-        }
+        return () => {
+            prevState.setState(recipe.id, serves);
+        };
     }, [recipe.id, serves]);
 
     return (
-        <div ref={componentRef}>
+        <div ref={ref}>
             <style>{INLINE_STYLE_FOR_PRINT}</style>
             <h1 className='pt-2'>{recipe.name}</h1>
             <ServeView
@@ -79,7 +98,7 @@ const Recipe: React.FC<{
 const RecipeViewPage: React.FC = () => {
     const params = useParams();
 
-    const recipeId = !!params.recipeId ? parseInt(params.recipeId) : NaN;
+    const recipeId = params.recipeId !== undefined && params.recipeId.trim() !== '' ? parseInt(params.recipeId) : NaN;
 
     if (isNaN(recipeId)) {
         throw new Error('Parameter "recipeId" is required numeric parameter!');
@@ -89,6 +108,7 @@ const RecipeViewPage: React.FC = () => {
     const { search } = useLocation();
     const [error, setError] = useState<string>();
     const componentRef = useRef<HTMLDivElement>(null);
+    const reactToPrintFn = useReactToPrint({ contentRef: componentRef });
 
     const searchParams = useMemo(() => new URLSearchParams(search), [search]);
 
@@ -151,21 +171,19 @@ const RecipeViewPage: React.FC = () => {
                     >
                         <FontAwesomeIcon icon={isBookmarked ? faBookmarkSolid : faBookmark} />
                     </Button>
-                    <ReactToPrint
-                        trigger={() => (
-                            <Button variant='light'>
-                                <FontAwesomeIcon icon={faPrint} />
-                            </Button>
-                        )}
-                        content={() => componentRef.current}
-                    />
+                    <Button
+                        variant='light'
+                        onClick={() => reactToPrintFn()}
+                    >
+                        <FontAwesomeIcon icon={faPrint} />
+                    </Button>
                 </Stack>
             </Stack>
             {!!recipe && (
                 <Recipe
                     key={recipe.id}
                     recipe={recipe}
-                    componentRef={componentRef}
+                    ref={componentRef}
                 />
             )}
             <Modal

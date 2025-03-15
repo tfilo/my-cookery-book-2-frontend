@@ -7,7 +7,7 @@ type TextareaProps = {
     name: string;
     disabled?: boolean;
     className?: string;
-    rows?: any;
+    rows?: number;
 };
 
 const Textarea: React.FC<TextareaProps> = (props) => {
@@ -17,7 +17,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
         formState: { errors }
     } = useFormContext();
 
-    const errorMessage = errors[props.name]?.message;
+    const errorMessage = errors[props.name]?.message?.toString();
 
     return (
         <Form.Group
@@ -33,7 +33,7 @@ const Textarea: React.FC<TextareaProps> = (props) => {
                 isInvalid={!!errorMessage}
                 rows={props.rows}
             />
-            <Form.Control.Feedback type='invalid'>{errorMessage?.toString()}</Form.Control.Feedback>
+            <Form.Control.Feedback type='invalid'>{errorMessage}</Form.Control.Feedback>
         </Form.Group>
     );
 };

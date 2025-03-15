@@ -19,7 +19,8 @@ const schema = yup
     .object({
         name: yup.string().trim().max(80, 'Musí byť maximálne 80 znakov').required('Povinná položka'),
         abbreviation: yup.string().trim().max(20, 'Musí byť maximálne 20 znakov').required('Povinná položka'),
-        required: yup.boolean().required('Povinná položka')
+        required: yup.boolean().required('Povinná položka'),
+        unitCategoryId: yup.number().defined().label('Kategória jednotky')
     })
     .required();
 

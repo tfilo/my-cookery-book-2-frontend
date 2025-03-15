@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { type PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { pictureApi, recipeApi } from '../utils/apiWrapper';
 import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';

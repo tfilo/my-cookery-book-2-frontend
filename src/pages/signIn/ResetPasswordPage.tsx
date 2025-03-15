@@ -37,7 +37,7 @@ const schema = yup
         confirmPassword: yup
             .string()
             .trim()
-            .equals([yup.ref('newPassword')], 'Zadané heslá sa nezhodujú')
+            .oneOf([yup.ref('newPassword')], 'Zadané heslá sa nezhodujú')
             .required('Povinná položka')
     })
     .required();
@@ -62,11 +62,11 @@ const ResetPasswordPage: React.FC = () => {
         }
     }, [reset, username, key]);
 
-    const submitHandler = async (data: ResetPasswordData) => {
-        console.log(data);
-        const { confirmPassword, ...formattedData } = data;
-        console.log(formattedData);
+    const submitHandler = async ({ confirmPassword, ...formattedData }: ResetPasswordData) => {
         try {
+            if (confirmPassword !== formattedData.newPassword) {
+                throw new Error('Passwords doesnt match');
+            }
             await authApi.resetPassword(formattedData);
             setSuccessfulConfirmation(true);
         } catch (err) {

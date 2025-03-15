@@ -4,9 +4,9 @@ Frontend application providing GUI build in React.js. Whole frontend is writen i
 
 ## Technologies required for development
 
--   Node.js (>=20)
--   Docker (>=26.0.1)
--   Docker compose (>=2.26.1)
+-   Node.js (>=22)
+-   Docker (>=24.0.2)
+-   Docker compose (>=2.20.1)
 
 ## Development
 
@@ -19,7 +19,7 @@ It will run pgAdmin on port 8082 and database on port 5432 and backend on port 8
 After database and backend is running, you can start development server by commands:
 
 -   `npm install` (only if you didn't run it before or you modifed package.json file)
--   `npm run generate-openapi` (only if you need generate openapi without starting/buildin app)
+-   `npm run apigen` (only if you need generate openapi without starting/buildin app)
 -   `npm start`
 
 React App will start in development mode on port 3000.

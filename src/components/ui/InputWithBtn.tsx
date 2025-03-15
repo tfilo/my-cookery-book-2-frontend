@@ -1,8 +1,8 @@
-import React, { useId } from 'react';
+import React, { useId, type JSX } from 'react';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import { useFormContext } from 'react-hook-form';
 import { get } from 'lodash';
-import { ButtonVariant } from 'react-bootstrap/esm/types';
+import { type ButtonVariant } from 'react-bootstrap/esm/types';
 
 type InputWithBtnProps = {
     name: string;

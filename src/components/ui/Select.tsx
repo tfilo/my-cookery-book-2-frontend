@@ -41,11 +41,13 @@ const Select: React.FC<SelectProps> = (props) => {
                     props.name,
                     value.filter((v) => !!v).map((v) => v.toString())
                 );
-            } else if (!!value) {
-                setValue(props.name, value ? [value.toString()] : []);
+            } else if (value !== undefined && value !== null && value.toString().trim() !== '') {
+                setValue(props.name, [value.toString()]);
+            } else {
+                setValue(props.name, []);
             }
         } else {
-            setValue(props.name, value ? value.toString() : '-1');
+            setValue(props.name, value !== undefined && value !== null && value.toString().trim() !== '' ? value.toString() : '-1');
         }
     }, [value, props.multiple, props.name, setValue]);
 
