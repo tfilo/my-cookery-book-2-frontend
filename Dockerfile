@@ -11,7 +11,7 @@ ENV BASE_API_URL='http://localhost/api'
 COPY ./init/default.conf /etc/nginx/conf.d/default.conf
 COPY ./init/envreplace.sh /docker-entrypoint.d/envreplace.sh
 WORKDIR /usr/share/nginx/html/
-COPY --from=builder /usr/src/app/build/ .
+COPY --from=builder /usr/src/app/dist/ .
 USER root
 RUN chown nginx:nginx -R /usr/share/nginx/html/ && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf
