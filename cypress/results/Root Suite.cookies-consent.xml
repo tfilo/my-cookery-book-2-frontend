@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="1.723" tests="2" failures="0">
+  <testsuite name="" timestamp="2025-03-16T06:02:46" tests="0" file="cypress/e2e/cookies-consent.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Root Suite.cookies-consent" timestamp="2025-03-16T06:02:46" tests="2" time="1.700" failures="0">
+    <testcase name="shoud be visible" time="0.843" classname="cookies-consent">
+    </testcase>
+    <testcase name="shoud accept cookies" time="0.543" classname="cookies-consent">
+    </testcase>
+  </testsuite>
+</testsuites>

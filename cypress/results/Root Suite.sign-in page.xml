@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="2.650" tests="4" failures="0">
+  <testsuite name="" timestamp="2025-03-16T06:02:48" tests="0" file="cypress/e2e/sign-in.cy.ts" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Root Suite.sign-in page" timestamp="2025-03-16T06:02:48" tests="4" time="2.630" failures="0">
+    <testcase name="shoud render sign-in page" time="0.761" classname="sign-in page">
+    </testcase>
+    <testcase name="shoud display the page title" time="0.524" classname="sign-in page">
+    </testcase>
+    <testcase name="shoud display the inputs" time="0.481" classname="sign-in page">
+    </testcase>
+    <testcase name="shoud display the link and buttons" time="0.560" classname="sign-in page">
+    </testcase>
+  </testsuite>
+</testsuites>
