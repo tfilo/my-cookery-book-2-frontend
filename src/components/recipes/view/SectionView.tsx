@@ -50,7 +50,13 @@ const SectionMethod: React.FC<SectionMethodProps> = React.memo(({ method }) => {
     return (
         <>
             <h3>Postup prípravy sekcie</h3>
-            <p>{method}</p>
+            <p
+                style={{
+                    whiteSpace: 'pre-wrap'
+                }}
+            >
+                {method}
+            </p>
         </>
     );
 });

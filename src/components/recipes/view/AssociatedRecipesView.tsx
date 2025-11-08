@@ -39,7 +39,13 @@ const AssociatedRecipeView: React.FC<AssociatedRecipeViewProps> = ({ recipeId, r
                             {recipe.method && (
                                 <section>
                                     <h3>Postup prípravy receptu</h3>
-                                    <p>{recipe.method}</p>
+                                    <p
+                                        style={{
+                                            whiteSpace: 'pre-wrap'
+                                        }}
+                                    >
+                                        {recipe.method}
+                                    </p>
                                 </section>
                             )}
                             <PictureView recipe={recipe} />

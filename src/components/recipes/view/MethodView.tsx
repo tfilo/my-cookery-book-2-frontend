@@ -11,7 +11,13 @@ const MethodView: React.FC<MethodViewProps> = React.memo(({ method }) => {
     return (
         <section className='pb-2'>
             <h2>Postup prípravy receptu</h2>
-            <p>{method}</p>
+            <p
+                style={{
+                    whiteSpace: 'pre-wrap'
+                }}
+            >
+                {method}
+            </p>
         </section>
     );
 });
