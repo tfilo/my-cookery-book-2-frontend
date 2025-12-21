@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useEffectEvent, useState } from 'react';
 import defImg from '../../assets/defaultRecipe.jpg';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from 'react-bootstrap';
@@ -20,10 +20,14 @@ const RecipeThumbnail: React.FC<RecipeThumbnailProps> = React.memo(({ pictureId 
         enabled: !!pictureId
     });
 
+    const onSetUrl = useEffectEvent((url: string) => {
+        setUrl(url);
+    });
+
     useEffect(() => {
         if (data && data instanceof Blob) {
             const url = URL.createObjectURL(data);
-            setUrl(url);
+            onSetUrl(url);
             return () => URL.revokeObjectURL(url);
         }
     }, [data]);
