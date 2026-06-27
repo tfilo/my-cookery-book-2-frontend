@@ -1,4 +1,4 @@
-import React, { type PropsWithChildren, useCallback, useContext, useEffect, useEffectEvent, useMemo, useState } from 'react';
+import React, { type PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { pictureApi, recipeApi } from '../utils/apiWrapper';
 import { Stack } from 'react-bootstrap';
 import defImg from '../assets/defaultRecipe.jpg';
@@ -47,18 +47,18 @@ const Bookmark: React.FC<{ recipeId: number }> = ({ recipeId }) => {
         enabled: !!pictureId
     });
 
-    const onUpdateUrl = useEffectEvent((url: string | null) => {
-        setUrl(url);
-    });
-
     useEffect(() => {
         if (!isLoadingRecipe && !isLoadingThumbnail) {
             if (!!thumbnail && thumbnail instanceof Blob) {
                 const url = URL.createObjectURL(thumbnail);
-                onUpdateUrl(url);
+                (async () => {
+                    setUrl(url);
+                })();
                 return () => URL.revokeObjectURL(url);
             } else {
-                onUpdateUrl(null);
+                (async () => {
+                    setUrl(null);
+                })();
             }
         }
     }, [thumbnail, isLoadingRecipe, isLoadingThumbnail]);

@@ -1,6 +1,6 @@
 import { faLeftLong, faRightLong, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useCallback, useEffect, useEffectEvent, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import BootstrapModal from 'react-bootstrap/Modal';
 import { Api } from '../../../openapi';
@@ -28,19 +28,18 @@ const GalleryView: React.FC<GalleryViewProps> = ({ pictureId, pictures, onClose 
         queryFn: ({ queryKey, signal }) => pictureApi.getPictureData(queryKey[1], { signal })
     });
 
-    const onPictureUpdate = useEffectEvent((url: string) => {
-        setPicture((prev) => {
-            return {
-                ...prev,
-                url
-            };
-        });
-    });
-
     useEffect(() => {
         if (data && data instanceof Blob) {
             const url = URL.createObjectURL(data);
-            onPictureUpdate(url);
+            (async () => {
+                setPicture((prev) => {
+                    return {
+                        ...prev,
+                        url
+                    };
+                });
+            })();
+
             return () => URL.revokeObjectURL(url);
         }
     }, [data]);

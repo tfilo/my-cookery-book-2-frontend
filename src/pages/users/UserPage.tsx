@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useId } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Controller, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Form, Stack } from 'react-bootstrap';
 import { Typeahead } from 'react-bootstrap-typeahead';
@@ -19,7 +19,7 @@ type Roles = { value: Api.User.RoleEnum; name: string }[];
 
 export interface UserForm extends Omit<Api.CreateUser | Api.UpdateUser, 'roles'> {
     roles: Roles;
-    confirmPassword?: string;
+    confirmPassword: string;
 }
 
 const roleOptions = [
@@ -99,7 +99,7 @@ const UserPage: React.FC = () => {
     const params = useParams();
 
     const methods = useForm<UserForm>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(schema) as Resolver<UserForm>,
         defaultValues: {
             roles: []
         }

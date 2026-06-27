@@ -129,6 +129,7 @@ const AuthContextProvider: React.FC<PropsWithChildren> = (props) => {
                     }
                 })();
             }, tokenValidity(token));
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsLoading(false);
             return () => {
                 clearInterval(interval);

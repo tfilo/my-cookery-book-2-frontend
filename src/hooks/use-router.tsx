@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { useMemo, lazy } from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { BookmarkContextProvider } from '../store/bookmark-context-provider';
