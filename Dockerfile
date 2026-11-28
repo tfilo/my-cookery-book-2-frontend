@@ -1,17 +1,9 @@
-FROM node:22-alpine AS builder
+FROM dhi.io/node:26.13.1-debian13-dev AS builder
 WORKDIR /usr/src/app
 COPY . .
-RUN npm install --location=global npm@latest \
-    && npm install \
-    && npm run build
+RUN npm install && npm run build
 
-FROM nginx/nginx-unprivileged:alpine3.24-slim
-ENV BASE_API_URL='http://localhost/api'
+FROM dhi.io/nginx:1.30.8-debian13
 COPY ./init/default.conf /etc/nginx/conf.d/default.conf
-COPY ./init/envreplace.sh /docker-entrypoint.d/envreplace.sh
 WORKDIR /usr/share/nginx/html/
 COPY --from=builder /usr/src/app/dist/ .
-USER root
-RUN chown nginx:nginx -R /usr/share/nginx/html/ && \
-    chown nginx:nginx /etc/nginx/conf.d/default.conf
-USER nginx

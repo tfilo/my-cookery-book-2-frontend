@@ -10,13 +10,10 @@ import {
     UnitCategoryApi,
     UserApi
 } from '../openapi';
-import { Environment } from './env';
-
-declare const env: Environment;
 
 const config = new Configuration({
     authorization: () => window.token ?? null,
-    basePath: env.baseApiUrl ?? '/api'
+    basePath: '/api'
 });
 
 const authApi = new AuthApi(config);

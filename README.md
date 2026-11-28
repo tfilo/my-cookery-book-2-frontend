@@ -4,9 +4,9 @@ Frontend application providing GUI build in React.js. Whole frontend is writen i
 
 ## Technologies required for development
 
--   Node.js (>=22)
--   Docker (>=24.0.2)
--   Docker compose (>=2.20.1)
+-   Node.js (>=26)
+-   Docker (>=29.10.1)
+-   Docker compose (>=5.8.1)
 
 ## Development
 

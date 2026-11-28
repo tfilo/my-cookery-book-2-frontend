@@ -27,32 +27,6 @@
             href="/manifest.json"
         />
         <title>Moja kuchárska kniha 2</title>
-
-        <script>
-            var env = (() => {
-                const toNumber = (text) => {
-                    if (isNaN(+text)) {
-                        return null;
-                    }
-                    return +text;
-                };
-                const toString = (text) => {
-                    if (text.trim().length === 0 || text.trim().startsWith('%VITE_')) {
-                        return null;
-                    }
-                    return text.trim();
-                };
-                // <% if (process.env.NODE_ENV === 'production') { %>
-                return {
-                    baseApiUrl: toString('${BASE_API_URL}'),
-                };
-                // <% } else { %>
-                return {
-                    BASE_PATH: '/api',
-                };
-                // <% } %>
-            })();
-        </script>
     </head>
 
     <body>
